@@ -13,6 +13,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
 [hidden] { display: none !important; }
+a.note-btn { text-decoration: none; }
 body { padding-top: max(20px, env(safe-area-inset-top, 0px)); }
 .userbar { display: flex; gap: 8px; align-items: center; color: var(--muted); font-size: .85rem; }
 .userbar button { border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 6px; padding: 2px 8px; font-size: .8rem; }
@@ -491,6 +492,29 @@ details.donebox ul { margin-top: 6px; }
     return box;
   }
 
+  // Google Calendar "new event" link, prefilled. With a time: a 30-minute event; without: an all-day event.
+  function calendarLink(t) {
+    const d = t.due.replace(/-/g, "");
+    let dates;
+    if (t.time) {
+      const [h, m] = t.time.split(":").map(Number);
+      const end = new Date(2000, 0, 1, h, m + 30);
+      const endDay = end.getDate() > 1 ? (() => { const x = new Date(+t.due.slice(0, 4), +t.due.slice(5, 7) - 1, +t.due.slice(8, 10) + 1); return isoDay(x).replace(/-/g, ""); })() : d;
+      dates = d + "T" + pad(h) + pad(m) + "00/" + endDay + "T" + pad(end.getHours()) + pad(end.getMinutes()) + "00";
+    } else {
+      const x = new Date(+t.due.slice(0, 4), +t.due.slice(5, 7) - 1, +t.due.slice(8, 10) + 1);
+      dates = d + "/" + isoDay(x).replace(/-/g, "");
+    }
+    const proj = (projects.find((p) => p.id === t.projectId) || {}).name || "";
+    const notes = notesOf(t).map((n) => "• " + n.text).join("\n");
+    const details = (proj ? "פרויקט: " + proj + "\n" : "") + (notes ? notes + "\n" : "") + "מלוח הפרויקטים";
+    return "https://calendar.google.com/calendar/render?action=TEMPLATE"
+      + "&text=" + encodeURIComponent(t.title)
+      + "&dates=" + dates
+      + "&ctz=Asia/Jerusalem"
+      + "&details=" + encodeURIComponent(details);
+  }
+
   function taskItem(t) {
     const li = document.createElement("li");
     const st = stateOf(t);
@@ -563,6 +587,14 @@ details.donebox ul { margin-top: 6px; }
       hb.type = "button"; hb.className = "note-btn"; hb.textContent = t.time ? "🕐 שינוי שעה" : "🕐 הוספת שעה";
       hb.addEventListener("click", () => { editingNote = { taskId: t.id, noteId: "time" }; render(); });
       meta.appendChild(hb);
+    }
+    if (t.due && !t.done) {
+      const cal = document.createElement("a");
+      cal.className = "note-btn"; cal.textContent = "📅 ליומן";
+      cal.target = "_blank"; cal.rel = "noopener";
+      cal.href = calendarLink(t);
+      cal.title = "הוספת המשימה ל-Google Calendar עם תזכורת";
+      meta.appendChild(cal);
     }
     if (canWrite && editing !== "new") {
       const nb = document.createElement("button");
@@ -888,6 +920,6 @@ details.donebox ul { margin-top: 6px; }
 })();
 </script>
 
-<script type="module" src="firebase-store.js?v=2"></script>
+<script type="module" src="firebase-store.js?v=3"></script>
 </body>
 </html>
