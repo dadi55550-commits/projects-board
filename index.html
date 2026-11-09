@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>לוח הפרויקטים</title>
+<meta name="theme-color" content="#2f6b55">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="פרויקטים">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+[hidden] { display: none !important; }
+body { padding-top: max(20px, env(safe-area-inset-top, 0px)); }
+.userbar { display: flex; gap: 8px; align-items: center; color: var(--muted); font-size: .85rem; }
+.userbar button { border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 6px; padding: 2px 8px; font-size: .8rem; }
+.gate { position: fixed; inset: 0; z-index: 30; background: var(--bg); display: flex; align-items: center; justify-content: center; padding: 24px; }
+.gate-box { max-width: 360px; text-align: center; display: flex; flex-direction: column; gap: 14px; align-items: center; }
+.gate-box h2 { font-family: var(--font-display); margin: 0; font-size: 1.5rem; }
+.gate-box p { margin: 0; color: var(--muted); }
+.gbtn { display: inline-flex; gap: 10px; align-items: center; background: var(--surface); color: var(--fg); border: 1px solid var(--line); border-radius: 999px; padding: 12px 22px; font-weight: 700; font-size: 1rem; }
+.importbox { background: var(--surface); border: 1px dashed var(--accent); border-radius: 10px; padding: 12px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.importbox label { cursor: pointer; }
+.importbox input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+</style>
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700&family=Assistant:wght@400;600;700&display=swap">
+<style>
+/* Layout: summary strip on top, quick-add bar, then three project lanes side by side (stacked on phones). RTL. */
+:root {
+  --bg: #f3f4f1;
+  --surface: #ffffff;
+  --fg: #1d2420;
+  --muted: #66706a;
+  --line: #dcdfd9;
+  --accent: #2f6b55;
+  --accent-fg: #ffffff;
+  --late: #b3261e;
+  --late-bg: #fbe9e7;
+  --today: #9a5b00;
+  --today-bg: #fdf1dc;
+  --p1: #2e8b57;
+  --p2: #2f6fd0;
+  --p3: #8e44ad;
+  --p4: #e07b00;
+  --p5: #b38f00;
+  --p6: #7a5230;
+  --p7: #2b2b2b;
+  --p8: #9aa0a6;
+  --font-display: "Rubik", "Assistant", system-ui, sans-serif;
+  --font-body: "Assistant", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141816; --surface: #1d2320; --fg: #e6ebe7; --muted: #9aa49e; --line: #2f3833;
+    --accent: #6fbf9e; --accent-fg: #0f1512;
+    --late: #ff8a80; --late-bg: #3a1d1b; --today: #f2b65c; --today-bg: #36290f;
+    --p1: #5fd08f; --p2: #6ea8ff; --p3: #c38be0; --p4: #ffa940; --p5: #f2d04b; --p6: #c99a6e; --p7: #bdbdbd; --p8: #f2f2f2;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141816; --surface: #1d2320; --fg: #e6ebe7; --muted: #9aa49e; --line: #2f3833;
+  --accent: #6fbf9e; --accent-fg: #0f1512;
+  --late: #ff8a80; --late-bg: #3a1d1b; --today: #f2b65c; --today-bg: #36290f;
+  --p1: #5fd08f; --p2: #6ea8ff; --p3: #c38be0; --p4: #ffa940; --p5: #f2d04b; --p6: #c99a6e; --p7: #bdbdbd; --p8: #f2f2f2;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 16px; line-height: 1.45;
+  direction: rtl;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 40px;
+}
+.wrap { max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.6rem; margin: 0; text-wrap: balance; }
+.date { color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; display: flex; align-items: baseline; gap: 10px; }
+.stat b { font-family: var(--font-display); font-size: 1.7rem; font-variant-numeric: tabular-nums; }
+.stat span { color: var(--muted); }
+.stat.late b { color: var(--late); }
+.stat.today b { color: var(--today); }
+
+form.add { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.dp { position: relative; }
+.dp-btn { font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); color: var(--fg); white-space: nowrap; }
+.dp-btn.set { border-color: var(--accent); font-weight: 600; }
+.dp-pop { position: absolute; top: calc(100% + 6px); right: 0; z-index: 15; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 8px 24px color-mix(in srgb, #000 18%, transparent); padding: 10px; width: 280px; max-width: calc(100vw - 32px); }
+.dp-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; font-family: var(--font-display); font-weight: 700; }
+.dp-nav { border: 1px solid var(--line); background: transparent; color: var(--fg); border-radius: 6px; width: 32px; height: 32px; font-size: 1.1rem; }
+.dp-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
+.dp-dow { font-size: .78rem; color: var(--muted); padding: 4px 0; font-weight: 700; }
+.dp-day { border: 0; background: transparent; color: var(--fg); border-radius: 6px; padding: 7px 0; font-variant-numeric: tabular-nums; }
+.dp-day:hover { background: var(--bg); }
+.dp-day.today { outline: 1px solid var(--accent); }
+.dp-day.sel { background: var(--accent); color: var(--accent-fg); font-weight: 700; }
+.dp-day.past { color: var(--muted); }
+.dp-day.weekend { color: var(--muted); }
+.dp-quick { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.dp-quick button { border: 1px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 999px; padding: 3px 10px; font-size: .85rem; }
+form.add input, form.add select { font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); color: var(--fg); }
+#f-title { flex: 1 1 240px; min-width: 0; }
+.time-in { width: 7.2em; }
+.t-time { font-weight: 700; color: var(--accent); }
+.time-edit { font: inherit; padding: 2px 6px; border: 1px solid var(--accent); border-radius: 6px; background: var(--bg); color: var(--fg); }
+.prio { display: inline-flex; gap: 6px; align-items: center; color: var(--muted); user-select: none; }
+button { font: inherit; cursor: pointer; }
+.btn { background: var(--accent); color: var(--accent-fg); border: 0; border-radius: 7px; padding: 8px 18px; font-weight: 700; }
+.btn:disabled { opacity: .5; cursor: default; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
+@media (max-width: 560px) { .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.tile { text-align: right; background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--pc); border-radius: 8px; padding: 7px 9px; display: flex; flex-direction: column; gap: 3px; min-width: 0; color: var(--fg); }
+.tile:hover { border-color: var(--pc); }
+.tile[aria-pressed="true"] { border: 2px solid var(--pc); border-top-width: 5px; box-shadow: 0 2px 10px color-mix(in srgb, var(--pc) 25%, transparent); }
+.tile-name { font-family: var(--font-display); font-weight: 700; font-size: .9rem; color: var(--pc); overflow-wrap: anywhere; line-height: 1.25; }
+.tile-open { font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+.tile-open small { font-family: var(--font-body); font-size: .75rem; font-weight: 600; color: var(--muted); }
+.tile.add-tile { --pc: var(--muted); border-style: dashed; border-top-width: 1px; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; color: var(--muted); min-height: 52px; font-size: .85rem; }
+.proj-del:hover, .proj-del[data-armed] { color: var(--late); border-color: var(--late); }
+.tile.add-tile:hover { color: var(--accent); border-color: var(--accent); }
+.tile-flags { display: flex; flex-wrap: wrap; gap: 3px; }
+.tile-flags:empty { display: none; }
+.tile .chip { font-size: .68rem; padding: 0 5px; }
+.lanes { display: flex; flex-direction: column; gap: 12px; }
+.lane { scroll-margin-top: 12px; }
+ul.tasks.open { counter-reset: n; }
+ul.tasks.open > li { counter-increment: n; }
+ul.tasks.open .t-title::before { content: counter(n) ". "; font-weight: 700; color: var(--pc); font-variant-numeric: tabular-nums; }
+.edit-name { border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 6px; padding: 2px 8px; font-size: .82rem; }
+.lane { background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--pc); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.lane-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.lane-name { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; color: var(--pc); border: 0; background: transparent; padding: 2px 0; min-width: 0; flex: 1; text-align: right; }
+.lane-name:hover { text-decoration: underline dotted; }
+.lane-name-input { font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; flex: 1; min-width: 0; padding: 2px 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--fg); }
+.count { color: var(--muted); font-size: .9rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+ul.tasks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+li.task { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: start; padding: 8px; border-radius: 8px; border: 1px solid var(--line); }
+li.task.late { background: var(--late-bg); border-color: transparent; }
+li.task.today { background: var(--today-bg); border-color: transparent; }
+li.task.done .t-title { text-decoration: line-through; color: var(--muted); }
+li.task input[type=checkbox] { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--accent); }
+.t-body { min-width: 0; overflow-wrap: anywhere; }
+.t-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; font-size: .85rem; color: var(--muted); }
+.chip { font-size: .78rem; font-weight: 700; padding: 1px 7px; border-radius: 999px; border: 1px solid currentColor; }
+.chip.late { color: var(--late); }
+.chip.today { color: var(--today); }
+.chip.high { color: var(--late); }
+.t-notes { margin-top: 0; font-size: .9rem; color: var(--fg); white-space: pre-wrap; background: var(--bg); border-inline-start: 3px solid var(--pc); border-radius: 4px; padding: 4px 8px; }
+li.task.done .t-notes { color: var(--muted); }
+.note-btn { border: 0; background: transparent; color: var(--accent); font-size: .85rem; font-weight: 600; padding: 0 2px; }
+.note-edit { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+.note-edit textarea { font: inherit; font-size: .92rem; padding: 6px 8px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); color: var(--fg); min-height: 70px; resize: vertical; width: 100%; }
+.note-actions { display: flex; gap: 6px; }
+.note-actions .btn { padding: 5px 14px; }
+.t-title.editable { cursor: text; }
+.t-title.editing::before { content: none !important; }
+.title-input { font: inherit; font-weight: 600; width: 100%; padding: 4px 8px; border: 1px solid var(--accent); border-radius: 6px; background: var(--bg); color: var(--fg); }
+.notes-list { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.note-foot { display: flex; gap: 8px; align-items: center; margin-top: 2px; font-size: .75rem; color: var(--muted); }
+.note-foot .note-btn { font-size: .75rem; font-weight: 600; }
+.note-del { color: var(--muted); }
+.note-del[data-armed], .note-del:hover { color: var(--late); }
+.del { border: 0; background: transparent; color: var(--muted); font-size: 1.1rem; line-height: 1; padding: 2px 4px; border-radius: 4px; }
+.del:hover { color: var(--late); }
+.empty { color: var(--muted); font-size: .92rem; padding: 6px 2px; }
+.atts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; align-items: center; }
+.att { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); max-width: 100%; min-width: 0; }
+.att-open { display: inline-flex; align-items: center; gap: 6px; border: 0; background: transparent; color: var(--fg); padding: 4px 8px; min-width: 0; text-align: right; }
+.att-open b { font-size: .72rem; color: var(--accent); }
+.att-open small { color: var(--muted); font-size: .75rem; white-space: nowrap; }
+.att-name { font-size: .85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 14ch; }
+.att-open.thumb { padding: 3px; }
+.att-open.thumb img { width: 52px; height: 52px; object-fit: cover; border-radius: 5px; display: block; }
+.att-rm { border: 0; background: transparent; color: var(--muted); padding: 2px 6px; font-size: .85rem; }
+.att-rm:hover { color: var(--late); }
+.att-add { font-size: .85rem; color: var(--accent); cursor: pointer; padding: 4px 2px; font-weight: 600; }
+.att-add input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.att-add:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.att-add.busy { opacity: .5; pointer-events: none; }
+.viewer { position: fixed; inset: 0; z-index: 20; background: color-mix(in srgb, #000 70%, transparent); display: flex; align-items: center; justify-content: center; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.viewer-box { background: var(--surface); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 8px; max-width: 100%; max-height: 100%; }
+.viewer-bar { display: flex; justify-content: space-between; gap: 10px; align-items: center; overflow-wrap: anywhere; }
+.viewer-box img { max-width: 100%; max-height: 75vh; object-fit: contain; }
+details.donebox summary { cursor: pointer; color: var(--muted); font-size: .9rem; padding: 4px 0; }
+details.donebox ul { margin-top: 6px; }
+.note { color: var(--muted); font-size: .88rem; }
+.err { color: var(--late); font-weight: 600; }
+
+@media (max-width: 480px) {
+  .tiles { gap: 5px; }
+  .tile { padding: 6px 7px; }
+  .tile-name { font-size: .8rem; }
+  .tile-open { font-size: 1rem; }
+  .summary { grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+  .stat { flex-direction: column; gap: 0; padding: 8px 10px; }
+  .stat b { font-size: 1.4rem; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="gate" id="gate">
+  <div class="gate-box">
+    <h2>לוח הפרויקטים</h2>
+    <p id="gate-msg">טוען…</p>
+    <button type="button" class="gbtn" id="signin" hidden><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>כניסה עם Google</button>
+  </div>
+</div>
+<div class="wrap">
+  <header>
+    <h1>לוח הפרויקטים</h1>
+    <span class="date" id="today-label"></span>
+    <span class="userbar"><span id="who"></span><button type="button" id="signout">יציאה</button></span>
+  </header>
+  <div class="importbox" id="importbox" hidden>
+    <span>הלוח ריק. רוצה להעביר את הפרויקטים והמשימות מהלוח הישן?</span>
+    <label class="btn"><input type="file" id="import-file" accept=".json,application/json">בחירת קובץ הנתונים</label>
+  </div>
+
+  <nav class="tiles" id="tiles" aria-label="פרויקטים"></nav>
+
+  <form class="add" id="add-form" autocomplete="off">
+    <select id="f-project" aria-label="פרויקט"></select>
+    <input id="f-title" type="text" placeholder="משימה חדשה, למשל: לשלוח הצעת מחיר ללקוח" aria-label="משימה" required>
+    <input id="f-due" type="hidden">
+    <div class="dp">
+      <button type="button" id="dp-btn" class="dp-btn" aria-haspopup="dialog" aria-expanded="false">📅 <span id="dp-label">תאריך יעד</span></button>
+      <div id="dp-pop" class="dp-pop" hidden role="dialog" aria-label="בחירת תאריך יעד">
+        <div class="dp-head">
+          <button type="button" class="dp-nav" id="dp-prev" aria-label="החודש הקודם">›</button>
+          <span id="dp-title"></span>
+          <button type="button" class="dp-nav" id="dp-next" aria-label="החודש הבא">‹</button>
+        </div>
+        <div class="dp-grid" id="dp-grid"></div>
+        <div class="dp-quick">
+          <button type="button" data-q="0">היום</button>
+          <button type="button" data-q="1">מחר</button>
+          <button type="button" data-q="7">בעוד שבוע</button>
+          <button type="button" data-q="clear">בלי תאריך</button>
+        </div>
+      </div>
+    </div>
+    <input id="f-time" class="time-in" type="time" aria-label="שעה לתזכורת" title="שעה – תקבל תזכורת בוואטסאפ ובמייל">
+    <label class="prio"><input id="f-high" type="checkbox"> דחוף</label>
+    <button class="btn" id="f-submit" type="submit">הוספה</button>
+  </form>
+  <div id="status" class="note" role="status">טוען את המשימות…</div>
+
+  <section class="summary" aria-label="סיכום">
+    <div class="stat late"><b id="n-late">0</b><span>באיחור</span></div>
+    <div class="stat today"><b id="n-today">0</b><span>להיום</span></div>
+    <div class="stat"><b id="n-week">0</b><span>ב-7 הימים הקרובים</span></div>
+  </section>
+  <section class="lanes" id="lanes"></section>
+
+  <div class="viewer" id="viewer" hidden role="dialog" aria-label="תצוגת תמונה">
+    <div class="viewer-box">
+      <div class="viewer-bar"><span id="viewer-name"></span><button type="button" class="edit-name" id="viewer-close">סגירה</button></div>
+      <img id="viewer-img" alt="">
+    </div>
+  </div>
+
+  <p class="note">לחיצה על קובייה מציגה את המשימות של הפרויקט. ליד כל משימה אפשר להוסיף כמה הערות שרוצים.</p>
+</div>
+
+<script>
+(function () {
+  const DEFAULT_PROJECTS = [
+    { id: "p1", name: "פרויקט א", order: 1 },
+    { id: "p2", name: "פרויקט ב", order: 2 },
+    { id: "p3", name: "פרויקט ג", order: 3 },
+    { id: "p4", name: "מכרזים גדולים", order: 4 },
+  ];
+  let projects = DEFAULT_PROJECTS.slice();
+  let tasks = [];
+  let db = null;
+  let assets = null;
+  let downloads = null;
+  let canWrite = true;
+  let editingProject = null;
+  let editingNote = null;
+  let selected = "p1";
+  try { selected = localStorage.getItem("selectedProject") || "p1"; } catch (_) {}
+
+  const $ = (id) => document.getElementById(id);
+  const pad = (n) => String(n).padStart(2, "0");
+  const isoDay = (d) => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const todayIso = isoDay(today);
+  const weekEnd = new Date(today); weekEnd.setDate(weekEnd.getDate() + 7);
+  const weekIso = isoDay(weekEnd);
+  const dayNames = ["א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"];
+
+  $("today-label").textContent = "יום " + dayNames[today.getDay()] + ", " + today.getDate() + "." + (today.getMonth() + 1) + "." + today.getFullYear();
+
+  function fmtDue(iso) {
+    if (!iso) return "";
+    const [y, m, d] = iso.split("-").map(Number);
+    const dt = new Date(y, m - 1, d);
+    const diff = Math.round((dt - today) / 86400000);
+    if (diff === 0) return "היום";
+    if (diff === 1) return "מחר";
+    if (diff === -1) return "אתמול";
+    if (diff < 0) return "לפני " + (-diff) + " ימים (" + d + "." + m + ")";
+    if (diff < 7) return "יום " + dayNames[dt.getDay()] + " " + d + "." + m;
+    return d + "." + m + "." + String(y).slice(2);
+  }
+  function stateOf(t) {
+    if (t.done || !t.due) return "";
+    if (t.due < todayIso) return "late";
+    if (t.due === todayIso) return "today";
+    return "";
+  }
+  function sortOpen(a, b) {
+    const ad = a.due || "9999", bd = b.due || "9999";
+    if (ad !== bd) return ad < bd ? -1 : 1;
+    const at = a.time || "99", bt = b.time || "99";
+    if (at !== bt) return at < bt ? -1 : 1;
+    if ((a.priority === "high") !== (b.priority === "high")) return a.priority === "high" ? -1 : 1;
+    return (a.created || "").localeCompare(b.created || "");
+  }
+  function projColor(i) { return "var(--p" + ((i % 8) + 1) + ")"; }
+
+  function renderProjectSelect() {
+    const sel = $("f-project");
+    const prev = sel.value;
+    sel.textContent = "";
+    projects.forEach((p) => {
+      const o = document.createElement("option");
+      o.value = p.id; o.textContent = p.name;
+      sel.appendChild(o);
+    });
+    if (prev && projects.some((p) => p.id === prev)) sel.value = prev;
+  }
+
+  // Images, PDFs and plain text are stored as-is; Office files are stored as base64 text
+  // because the asset store accepts only web media types.
+  const NATIVE = { png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", gif: "image/gif", webp: "image/webp", pdf: "application/pdf", csv: "text/csv", txt: "text/plain" };
+  const WRAPPED = { docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation" };
+  const extOf = (n) => (n.split(".").pop() || "").toLowerCase();
+  function kindLabel(name) {
+    const e = extOf(name);
+    if (e === "pdf") return "PDF";
+    if (e === "xlsx" || e === "csv") return "Excel";
+    if (e === "docx") return "Word";
+    if (e === "pptx") return "PowerPoint";
+    return e.toUpperCase();
+  }
+  function fmtSize(b) { return b > 1048576 ? (b / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(b / 1024)) + " KB"; }
+  function toBase64(buf) {
+    const bytes = new Uint8Array(buf); let s = "";
+    for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    return btoa(s);
+  }
+  function fromBase64(str) {
+    const bin = atob(str.trim()); const out = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+
+  async function uploadFiles(t, files, lbl) {
+    const added = [];
+    lbl.classList.add("busy");
+    for (const f of files) {
+      const e = extOf(f.name);
+      if (e === "doc" || e === "xls" || e === "ppt") { setStatus("הקובץ " + f.name + " בפורמט ישן. שמור אותו כ-" + e + "x ונסה שוב.", true); continue; }
+      if (!NATIVE[e] && !WRAPPED[e]) { setStatus("אי אפשר לצרף " + f.name + ". אפשר לצרף תמונות, PDF, Word, Excel ו-PowerPoint.", true); continue; }
+      setStatus("מעלה את " + f.name + "…");
+      try {
+        let res, kind;
+        if (NATIVE[e]) { res = await assets.upload(f, { type: NATIVE[e] }); kind = "native"; }
+        else {
+          const b64 = toBase64(await f.arrayBuffer());
+          res = await assets.upload(new Blob([b64], { type: "text/plain" }), { type: "text/plain" }); kind = "b64";
+        }
+        added.push({ id: res.id, name: f.name, kind, mime: NATIVE[e] || WRAPPED[e], size: f.size, added: new Date().toISOString() });
+      } catch (err) {
+        const c = err && err.code;
+        setStatus(c === "too_large" ? "הקובץ " + f.name + " גדול מדי (עד 15MB לקבצי Office ו-20MB לאחרים)." : c === "quota_or_state" ? "נגמר המקום לקבצים בלוח." : "ההעלאה של " + f.name + " נכשלה. נסה שוב.", true);
+      }
+    }
+    lbl.classList.remove("busy");
+    if (!added.length) return;
+    const cur = tasks.find((x) => x.id === t.id) || t;
+    const list = (Array.isArray(cur.attachments) ? cur.attachments : []).concat(added);
+    await write(() => db.doc("tasks/" + t.id).update({ attachments: list }));
+  }
+
+  async function openAttachment(a) {
+    if (a.kind === "native" && a.mime.startsWith("image/")) { showImage("/_blob/" + a.id, a.name); return; }
+    if (!downloads) { setStatus("אי אפשר לפתוח קבצים בתצוגה הזו.", true); return; }
+    try {
+      setStatus("מכין את " + a.name + "…");
+      const r = await fetch("/_blob/" + a.id);
+      if (!r.ok) throw { code: "missing" };
+      const data = a.kind === "b64" ? fromBase64(await r.text()) : await r.blob();
+      await downloads.save({ filename: a.name, data });
+      setStatus("");
+    } catch (err) {
+      const c = err && err.code;
+      setStatus(c === "declined" ? "" : c === "missing" ? "הקובץ לא נמצא." : c === "rejected_extension" ? "אי אפשר להוריד קובץ מהסוג הזה." : "הפתיחה נכשלה. נסה שוב.", c !== "declined");
+    }
+  }
+
+  function showImage(src, name) {
+    const ov = $("viewer");
+    $("viewer-img").src = src; $("viewer-img").alt = name;
+    $("viewer-name").textContent = name;
+    ov.hidden = false;
+    $("viewer-close").focus();
+  }
+
+  function attachmentChip(t, a) {
+    const wrap = document.createElement("span");
+    wrap.className = "att";
+    const open = document.createElement("button");
+    open.type = "button"; open.className = "att-open"; open.title = "פתיחה: " + a.name;
+    if (a.kind === "native" && a.mime.startsWith("image/")) {
+      const img = document.createElement("img");
+      img.src = "/_blob/" + a.id; img.alt = a.name; img.loading = "lazy";
+      img.addEventListener("error", () => { img.replaceWith(document.createTextNode("תמונה חסרה")); });
+      open.classList.add("thumb");
+      open.appendChild(img);
+    } else {
+      const k = document.createElement("b"); k.textContent = kindLabel(a.name);
+      const n = document.createElement("span"); n.className = "att-name"; n.textContent = a.name;
+      const s = document.createElement("small"); s.textContent = fmtSize(a.size || 0);
+      open.append(k, n, s);
+    }
+    open.addEventListener("click", () => openAttachment(a));
+    wrap.appendChild(open);
+    if (assets && canWrite) {
+      const rm = document.createElement("button");
+      rm.type = "button"; rm.className = "att-rm"; rm.textContent = "×";
+      rm.setAttribute("aria-label", "הסרת " + a.name);
+      rm.addEventListener("click", async () => {
+        if (!rm.dataset.armed) { rm.dataset.armed = "1"; rm.textContent = "להסיר?"; setTimeout(() => { delete rm.dataset.armed; rm.textContent = "×"; }, 3000); return; }
+        const cur = tasks.find((x) => x.id === t.id) || t;
+        const list = (cur.attachments || []).filter((x) => x.id !== a.id);
+        await write(() => db.doc("tasks/" + t.id).update({ attachments: list }));
+        try { await assets.delete(a.id); } catch (_) {}
+      });
+      wrap.appendChild(rm);
+    }
+    return wrap;
+  }
+
+  function notesOf(t) {
+    if (Array.isArray(t.noteList)) return t.noteList;
+    return t.notes ? [{ id: "legacy", text: t.notes, at: t.created || "" }] : [];
+  }
+  function saveNotes(t, list) {
+    t.noteList = list; t.notes = "";
+    write(() => db.doc("tasks/" + t.id).update({ noteList: list, notes: "" }));
+    render();
+  }
+  function noteEditor(t, n) {
+    const box = document.createElement("div"); box.className = "note-edit";
+    const ta = document.createElement("textarea");
+    ta.value = n ? n.text : ""; ta.placeholder = "הערה למשימה…";
+    ta.setAttribute("aria-label", "הערה למשימה " + t.title);
+    const acts = document.createElement("div"); acts.className = "note-actions";
+    const save = document.createElement("button"); save.type = "button"; save.className = "btn"; save.textContent = "שמירה";
+    const cancel = document.createElement("button"); cancel.type = "button"; cancel.className = "edit-name"; cancel.textContent = "ביטול";
+    const finish = (doSave) => {
+      const v = ta.value.trim();
+      editingNote = null;
+      if (doSave && v) {
+        const list = notesOf(t).slice();
+        if (n) { const i = list.findIndex((x) => x.id === n.id); if (i >= 0 && list[i].text !== v) { list[i] = Object.assign({}, list[i], { text: v }); saveNotes(t, list); return; } }
+        else { list.push({ id: "n" + Date.now(), text: v, at: new Date().toISOString() }); saveNotes(t, list); return; }
+      }
+      render();
+    };
+    save.addEventListener("click", () => finish(true));
+    cancel.addEventListener("click", () => finish(false));
+    ta.addEventListener("keydown", (e) => { if (e.key === "Escape") finish(false); if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) finish(true); });
+    acts.append(save, cancel);
+    box.append(ta, acts);
+    setTimeout(() => { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }, 0);
+    return box;
+  }
+
+  function taskItem(t) {
+    const li = document.createElement("li");
+    const st = stateOf(t);
+    li.className = "task" + (st ? " " + st : "") + (t.done ? " done" : "");
+    const cb = document.createElement("input");
+    cb.type = "checkbox"; cb.checked = !!t.done; cb.disabled = !canWrite;
+    cb.setAttribute("aria-label", "סימון כבוצע: " + t.title);
+    cb.addEventListener("change", () => write(() => db.doc("tasks/" + t.id).update({ done: cb.checked, doneAt: cb.checked ? new Date().toISOString() : null })));
+    const body = document.createElement("div");
+    body.className = "t-body";
+    const title = document.createElement("div");
+    title.className = "t-title"; title.textContent = t.title;
+    const meta = document.createElement("div");
+    meta.className = "t-meta";
+    if (st) { const c = document.createElement("span"); c.className = "chip " + st; c.textContent = st === "late" ? "באיחור" : "היום"; meta.appendChild(c); }
+    if (t.priority === "high" && !t.done) { const c = document.createElement("span"); c.className = "chip high"; c.textContent = "דחוף"; meta.appendChild(c); }
+    if (t.due && st !== "today") { const s = document.createElement("span"); s.textContent = fmtDue(t.due); meta.appendChild(s); }
+    if (!t.due) { const s = document.createElement("span"); s.textContent = "בלי תאריך"; meta.appendChild(s); }
+    const editingTime = editingNote && editingNote.taskId === t.id && editingNote.noteId === "time";
+    if (editingTime) {
+      const ti = document.createElement("input");
+      ti.type = "time"; ti.className = "time-edit"; ti.value = t.time || "";
+      ti.setAttribute("aria-label", "שעה לתזכורת");
+      let closedT = false;
+      const finishTime = (save) => {
+        if (closedT) return; closedT = true;
+        editingNote = null;
+        const v = ti.value || "";
+        if (save && v !== (t.time || "")) { t.time = v; write(() => db.doc("tasks/" + t.id).update({ time: v, notified: null })); }
+        render();
+      };
+      ti.addEventListener("keydown", (e) => { if (e.key === "Enter") finishTime(true); if (e.key === "Escape") finishTime(false); });
+      ti.addEventListener("blur", () => finishTime(true));
+      const clr = document.createElement("button"); clr.type = "button"; clr.className = "note-btn"; clr.textContent = "בלי שעה";
+      clr.addEventListener("mousedown", (e) => { e.preventDefault(); ti.value = ""; finishTime(true); });
+      meta.append(ti, clr);
+      setTimeout(() => ti.focus(), 0);
+    } else if (t.time) {
+      const s = document.createElement("span"); s.className = "t-time"; s.textContent = "🕐 " + t.time; meta.appendChild(s);
+    }
+    if (t.created) { const cd = new Date(t.created); if (!isNaN(cd)) { const s = document.createElement("span"); s.className = "created"; s.textContent = "· נוצרה " + cd.getDate() + "." + (cd.getMonth() + 1) + "." + String(cd.getFullYear()).slice(2); s.title = "נוצרה ב-" + cd.getDate() + "." + (cd.getMonth() + 1) + "." + cd.getFullYear() + " " + pad(cd.getHours()) + ":" + pad(cd.getMinutes()); meta.appendChild(s); } }
+    const notes = notesOf(t);
+    const editing = editingNote && editingNote.taskId === t.id ? editingNote.noteId : null;
+    if (editing === "title") {
+      const inp = document.createElement("input");
+      inp.className = "title-input"; inp.value = t.title;
+      inp.setAttribute("aria-label", "שם המשימה");
+      let closed = false;
+      const finishTitle = (save) => {
+        if (closed) return; closed = true;
+        const v = inp.value.trim();
+        editingNote = null;
+        if (save && v && v !== t.title) { t.title = v; write(() => db.doc("tasks/" + t.id).update({ title: v })); }
+        render();
+      };
+      inp.addEventListener("keydown", (e) => { if (e.key === "Enter") finishTitle(true); if (e.key === "Escape") finishTitle(false); });
+      inp.addEventListener("blur", () => finishTitle(true));
+      title.textContent = ""; title.classList.add("editing"); title.appendChild(inp);
+      setTimeout(() => { inp.focus(); inp.select(); }, 0);
+    } else if (canWrite) {
+      title.classList.add("editable"); title.title = "לחיצה לעריכת השם";
+      title.addEventListener("click", () => { editingNote = { taskId: t.id, noteId: "title" }; render(); });
+      const tb = document.createElement("button");
+      tb.type = "button"; tb.className = "note-btn"; tb.textContent = "✏️ שינוי שם";
+      tb.addEventListener("click", () => { editingNote = { taskId: t.id, noteId: "title" }; render(); });
+      meta.appendChild(tb);
+    }
+    if (canWrite && !t.done && !editingTime) {
+      const hb = document.createElement("button");
+      hb.type = "button"; hb.className = "note-btn"; hb.textContent = t.time ? "🕐 שינוי שעה" : "🕐 הוספת שעה";
+      hb.addEventListener("click", () => { editingNote = { taskId: t.id, noteId: "time" }; render(); });
+      meta.appendChild(hb);
+    }
+    if (canWrite && editing !== "new") {
+      const nb = document.createElement("button");
+      nb.type = "button"; nb.className = "note-btn";
+      nb.textContent = "📝 הוספת הערה";
+      nb.addEventListener("click", () => { editingNote = { taskId: t.id, noteId: "new" }; render(); });
+      meta.appendChild(nb);
+    }
+    body.append(title, meta);
+    if (notes.length) {
+      const ul = document.createElement("ul"); ul.className = "notes-list";
+      notes.forEach((n) => {
+        const li2 = document.createElement("li");
+        if (editing === n.id) { li2.appendChild(noteEditor(t, n)); ul.appendChild(li2); return; }
+        li2.className = "t-notes";
+        const txt = document.createElement("div"); txt.textContent = n.text;
+        li2.appendChild(txt);
+        const foot = document.createElement("div"); foot.className = "note-foot";
+        if (n.at) { const d = new Date(n.at); const sp = document.createElement("span"); sp.textContent = d.getDate() + "." + (d.getMonth() + 1) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes()); foot.appendChild(sp); }
+        if (canWrite) {
+          const eb = document.createElement("button"); eb.type = "button"; eb.className = "note-btn"; eb.textContent = "עריכה";
+          eb.addEventListener("click", () => { editingNote = { taskId: t.id, noteId: n.id }; render(); });
+          const db2 = document.createElement("button"); db2.type = "button"; db2.className = "note-btn note-del"; db2.textContent = "מחיקה";
+          db2.addEventListener("click", () => {
+            if (!db2.dataset.armed) { db2.dataset.armed = "1"; db2.textContent = "למחוק?"; setTimeout(() => { delete db2.dataset.armed; db2.textContent = "מחיקה"; }, 3000); return; }
+            saveNotes(t, notesOf(t).filter((x) => x.id !== n.id));
+          });
+          foot.append(eb, db2);
+        }
+        li2.appendChild(foot);
+        ul.appendChild(li2);
+      });
+      body.appendChild(ul);
+    }
+    if (editing === "new") body.appendChild(noteEditor(t, null));
+    const atts = Array.isArray(t.attachments) ? t.attachments : [];
+    if (atts.length || (assets && canWrite)) {
+      const box = document.createElement("div");
+      box.className = "atts";
+      atts.forEach((a) => box.appendChild(attachmentChip(t, a)));
+      if (assets && canWrite) {
+        const lbl = document.createElement("label");
+        lbl.className = "att-add";
+        const inp = document.createElement("input");
+        inp.type = "file"; inp.multiple = true; inp.id = "file-" + t.id;
+        inp.accept = "image/*,.pdf,.docx,.xlsx,.pptx,.csv,.txt";
+        inp.addEventListener("change", () => { const fs = Array.from(inp.files || []); inp.value = ""; if (fs.length) uploadFiles(t, fs, lbl); });
+        lbl.append(inp, document.createTextNode("📎 צירוף קובץ או תמונה"));
+        box.appendChild(lbl);
+      }
+      body.appendChild(box);
+    }
+    const del = document.createElement("button");
+    del.className = "del"; del.type = "button"; del.textContent = "×"; del.title = "מחיקה";
+    del.setAttribute("aria-label", "מחיקת המשימה " + t.title);
+    del.hidden = !canWrite;
+    del.addEventListener("click", () => {
+      if (del.dataset.armed) { write(() => db.doc("tasks/" + t.id).delete()); return; }
+      del.dataset.armed = "1"; del.textContent = "למחוק?"; del.style.fontSize = ".8rem";
+      setTimeout(() => { delete del.dataset.armed; del.textContent = "×"; del.style.fontSize = ""; }, 3000);
+    });
+    li.append(cb, body, del);
+    return li;
+  }
+
+  function render() {
+    const open = tasks.filter((t) => !t.done);
+    $("n-late").textContent = open.filter((t) => t.due && t.due < todayIso).length;
+    $("n-today").textContent = open.filter((t) => t.due === todayIso).length;
+    $("n-week").textContent = open.filter((t) => t.due && t.due > todayIso && t.due <= weekIso).length;
+
+    if (!projects.some((p) => p.id === selected)) selected = projects[0].id;
+    const tiles = $("tiles");
+    tiles.textContent = "";
+    projects.forEach((p, i) => {
+      const pOpen = open.filter((t) => t.projectId === p.id);
+      const nLate = pOpen.filter((t) => t.due && t.due < todayIso).length;
+      const nToday = pOpen.filter((t) => t.due === todayIso).length;
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "tile"; b.id = "tile-" + p.id;
+      b.style.setProperty("--pc", projColor(i));
+      b.setAttribute("aria-pressed", p.id === selected ? "true" : "false");
+      const nm = document.createElement("span"); nm.className = "tile-name"; nm.textContent = p.name;
+      const cnt = document.createElement("span"); cnt.className = "tile-open";
+      cnt.append(String(pOpen.length) + " ");
+      const sm = document.createElement("small"); sm.textContent = "פתוחות"; cnt.appendChild(sm);
+      const flags = document.createElement("span"); flags.className = "tile-flags";
+      if (nLate) { const c = document.createElement("span"); c.className = "chip late"; c.textContent = nLate + " באיחור"; flags.appendChild(c); }
+      if (nToday) { const c = document.createElement("span"); c.className = "chip today"; c.textContent = nToday + " להיום"; flags.appendChild(c); }
+      b.append(nm, cnt, flags);
+      b.addEventListener("click", () => {
+        selected = p.id; editingProject = null; editingNote = null;
+        try { localStorage.setItem("selectedProject", selected); } catch (_) {}
+        $("f-project").value = selected;
+        render();
+      });
+      tiles.appendChild(b);
+    });
+    if (canWrite && db) {
+      const add = document.createElement("button");
+      add.type = "button"; add.className = "tile add-tile";
+      add.textContent = "+ פרויקט חדש";
+      add.addEventListener("click", () => {
+        const id = "p" + Date.now();
+        const order = projects.reduce((m, p) => Math.max(m, p.order || 0), 0) + 1;
+        const np = { id: id, name: "פרויקט חדש", order: order };
+        projects.push(np);
+        selected = id; editingProject = id;
+        try { localStorage.setItem("selectedProject", selected); } catch (_) {}
+        write(() => db.doc("projects/" + id).set({ name: np.name, order: order }));
+        renderProjectSelect();
+        $("f-project").value = id;
+        render();
+      });
+      tiles.appendChild(add);
+    }
+
+    const lanes = $("lanes");
+    lanes.textContent = "";
+    projects.forEach((p, i) => {
+      if (p.id !== selected) return;
+      const lane = document.createElement("article");
+      lane.className = "lane"; lane.id = "lane-" + p.id;
+      lane.style.setProperty("--pc", projColor(i));
+      const head = document.createElement("div");
+      head.className = "lane-head";
+      if (editingProject === p.id) {
+        const inp = document.createElement("input");
+        inp.className = "lane-name-input"; inp.id = "name-" + p.id; inp.value = p.name;
+        const finish = (save) => {
+          editingProject = null;
+          const v = inp.value.trim();
+          if (save && v && v !== p.name) write(() => db.doc("projects/" + p.id).set({ name: v, order: p.order }));
+          render();
+        };
+        inp.addEventListener("keydown", (e) => { if (e.key === "Enter") finish(true); if (e.key === "Escape") finish(false); });
+        inp.addEventListener("blur", () => finish(true));
+        head.appendChild(inp);
+        setTimeout(() => { inp.focus(); inp.select(); }, 0);
+      } else {
+        const nameBtn = document.createElement("button");
+        nameBtn.className = "lane-name"; nameBtn.type = "button"; nameBtn.textContent = p.name;
+        nameBtn.title = "לחיצה לשינוי השם";
+        nameBtn.disabled = !canWrite;
+        nameBtn.addEventListener("click", () => { editingProject = p.id; render(); });
+        head.appendChild(nameBtn);
+        const ed = document.createElement("button");
+        ed.type = "button"; ed.className = "edit-name"; ed.textContent = "שינוי שם"; ed.hidden = !canWrite;
+        ed.addEventListener("click", () => { editingProject = p.id; render(); });
+        head.appendChild(ed);
+        if (canWrite && projects.length > 1) {
+          const pd = document.createElement("button");
+          pd.type = "button"; pd.className = "edit-name proj-del"; pd.textContent = "מחיקת פרויקט";
+          pd.addEventListener("click", async () => {
+            const its = tasks.filter((t) => t.projectId === p.id);
+            if (!pd.dataset.armed) {
+              pd.dataset.armed = "1";
+              pd.textContent = its.length ? "למחוק? גם " + its.length + " המשימות שבו יימחקו" : "בטוח למחוק?";
+              setTimeout(() => { delete pd.dataset.armed; pd.textContent = "מחיקת פרויקט"; }, 4000);
+              return;
+            }
+            await write(() => db.doc("projects/" + p.id).set({ name: p.name, order: p.order, deleted: true }));
+            for (const t of its) await write(() => db.doc("tasks/" + t.id).delete());
+            projects = projects.filter((x) => x.id !== p.id);
+            selected = projects[0].id;
+            try { localStorage.setItem("selectedProject", selected); } catch (_) {}
+            render();
+          });
+          head.appendChild(pd);
+        }
+      }
+      const mine = tasks.filter((t) => t.projectId === p.id);
+      const pOpen = mine.filter((t) => !t.done).sort(sortOpen);
+      const pDone = mine.filter((t) => t.done).sort((a, b) => (b.doneAt || "").localeCompare(a.doneAt || ""));
+      const cnt = document.createElement("span");
+      cnt.className = "count"; cnt.textContent = pOpen.length + " פתוחות";
+      head.appendChild(cnt);
+      lane.appendChild(head);
+
+      if (pOpen.length) {
+        const ul = document.createElement("ul"); ul.className = "tasks open";
+        pOpen.forEach((t) => ul.appendChild(taskItem(t)));
+        lane.appendChild(ul);
+      } else {
+        const e = document.createElement("div"); e.className = "empty";
+        e.textContent = "אין משימות פתוחות. הוסף משימה מהשורה למעלה.";
+        lane.appendChild(e);
+      }
+      if (pDone.length) {
+        const d = document.createElement("details"); d.className = "donebox";
+        const s = document.createElement("summary"); s.textContent = "בוצעו (" + pDone.length + ")";
+        const ul = document.createElement("ul"); ul.className = "tasks";
+        pDone.slice(0, 30).forEach((t) => ul.appendChild(taskItem(t)));
+        d.append(s, ul);
+        lane.appendChild(d);
+      }
+      lanes.appendChild(lane);
+    });
+    renderProjectSelect();
+    if (!$("f-project").dataset.touched) $("f-project").value = selected;
+  }
+
+  function setStatus(msg, isErr) {
+    const s = $("status");
+    s.textContent = msg || ""; s.className = isErr ? "note err" : "note";
+    s.hidden = !msg;
+  }
+
+  async function write(fn) {
+    if (!db) return;
+    try { await fn(); setStatus(""); }
+    catch (e) {
+      if (e && e.code === "invalid_argument") { canWrite = false; render(); setStatus("אין לך הרשאה לערוך את הלוח הזה.", true); }
+      else if (e && e.code === "quota_exceeded") setStatus("הלוח מלא. מחק משימות ישנות שבוצעו ונסה שוב.", true);
+      else setStatus("השמירה נכשלה. נסה שוב בעוד רגע.", true);
+    }
+  }
+
+  $("add-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const title = $("f-title").value.trim();
+    if (!title || !db) return;
+    const data = {
+      projectId: $("f-project").value,
+      title,
+      due: $("f-due").value || "",
+      time: $("f-time").value || "",
+      priority: $("f-high").checked ? "high" : "normal",
+      done: false,
+      created: new Date().toISOString(),
+    };
+    $("f-title").value = ""; $("f-high").checked = false; $("f-time").value = "";
+    write(() => db.collection("tasks").add(data));
+    $("f-title").focus();
+  });
+
+  // Hebrew date picker: Sunday-first week, Hebrew month and day names.
+  const HE_MONTHS = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
+  let dpView = new Date(today.getFullYear(), today.getMonth(), 1);
+  function setDue(iso) {
+    $("f-due").value = iso;
+    const btn = $("dp-btn");
+    btn.classList.toggle("set", !!iso);
+    $("dp-label").textContent = iso ? fmtDue(iso) : "תאריך יעד";
+    closeDp();
+  }
+  function renderDp() {
+    $("dp-title").textContent = HE_MONTHS[dpView.getMonth()] + " " + dpView.getFullYear();
+    const g = $("dp-grid"); g.textContent = "";
+    dayNames.forEach((d) => { const c = document.createElement("span"); c.className = "dp-dow"; c.textContent = d.replace("׳", ""); g.appendChild(c); });
+    for (let i = 0; i < dpView.getDay(); i++) g.appendChild(document.createElement("span"));
+    const days = new Date(dpView.getFullYear(), dpView.getMonth() + 1, 0).getDate();
+    const sel = $("f-due").value;
+    for (let d = 1; d <= days; d++) {
+      const dt = new Date(dpView.getFullYear(), dpView.getMonth(), d);
+      const iso = isoDay(dt);
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "dp-day"; b.textContent = d;
+      if (iso === todayIso) b.classList.add("today");
+      if (iso === sel) b.classList.add("sel");
+      if (iso < todayIso) b.classList.add("past");
+      else if (dt.getDay() >= 5) b.classList.add("weekend");
+      b.setAttribute("aria-label", "יום " + dayNames[dt.getDay()] + " " + d + " ב" + HE_MONTHS[dt.getMonth()]);
+      b.addEventListener("click", () => setDue(iso));
+      g.appendChild(b);
+    }
+  }
+  function closeDp() { $("dp-pop").hidden = true; $("dp-btn").setAttribute("aria-expanded", "false"); }
+  $("dp-btn").addEventListener("click", () => {
+    const pop = $("dp-pop");
+    if (!pop.hidden) { closeDp(); return; }
+    const sel = $("f-due").value;
+    dpView = sel ? new Date(+sel.slice(0, 4), +sel.slice(5, 7) - 1, 1) : new Date(today.getFullYear(), today.getMonth(), 1);
+    renderDp();
+    pop.hidden = false; $("dp-btn").setAttribute("aria-expanded", "true");
+  });
+  $("dp-prev").addEventListener("click", () => { dpView = new Date(dpView.getFullYear(), dpView.getMonth() - 1, 1); renderDp(); });
+  $("dp-next").addEventListener("click", () => { dpView = new Date(dpView.getFullYear(), dpView.getMonth() + 1, 1); renderDp(); });
+  document.querySelectorAll(".dp-quick button").forEach((b) => b.addEventListener("click", () => {
+    if (b.dataset.q === "clear") { setDue(""); return; }
+    const d = new Date(today); d.setDate(d.getDate() + Number(b.dataset.q)); setDue(isoDay(d));
+  }));
+  document.addEventListener("click", (e) => { if (!$("dp-pop").hidden && !e.target.closest(".dp")) closeDp(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("dp-pop").hidden) { closeDp(); $("dp-btn").focus(); } });
+
+  $("viewer-close").addEventListener("click", () => { $("viewer").hidden = true; $("viewer-img").src = ""; });
+  $("viewer").addEventListener("click", (e) => { if (e.target.id === "viewer") $("viewer-close").click(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("viewer").hidden) $("viewer-close").click(); });
+  $("f-project").addEventListener("change", () => { $("f-project").dataset.touched = "1"; });
+  render();
+  $("f-submit").disabled = true;
+
+  let unsubs = [];
+  // Called by the Firebase loader once the user is signed in. `store` mimics the old db API.
+  window.startBoard = function (store) {
+    unsubs.forEach((u) => u()); unsubs = [];
+    db = store; canWrite = true;
+    $("f-submit").disabled = false;
+    setStatus("טוען את המשימות…");
+    let gotP = false, gotT = false;
+    const maybeOffer = () => { if (gotP && gotT) window.offerImport && window.offerImport(tasks.length === 0 && !projects.some((p) => p.saved)); };
+    unsubs.push(db.collection("projects").onSnapshot((snap) => {
+      const byId = {};
+      snap.docs.forEach((d) => { byId[d.id] = d.data(); });
+      projects = DEFAULT_PROJECTS.map((p) => byId[p.id] ? { id: p.id, name: byId[p.id].name || p.name, order: byId[p.id].order || p.order, saved: true } : p);
+      Object.keys(byId).forEach((id) => {
+        if (!projects.some((p) => p.id === id)) projects.push({ id: id, name: byId[id].name || "פרויקט חדש", order: byId[id].order || 99, saved: true });
+      });
+      projects = projects.filter((p) => !(byId[p.id] && byId[p.id].deleted));
+      if (!projects.length) projects = [DEFAULT_PROJECTS[0]];
+      projects.sort((a, b) => a.order - b.order);
+      gotP = true; maybeOffer();
+      if (!editingProject && !editingNote) render();
+    }, () => setStatus("החיבור ללוח נקטע. רענן את הדף.", true)));
+    unsubs.push(db.collection("tasks").onSnapshot((snap) => {
+      tasks = snap.docs.map((d) => Object.assign({ id: d.id }, d.data()));
+      setStatus("");
+      gotT = true; maybeOffer();
+      if (!editingProject && !editingNote) render();
+    }, () => setStatus("החיבור ללוח נקטע. רענן את הדף.", true)));
+  };
+  window.stopBoard = function () { unsubs.forEach((u) => u()); unsubs = []; db = null; tasks = []; projects = DEFAULT_PROJECTS.slice(); render(); };
+})();
+</script>
+
+<script type="module" src="firebase-store.js"></script>
+</body>
+</html>
