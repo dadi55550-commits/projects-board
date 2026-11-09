@@ -106,12 +106,42 @@ $("import-file").addEventListener("change", async (e) => {
 
 window.offerImport = (empty) => { $("importbox").hidden = !empty; };
 
+// One-time import link: #import=<base64url of raw-deflated JSON>. Kept until the user is signed in.
+const IMPORT_KEY = "pendingImport";
+if (location.hash.startsWith("#import=")) {
+  try { sessionStorage.setItem(IMPORT_KEY, location.hash.slice(8)); } catch (_) {}
+  history.replaceState(null, "", location.pathname);
+}
+async function decodeImport(s) {
+  const b64 = s.replace(/-/g, "+").replace(/_/g, "/");
+  const bin = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+  const stream = new Blob([bin]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+  return JSON.parse(await new Response(stream).text());
+}
+async function runPendingImport() {
+  let s = null;
+  try { s = sessionStorage.getItem(IMPORT_KEY); } catch (_) {}
+  if (!s || !store) return;
+  try {
+    const data = await decodeImport(s);
+    $("status").textContent = "מעביר את הנתונים…"; $("status").hidden = false;
+    await store.importData(data);
+    try { sessionStorage.removeItem(IMPORT_KEY); } catch (_) {}
+    $("importbox").hidden = true;
+    $("status").textContent = "הועברו " + data.projects.length + " פרויקטים ו-" + data.tasks.length + " משימות.";
+  } catch (_) {
+    $("status").textContent = "העברת הנתונים מהקישור נכשלה. נסה לפתוח את הקישור שוב.";
+    $("status").className = "note err"; $("status").hidden = false;
+  }
+}
+
 onAuthStateChanged(auth, (user) => {
   if (user) {
     store = makeStore(user.uid);
     $("who").textContent = user.email || user.displayName || "";
     gate.hidden = true;
     window.startBoard(store);
+    runPendingImport();
   } else {
     store = null;
     window.stopBoard && window.stopBoard();
