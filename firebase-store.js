@@ -3,7 +3,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signInWithRedirect,
-  getRedirectResult, signOut, setPersistence, browserLocalPersistence,
+  getRedirectResult, signOut,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
@@ -68,10 +68,13 @@ signinBtn.addEventListener("click", async () => {
   const provider = new GoogleAuthProvider();
   gateMsg.textContent = "מתחבר…";
   try {
-    await setPersistence(auth, browserLocalPersistence);
+    // Open the popup synchronously inside the tap: any await before it makes Safari block the popup.
+    // (Local persistence is already the default in browsers.)
     await signInWithPopup(auth, provider);
   } catch (e) {
-    if (e && (e.code === "auth/popup-blocked" || e.code === "auth/operation-not-supported-in-this-environment")) {
+    if (e && e.code === "auth/popup-blocked") {
+      gateMsg.textContent = "הדפדפן חסם את חלון ההתחברות. לחץ שוב על הכפתור.";
+    } else if (e && e.code === "auth/operation-not-supported-in-this-environment") {
       await signInWithRedirect(auth, provider);
     } else if (e && e.code === "auth/unauthorized-domain") {
       gateMsg.textContent = "הכתובת של האפליקציה עוד לא אושרה ב-Firebase (Authorized domains).";
