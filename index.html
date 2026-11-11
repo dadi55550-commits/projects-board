@@ -880,7 +880,9 @@ details.donebox ul { margin-top: 6px; }
     if (!db) throw new Error("not signed in");
     let added = 0, skipped = 0;
     for (const x of (Array.isArray(arr) ? arr : [arr])) {
-      const key = String((x && x.id) || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 100);
+      const rawId = String((x && x.id) || "");
+      let h = 5381; for (let i = 0; i < rawId.length; i++) h = ((h * 33) ^ rawId.charCodeAt(i)) >>> 0;
+      const key = rawId ? (rawId.replace(/[^A-Za-z0-9_-]/g, "").slice(0, 60) + "_" + h.toString(36)) : "";
       if (!key || !x.title) { skipped++; continue; }
       const ref = db.doc("tasks/ext_" + key);
       const ex = await ref.get();
