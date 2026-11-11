@@ -14,8 +14,8 @@
 <style>
 [hidden] { display: none !important; }
 a.note-btn { text-decoration: none; }
-.views { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 4px; }
-.views button { border: 0; background: transparent; color: var(--muted); border-radius: 9px; padding: 9px 4px; font-weight: 700; font-family: var(--font-display); font-size: .95rem; }
+.views { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 4px; }
+.views button { border: 0; background: transparent; color: var(--muted); border-radius: 9px; padding: 9px 2px; font-weight: 700; font-family: var(--font-display); font-size: .88rem; white-space: nowrap; }
 .views button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
 .views .badge { display: inline-block; min-width: 1.4em; padding: 0 5px; margin-inline-start: 4px; border-radius: 999px; background: color-mix(in srgb, currentColor 18%, transparent); font-size: .8rem; }
 .search { width: 100%; font: inherit; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--fg); }
@@ -40,6 +40,44 @@ html, body { overflow-x: hidden; overscroll-behavior-x: none; max-width: 100%; }
 li.task { position: relative; touch-action: pan-y; transition: transform .18s ease; background-clip: padding-box; }
 li.task.swiping { transition: none; }
 li.task .swipe-hint { position: absolute; inset-block: 0; display: flex; align-items: center; font-weight: 700; font-size: .9rem; opacity: 0; pointer-events: none; padding: 0 12px; }
+.chip.star { color: #c99400; } .chip.est { color: var(--muted); }
+.chip.tender-g { color: #2e8b57; } .chip.tender-y { color: #c48a00; } .chip.tender-r { color: var(--late); }
+li.task.tender-r { box-shadow: inset 4px 0 0 var(--late); } li.task.tender-y { box-shadow: inset 4px 0 0 #e0a800; } li.task.tender-g { box-shadow: inset 4px 0 0 #2e8b57; }
+.subs { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.subs li { display: flex; gap: 8px; align-items: center; font-size: .92rem; }
+.subs li.done span { text-decoration: line-through; color: var(--muted); }
+.subs input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); }
+.subs .sub-del { border: 0; background: transparent; color: var(--muted); margin-inline-start: auto; }
+.sub-add { display: flex; gap: 6px; margin-top: 4px; }
+.sub-add input { flex: 1; min-width: 0; font: inherit; font-size: .9rem; padding: 5px 8px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); color: var(--fg); }
+.mic { border: 1px solid var(--line); background: var(--bg); border-radius: 7px; padding: 6px 10px; font-size: 1.05rem; }
+.mic.on { background: var(--late); border-color: var(--late); color: #fff; animation: pulse 1s infinite; }
+@keyframes pulse { 50% { opacity: .6; } }
+.fab { position: fixed; bottom: max(18px, env(safe-area-inset-bottom, 0px)); left: 18px; z-index: 25; width: 58px; height: 58px; border-radius: 50%; border: 0; background: var(--accent); color: var(--accent-fg); font-size: 1.6rem; box-shadow: 0 6px 18px color-mix(in srgb, #000 30%, transparent); }
+.sheet-bg { position: fixed; inset: 0; z-index: 35; background: color-mix(in srgb, #000 45%, transparent); display: flex; align-items: flex-end; justify-content: center; }
+.sheet { background: var(--surface); width: 100%; max-width: 640px; border-radius: 16px 16px 0 0; padding: 16px 16px max(18px, env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 10px; }
+.sheet h2 { margin: 0; font-family: var(--font-display); font-size: 1.15rem; }
+.sheet textarea { font: inherit; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--fg); min-height: 70px; resize: vertical; }
+.sheet .row { display: flex; gap: 8px; }
+.sheet .row .btn { flex: 1; padding: 11px; }
+.assign { font: inherit; font-size: .85rem; padding: 2px 6px; border: 1px solid var(--accent); border-radius: 6px; background: var(--bg); color: var(--fg); }
+.total-est { font-size: .88rem; color: var(--muted); margin: -2px 0 4px; }
+.tile-prog { height: 4px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.tile-prog i { display: block; height: 100%; background: var(--pc); }
+.tile-week { font-size: .68rem; color: var(--muted); }
+.stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.stats-grid div { background: var(--bg); border-radius: 10px; padding: 10px; }
+.stats-grid b { display: block; font-family: var(--font-display); font-size: 1.5rem; }
+.stats-grid span { font-size: .85rem; color: var(--muted); }
+.bars { display: flex; flex-direction: column; gap: 6px; }
+.bars .bar { display: grid; grid-template-columns: 9em 1fr 2.5em; gap: 8px; align-items: center; font-size: .85rem; }
+.bars .bar i { display: block; height: 10px; border-radius: 5px; background: var(--pc); min-width: 2px; }
+.review-step { font-size: .9rem; color: var(--muted); margin: 2px 0 6px; }
+.quick-dates { display: inline-flex; gap: 4px; flex-wrap: wrap; }
+.quick-dates button { border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 999px; padding: 0 9px; font-size: .8rem; }
+.lane-head { flex-wrap: wrap; }
+.lane-head .lane-name, .lane-head .lane-name-input { flex: 1 1 100%; }
+body { padding-bottom: 96px !important; }
 .empty-big { text-align: center; color: var(--muted); padding: 22px 8px; font-size: 1.05rem; }
 .hint { font-size: .78rem; color: var(--muted); text-align: center; margin: 4px 0 0; }
 /* Date picker: always centered on screen so it never runs off the edge */
@@ -245,7 +283,7 @@ details.donebox ul { margin-top: 6px; }
   <div class="gate-box">
     <h2>לוח הפרויקטים</h2>
     <p id="gate-msg">טוען…</p>
-    <small style="color:var(--muted);font-size:.75rem">גרסה 7</small>
+    <small style="color:var(--muted);font-size:.75rem">גרסה 8</small>
     <button type="button" class="gbtn" id="signin" hidden><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>כניסה עם Google</button>
   </div>
 </div>
@@ -261,9 +299,10 @@ details.donebox ul { margin-top: 6px; }
   </div>
 
   <nav class="views" id="views" aria-label="תצוגה">
-    <button type="button" data-v="today">☀️ היום שלי</button>
+    <button type="button" data-v="today">☀️ היום</button>
     <button type="button" data-v="projects">📁 פרויקטים</button>
     <button type="button" data-v="waiting">⏳ ממתין<span class="badge" id="n-wait">0</span></button>
+    <button type="button" data-v="review">📊 סקירה</button>
   </nav>
   <input id="q" class="search" type="search" placeholder="🔍 חיפוש משימה, הערה או איש קשר" aria-label="חיפוש">
 
@@ -272,6 +311,7 @@ details.donebox ul { margin-top: 6px; }
   <form class="add" id="add-form" autocomplete="off">
     <select id="f-project" aria-label="פרויקט"></select>
     <input id="f-title" type="text" placeholder="למשל: מחר 9:00 לדבר עם אביתר #חבצלת !" aria-label="משימה" required enterkeyhint="done">
+    <button type="button" class="mic" id="mic" title="הקלטה קולית" aria-label="הקלטה קולית" hidden>🎤</button>
     <div class="qa-preview" id="qa-preview"></div>
     <input id="f-due" type="hidden">
     <div class="dp">
@@ -312,6 +352,19 @@ details.donebox ul { margin-top: 6px; }
     </div>
   </div>
 
+  <button type="button" class="fab" id="fab" title="קליטה מהירה" aria-label="קליטה מהירה">📥</button>
+  <div class="sheet-bg" id="inbox-sheet" hidden>
+    <form class="sheet" id="inbox-form" autocomplete="off">
+      <h2>📥 קליטה מהירה</h2>
+      <p class="review-step" style="margin:0">רושמים מהר, ממיינים אחר כך. אפשר גם לכתוב תאריך, שעה או #פרויקט.</p>
+      <textarea id="inbox-text" placeholder="מה צריך לזכור?" enterkeyhint="done"></textarea>
+      <div class="row">
+        <button type="button" class="mic" id="mic2" hidden>🎤</button>
+        <button type="submit" class="btn">שמירה</button>
+        <button type="button" class="edit-name" id="inbox-cancel">ביטול</button>
+      </div>
+    </form>
+  </div>
   <p class="hint">טיפ: החלקה ימינה על משימה = בוצע ✓ · החלקה שמאלה = דחייה למחר ⏭</p>
   <p class="note">לחיצה על קובייה מציגה את המשימות של הפרויקט. ליד כל משימה אפשר להוסיף כמה הערות שרוצים.</p>
 </div>
@@ -622,6 +675,94 @@ details.donebox ul { margin-top: 6px; }
     bits.forEach((b) => { const sp = document.createElement("span"); sp.textContent = b; box.appendChild(sp); });
   }
 
+  // ---------- planning helpers ----------
+  const INBOX = "inbox";
+  const isTop3 = (t) => !t.done && t.top3Date === todayIso;
+  const EST = { 15: "15 ד׳", 30: "30 ד׳", 60: "שעה", 120: "שעתיים", 240: "חצי יום" };
+  function fmtMinutes(m) { if (!m) return "0"; if (m < 60) return m + " דק׳"; if (m === 60) return "שעה"; if (m === 120) return "שעתיים"; const h = m / 60; return (Math.round(h * 10) / 10) + " שעות"; }
+  function isTender(t) { if (t.kind === "tender") return true; if (t.kind === "no") return false; return projName(t.projectId).includes("מכרז"); }
+  function tenderClass(t) { if (!isTender(t) || !t.due || t.done) return ""; const d = Math.round((new Date(t.due) - new Date(todayIso)) / 86400000); return d > 7 ? "tender-g" : d >= 3 ? "tender-y" : "tender-r"; }
+  function projName(id) { return id === INBOX ? "📥 קליטה" : (projects.find((p) => p.id === id) || {}).name || ""; }
+  function toggleTop3(t) {
+    if (isTop3(t)) { write(() => db.doc("tasks/" + t.id).update({ top3Date: "" })); return; }
+    const n = tasks.filter(isTop3).length;
+    if (n >= 3) { setStatus("כבר בחרת 3 משימות חשובות להיום. הסר כוכב מאחת מהן קודם.", true); return; }
+    write(() => db.doc("tasks/" + t.id).update({ top3Date: todayIso })); setStatus("⭐ נוספה ל-3 החשובות של היום");
+  }
+  function duplicateTask(t) {
+    const copy = { projectId: t.projectId, title: t.title, due: t.due || "", time: t.time || "", priority: t.priority || "normal", done: false, created: new Date().toISOString() };
+    ["kind", "estimate", "contactName", "contactPhone", "recur"].forEach((k) => { if (t[k]) copy[k] = t[k]; });
+    if (Array.isArray(t.subtasks) && t.subtasks.length) copy.subtasks = t.subtasks.map((x, i) => ({ id: "s" + Date.now() + i, text: x.text, done: false }));
+    write(() => db.collection("tasks").add(copy)); setStatus("📄 המשימה שוכפלה");
+  }
+  function saveSubs(t, list) { t.subtasks = list; write(() => db.doc("tasks/" + t.id).update({ subtasks: list })); render(); }
+  function subtaskBlock(t) {
+    const subs = Array.isArray(t.subtasks) ? t.subtasks : [];
+    const wrap = document.createElement("div");
+    if (subs.length) {
+      const ul = document.createElement("ul"); ul.className = "subs";
+      subs.forEach((x) => {
+        const li = document.createElement("li"); if (x.done) li.className = "done";
+        const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = !!x.done; cb.disabled = !canWrite || t.done;
+        cb.addEventListener("change", () => saveSubs(t, subs.map((y) => y.id === x.id ? Object.assign({}, y, { done: cb.checked }) : y)));
+        const sp = document.createElement("span"); sp.textContent = x.text;
+        li.append(cb, sp);
+        if (canWrite && expanded.has(t.id)) { const del = document.createElement("button"); del.type = "button"; del.className = "sub-del"; del.textContent = "×"; del.setAttribute("aria-label", "מחיקת " + x.text); del.addEventListener("click", () => saveSubs(t, subs.filter((y) => y.id !== x.id))); li.appendChild(del); }
+        ul.appendChild(li);
+      });
+      wrap.appendChild(ul);
+    }
+    if (editingNote && editingNote.taskId === t.id && editingNote.noteId === "sub") {
+      const row = document.createElement("div"); row.className = "sub-add";
+      const inp = document.createElement("input"); inp.placeholder = "תת-משימה (Enter להוספה)"; inp.enterKeyHint = "done";
+      const ok = document.createElement("button"); ok.type = "button"; ok.className = "btn"; ok.textContent = "הוספה"; ok.style.padding = "5px 12px";
+      const done = document.createElement("button"); done.type = "button"; done.className = "edit-name"; done.textContent = "סיום";
+      const add = () => { const v = inp.value.trim(); if (!v) return; saveSubs(t, subs.concat([{ id: "s" + Date.now(), text: v, done: false }])); };
+      inp.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); add(); } });
+      ok.addEventListener("click", add);
+      done.addEventListener("click", () => { editingNote = null; render(); });
+      row.append(inp, ok, done); wrap.appendChild(row);
+      setTimeout(() => inp.focus(), 0);
+    }
+    return wrap;
+  }
+
+  // ---------- voice ----------
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  function setupMic(btn, target, onDone) {
+    if (!SR || !btn) return;
+    btn.hidden = false;
+    let rec = null;
+    btn.addEventListener("click", () => {
+      if (rec) { rec.stop(); return; }
+      try {
+        rec = new SR(); rec.lang = "he-IL"; rec.interimResults = true; rec.continuous = false;
+        const base = target.value ? target.value.trim() + " " : "";
+        rec.onresult = (e) => { let txt = ""; for (let i = 0; i < e.results.length; i++) txt += e.results[i][0].transcript; target.value = base + txt; target.dispatchEvent(new Event("input")); };
+        rec.onend = () => { btn.classList.remove("on"); rec = null; if (onDone) onDone(); };
+        rec.onerror = (e) => { if (e.error === "not-allowed") setStatus("צריך לאשר גישה למיקרופון בהגדרות הדפדפן.", true); };
+        btn.classList.add("on"); rec.start();
+      } catch (_) { btn.classList.remove("on"); rec = null; setStatus("ההקלטה לא נתמכת בדפדפן הזה. אפשר להשתמש במיקרופון של המקלדת.", true); }
+    });
+  }
+
+  // ---------- project export ----------
+  function exportProject(p) {
+    const open = tasks.filter((t) => t.projectId === p.id && !t.done).sort(sortOpen);
+    const lines = ["📋 " + p.name + " – משימות פתוחות (" + open.length + ")", ""];
+    open.forEach((t, i) => {
+      let l = (i + 1) + ". " + t.title;
+      if (t.due) l += " – " + fmtDue(t.due) + (t.time ? " " + t.time : "");
+      if (t.priority === "high") l += " 🔴";
+      if (t.waitingFor) l += " (ממתין ל" + t.waitingFor + ")";
+      lines.push(l);
+      (t.subtasks || []).filter((x) => !x.done).forEach((x) => lines.push("   ▫️ " + x.text));
+    });
+    const text = lines.join("\n");
+    if (navigator.share) { navigator.share({ text }).catch(() => {}); return; }
+    window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank");
+  }
+
   // ---------- contacts ----------
   function waPhone(ph) { let d = (ph || "").replace(/\D/g, ""); if (d.startsWith("0")) d = "972" + d.slice(1); return d; }
   function knownContacts() {
@@ -638,6 +779,8 @@ details.donebox ul { margin-top: 6px; }
       if (done && t.recur) {
         const copy = { projectId: t.projectId, title: t.title, due: nextDue(t), time: t.time || "", priority: t.priority || "normal", done: false, created: new Date().toISOString(), recur: t.recur };
         if (t.contactName) { copy.contactName = t.contactName; copy.contactPhone = t.contactPhone || ""; }
+        ["kind", "estimate"].forEach((k) => { if (t[k]) copy[k] = t[k]; });
+        if (Array.isArray(t.subtasks) && t.subtasks.length) copy.subtasks = t.subtasks.map((x, i) => ({ id: "s" + Date.now() + i, text: x.text, done: false }));
         await db.collection("tasks").add(copy);
         setStatus("🔁 המשימה החוזרת נוספה שוב ל-" + fmtDue(copy.due));
       }
@@ -662,6 +805,12 @@ details.donebox ul { margin-top: 6px; }
       n.addEventListener("change", () => { if (!ph.value) ph.value = phoneFor(n.value.trim()); });
       save.addEventListener("click", () => { write(() => db.doc("tasks/" + t.id).update({ contactName: n.value.trim(), contactPhone: ph.value.trim() })); close(); });
       box.append(n, ph, save, cancel); setTimeout(() => n.focus(), 0);
+    } else if (kind === "est") {
+      const sel = document.createElement("select");
+      [["", "בלי הערכה"], ["15", "15 דקות"], ["30", "30 דקות"], ["60", "שעה"], ["120", "שעתיים"], ["240", "חצי יום"]].forEach(([v, l]) => { const o = document.createElement("option"); o.value = v; o.textContent = l; sel.appendChild(o); });
+      sel.value = t.estimate ? String(t.estimate) : "";
+      save.addEventListener("click", () => { write(() => db.doc("tasks/" + t.id).update({ estimate: sel.value ? +sel.value : 0 })); close(); });
+      box.append(sel, save, cancel);
     } else if (kind === "recur") {
       const sel = document.createElement("select");
       [["", "בלי חזרה"], ["daily", "כל יום"], ["weekly", "כל שבוע"], ["monthly", "כל חודש"]].forEach(([v, l]) => { const o = document.createElement("option"); o.value = v; o.textContent = l; sel.appendChild(o); });
@@ -722,6 +871,23 @@ details.donebox ul { margin-top: 6px; }
     }
     if (t.waitingFor && !t.done) { const c = document.createElement("span"); c.className = "chip wait"; const ds = daysSince(t.waitingSince); c.textContent = "⏳ ממתין ל" + t.waitingFor + (ds ? " · " + ds + " ימים" : ""); meta.appendChild(c); }
     if (t.recur) { const c = document.createElement("span"); c.className = "chip recur"; c.textContent = "🔁 " + RECUR[t.recur]; meta.appendChild(c); }
+    if (isTop3(t)) { const c = document.createElement("span"); c.className = "chip star"; c.textContent = "⭐ חשובה היום"; meta.appendChild(c); }
+    if (t.estimate && !t.done) { const c = document.createElement("span"); c.className = "chip est"; c.textContent = "⏱ " + (EST[t.estimate] || fmtMinutes(t.estimate)); meta.appendChild(c); }
+    const tc = tenderClass(t);
+    if (isTender(t) && !t.done) {
+      const c = document.createElement("span"); c.className = "chip " + (tc || "tender-g");
+      if (t.due) { const d = Math.round((new Date(t.due) - new Date(todayIso)) / 86400000); c.textContent = "🏁 מכרז · " + (d > 1 ? "עוד " + d + " ימים" : d === 1 ? "מחר!" : d === 0 ? "היום!" : "עבר המועד"); }
+      else c.textContent = "🏁 מכרז · בלי מועד הגשה";
+      meta.appendChild(c); if (tc) li.classList.add(tc);
+    }
+    if (Array.isArray(t.subtasks) && t.subtasks.length) { const c = document.createElement("span"); c.className = "chip est"; c.textContent = "☑ " + t.subtasks.filter((x) => x.done).length + "/" + t.subtasks.length; meta.appendChild(c); }
+    if (t.projectId === INBOX && canWrite && !t.done) {
+      const sel = document.createElement("select"); sel.className = "assign"; sel.setAttribute("aria-label", "שיוך לפרויקט");
+      const o0 = document.createElement("option"); o0.value = ""; o0.textContent = "📥 שייך לפרויקט…"; sel.appendChild(o0);
+      projects.forEach((p) => { const o = document.createElement("option"); o.value = p.id; o.textContent = p.name; sel.appendChild(o); });
+      sel.addEventListener("change", () => { if (sel.value) { write(() => db.doc("tasks/" + t.id).update({ projectId: sel.value })); setStatus("📁 הועבר ל" + projName(sel.value)); } });
+      meta.appendChild(sel);
+    }
     if (t.due && st !== "today") { const s = document.createElement("span"); s.textContent = fmtDue(t.due); meta.appendChild(s); }
     if (!t.due) { const s = document.createElement("span"); s.textContent = "בלי תאריך"; meta.appendChild(s); }
     const editingTime = editingNote && editingNote.taskId === t.id && editingNote.noteId === "time";
@@ -797,7 +963,12 @@ details.donebox ul { margin-top: 6px; }
     // Extra actions, then move every action button into a collapsible row.
     if (canWrite && !t.done) {
       const mk = (txt, fn) => { const b = document.createElement("button"); b.type = "button"; b.className = "note-btn"; b.textContent = txt; b.addEventListener("click", fn); meta.appendChild(b); };
+      mk(isTop3(t) ? "⭐ הסר מהחשובות" : "⭐ חשובה היום", () => toggleTop3(t));
       mk("⏭ למחר", () => postpone(t));
+      mk("☑ תת-משימה", () => { editingNote = { taskId: t.id, noteId: "sub" }; expanded.add(t.id); render(); });
+      mk(t.estimate ? "⏱ שינוי זמן" : "⏱ זמן משוער", () => { editingNote = { taskId: t.id, noteId: "est" }; render(); });
+      mk(isTender(t) ? "🏁 בטל סימון מכרז" : "🏁 סמן כמכרז", () => write(() => db.doc("tasks/" + t.id).update({ kind: isTender(t) ? "no" : "tender" })));
+      mk("📄 שכפול", () => duplicateTask(t));
       mk(t.waitingFor ? "⏳ שינוי ממתין" : "⏳ ממתין ל…", () => { editingNote = { taskId: t.id, noteId: "waiting" }; render(); });
       if (t.waitingFor) mk("✓ התקבל", () => write(() => db.doc("tasks/" + t.id).update({ waitingFor: "", waitingSince: "" })));
       mk(t.contactName ? "👤 שינוי איש קשר" : "👤 איש קשר", () => { editingNote = { taskId: t.id, noteId: "contact" }; render(); });
@@ -823,8 +994,9 @@ details.donebox ul { margin-top: 6px; }
       meta.appendChild(more);
     }
     body.append(title, meta);
+    body.appendChild(subtaskBlock(t));
     if (isOpen && acts.childNodes.length) body.appendChild(acts);
-    if (editingNote && editingNote.taskId === t.id && ["waiting", "contact", "recur"].includes(editingNote.noteId)) body.appendChild(miniEditor(t, editingNote.noteId));
+    if (editingNote && editingNote.taskId === t.id && ["waiting", "contact", "recur", "est"].includes(editingNote.noteId)) body.appendChild(miniEditor(t, editingNote.noteId));
     if (notes.length) {
       const ul = document.createElement("ul"); ul.className = "notes-list";
       notes.forEach((n) => {
@@ -891,8 +1063,8 @@ details.donebox ul { margin-top: 6px; }
     const data = {
       generatedAt: new Date().toISOString(), today: todayIso,
       projects: projects.map((p, i) => ({ name: p.name, position: i + 1 })),
-      openTasks: tasks.filter((t) => !t.done && projIdx.has(t.projectId)).sort(sortOpen).map((t) => ({
-        project: projects[projIdx.get(t.projectId)].name, title: t.title, due: t.due || "", time: t.time || "",
+      openTasks: tasks.filter((t) => !t.done && (projIdx.has(t.projectId) || t.projectId === INBOX)).sort(sortOpen).map((t) => ({
+        project: projName(t.projectId), title: t.title, due: t.due || "", time: t.time || "", top3: isTop3(t), tender: isTender(t),
         priority: t.priority || "normal", waitingFor: t.waitingFor || "", waitingSince: t.waitingSince || "",
         recur: t.recur || "", contactName: t.contactName || "",
       })),
@@ -920,6 +1092,56 @@ details.donebox ul { margin-top: 6px; }
     lane.append(h, ul);
   }
 
+  function renderReview(lane, h, open) {
+    h.textContent = "📊 סקירה שבועית";
+    const weekAgo = addDays(todayIso, -7);
+    const doneWeek = tasks.filter((t) => t.done && t.doneAt && t.doneAt.slice(0, 10) > weekAgo);
+    const lateDays = doneWeek.filter((t) => t.due).map((t) => Math.max(0, Math.round((new Date(t.doneAt.slice(0, 10)) - new Date(t.due)) / 86400000)));
+    const avgLate = lateDays.length ? (lateDays.reduce((a, b) => a + b, 0) / lateDays.length) : 0;
+    const onTime = lateDays.length ? Math.round(100 * lateDays.filter((d) => d === 0).length / lateDays.length) : 0;
+    const added = tasks.filter((t) => (t.created || "").slice(0, 10) > weekAgo).length;
+    const grid = document.createElement("div"); grid.className = "stats-grid";
+    [[doneWeek.length, "משימות נסגרו השבוע"], [added, "משימות חדשות השבוע"], [lateDays.length ? onTime + "%" : "–", "נסגרו בזמן"], [lateDays.length ? (Math.round(avgLate * 10) / 10) + " ימים" : "–", "איחור ממוצע בסגירה"]].forEach(([n, l]) => {
+      const d = document.createElement("div"); const b = document.createElement("b"); b.textContent = n; const sp = document.createElement("span"); sp.textContent = l; d.append(b, sp); grid.appendChild(d);
+    });
+    lane.appendChild(grid);
+
+    const hh = (txt) => { const x = document.createElement("h3"); x.className = "sec-h"; x.textContent = txt; lane.appendChild(x); };
+    hh("איפה נתקעים");
+    const bars = document.createElement("div"); bars.className = "bars";
+    const stuck = projects.map((p, i) => ({ p, i, n: open.filter((t) => t.projectId === p.id && ((t.due && t.due < todayIso) || (t.waitingFor && daysSince(t.waitingSince) >= 3))).length, closed: doneWeek.filter((t) => t.projectId === p.id).length }));
+    const max = Math.max(1, ...stuck.map((x) => x.n));
+    stuck.forEach((x) => {
+      const r = document.createElement("div"); r.className = "bar"; r.style.setProperty("--pc", projColor(x.i));
+      const nm = document.createElement("span"); nm.textContent = x.p.name;
+      const bw = document.createElement("span"); const bi = document.createElement("i"); bi.style.width = (100 * x.n / max) + "%"; bw.appendChild(bi);
+      const v = document.createElement("span"); v.textContent = x.n; v.title = "תקועות (באיחור או ממתין 3+ ימים)";
+      r.append(nm, bw, v); bars.appendChild(r);
+    });
+    lane.appendChild(bars);
+    const best = stuck.slice().sort((a, b) => b.n - a.n)[0];
+    if (best && best.n) { const p = document.createElement("p"); p.className = "review-step"; p.textContent = "הכי הרבה משימות תקועות ב" + best.p.name + " (" + best.n + "). כדאי להתחיל משם."; lane.appendChild(p); }
+
+    const step = (title, desc, list, withDates) => {
+      if (!list.length) return;
+      section(lane, title, "", list);
+      const p = document.createElement("p"); p.className = "review-step"; p.textContent = desc; lane.insertBefore(p, lane.lastChild);
+      if (withDates) {
+        lane.lastChild.querySelectorAll("li.task").forEach((li, i) => {
+          const t = list[i]; const box = document.createElement("span"); box.className = "quick-dates";
+          [["היום", todayIso], ["מחר", tomorrowIso], ["בעוד שבוע", addDays(todayIso, 7)]].forEach(([l, d]) => { const b = document.createElement("button"); b.type = "button"; b.textContent = l; b.addEventListener("click", () => write(() => db.doc("tasks/" + t.id).update({ due: d }))); box.appendChild(b); });
+          const meta = li.querySelector(".t-meta"); if (meta) meta.appendChild(box);
+        });
+      }
+    };
+    hh("שלבי הסקירה");
+    step("1. באיחור", "לכל אחת: לעשות, לדחות לתאריך אמיתי, או למחוק.", open.filter((t) => t.due && t.due < todayIso).sort(sortOpen), true);
+    step("2. ממתין יותר מדי", "לנדנד (💬) או להחליט שזה כבר לא רלוונטי.", open.filter((t) => t.waitingFor && daysSince(t.waitingSince) >= 5));
+    step("3. בלי תאריך", "לתת תאריך אמיתי או למחוק. משימה בלי תאריך נשכחת.", open.filter((t) => !t.due && t.projectId !== INBOX).sort((a, b) => (a.created || "").localeCompare(b.created || "")), true);
+    step("4. בקליטה", "לשייך כל רעיון לפרויקט או למחוק אותו.", open.filter((t) => t.projectId === INBOX));
+    if (!open.some((t) => (t.due && t.due < todayIso) || !t.due || t.projectId === INBOX)) { const e = document.createElement("div"); e.className = "empty-big"; e.textContent = "✅ הכול מסודר: אין משימות באיחור ואין משימות בלי תאריך."; lane.appendChild(e); }
+  }
+
   function renderList(open) {
     const lanes = $("lanes"); lanes.textContent = "";
     const lane = document.createElement("article"); lane.className = "lane"; lane.style.setProperty("--pc", "var(--accent)");
@@ -934,6 +1156,8 @@ details.donebox ul { margin-top: 6px; }
       section(lane, "פתוחות", "", res.filter((t) => !t.done).sort(sortOpen));
       section(lane, "בוצעו", "", res.filter((t) => t.done).sort((a, b) => (b.doneAt || "").localeCompare(a.doneAt || "")).slice(0, 30), { done: true });
       if (!res.length) { const e = document.createElement("div"); e.className = "empty-big"; e.textContent = "לא נמצא כלום עבור \"" + query + "\""; lane.appendChild(e); }
+    } else if (view === "review") {
+      renderReview(lane, h, open);
     } else if (view === "waiting") {
       h.textContent = "⏳ על מה אני מחכה";
       const w = open.filter((t) => t.waitingFor).sort((a, b) => (a.waitingSince || "").localeCompare(b.waitingSince || ""));
@@ -943,15 +1167,28 @@ details.donebox ul { margin-top: 6px; }
       if (!w.length) { const e = document.createElement("div"); e.className = "empty-big"; e.textContent = "אין משימות שממתינות למישהו. בכל משימה אפשר ללחוץ ⋯ ואז ⏳ ממתין ל…"; lane.appendChild(e); }
     } else {
       h.textContent = "☀️ היום שלי";
-      const late = open.filter((t) => t.due && t.due < todayIso).sort(sortOpen);
-      const tod = open.filter((t) => t.due === todayIso).sort(sortOpen);
-      const urgent = open.filter((t) => t.priority === "high" && (!t.due || t.due > todayIso)).sort(sortOpen);
-      const tom = open.filter((t) => t.due === tomorrowIso && t.priority !== "high").sort(sortOpen);
+      const used = new Set();
+      const pick = (arr) => arr.filter((t) => !used.has(t.id) && (used.add(t.id), true));
+      const top = pick(open.filter(isTop3).sort(sortOpen));
+      const inbox = pick(open.filter((t) => t.projectId === INBOX).sort((a, b) => (b.created || "").localeCompare(a.created || "")));
+      const late = pick(open.filter((t) => t.due && t.due < todayIso).sort(sortOpen));
+      const tod = pick(open.filter((t) => t.due === todayIso).sort(sortOpen));
+      const nudge = pick(open.filter((t) => t.waitingFor && daysSince(t.waitingSince) >= 3).sort((a, b) => (a.waitingSince || "").localeCompare(b.waitingSince || "")));
+      const urgent = pick(open.filter((t) => t.priority === "high").sort(sortOpen));
+      const tenders = pick(open.filter((t) => isTender(t) && t.due && t.due <= addDays(todayIso, 7)).sort(sortOpen));
+      const tom = pick(open.filter((t) => t.due === tomorrowIso).sort(sortOpen));
+      const dayLoad = top.concat(late, tod).reduce((m, t) => m + (+t.estimate || 0), 0);
+      if (dayLoad) { const p = document.createElement("p"); p.className = "total-est"; p.textContent = "⏱ זמן משוער למשימות של היום: " + fmtMinutes(dayLoad) + (dayLoad > 480 ? " – יותר מיום עבודה, כדאי לדחות משהו" : ""); lane.appendChild(p); }
+      if (!top.length && open.length) { const p = document.createElement("p"); p.className = "review-step"; p.textContent = "⭐ טיפ: בחר עד 3 משימות שחייבות לקרות היום (⋯ ← ⭐ חשובה היום)."; lane.appendChild(p); }
+      section(lane, "⭐ 3 החשובות של היום", "today", top);
+      section(lane, "📥 למיין", "", inbox);
       section(lane, "באיחור", "late", late);
       section(lane, "היום", "today", tod);
+      section(lane, "💬 לנדנד (ממתין 3+ ימים)", "late", nudge);
       section(lane, "דחוף", "late", urgent);
+      section(lane, "🏁 מכרזים בשבוע הקרוב", "", tenders);
       section(lane, "מחר", "", tom);
-      if (!late.length && !tod.length && !urgent.length) {
+      if (!top.length && !late.length && !tod.length && !urgent.length && !inbox.length) {
         const e = document.createElement("div"); e.className = "empty-big"; e.textContent = "🎉 אין משימות דחופות להיום. הוסף משימה למעלה או עבור ל📁 פרויקטים.";
         lane.insertBefore(e, lane.children[1] || null);
       }
@@ -994,7 +1231,12 @@ details.donebox ul { margin-top: 6px; }
       const flags = document.createElement("span"); flags.className = "tile-flags";
       if (nLate) { const c = document.createElement("span"); c.className = "chip late"; c.textContent = nLate + " באיחור"; flags.appendChild(c); }
       if (nToday) { const c = document.createElement("span"); c.className = "chip today"; c.textContent = nToday + " להיום"; flags.appendChild(c); }
-      b.append(nm, cnt, flags);
+      const all = tasks.filter((t) => t.projectId === p.id);
+      const pct = all.length ? Math.round(100 * (all.length - pOpen.length) / all.length) : 0;
+      const prog = document.createElement("span"); prog.className = "tile-prog"; prog.title = pct + "% בוצעו"; const pi = document.createElement("i"); pi.style.width = pct + "%"; prog.appendChild(pi);
+      const wk = all.filter((t) => t.done && t.doneAt && t.doneAt.slice(0, 10) > addDays(todayIso, -7)).length;
+      const wks = document.createElement("span"); wks.className = "tile-week"; wks.textContent = pct + "% בוצעו" + (wk ? " · ✓" + wk + " השבוע" : "");
+      b.append(nm, cnt, flags, prog, wks);
       b.addEventListener("click", () => {
         selected = p.id; editingProject = null; editingNote = null;
         try { localStorage.setItem("selectedProject", selected); } catch (_) {}
@@ -1082,6 +1324,10 @@ details.donebox ul { margin-top: 6px; }
       const cnt = document.createElement("span");
       cnt.className = "count"; cnt.textContent = pOpen.length + " פתוחות";
       head.appendChild(cnt);
+      if (pOpen.length && editingProject !== p.id) {
+        const ex = document.createElement("button"); ex.type = "button"; ex.className = "edit-name"; ex.textContent = "📤 שיתוף";
+        ex.title = "שליחת רשימת המשימות הפתוחות בוואטסאפ"; ex.addEventListener("click", () => exportProject(p)); head.appendChild(ex);
+      }
       lane.appendChild(head);
 
       if (pOpen.length) {
@@ -1203,6 +1449,24 @@ details.donebox ul { margin-top: 6px; }
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("viewer").hidden) $("viewer-close").click(); });
   $("f-project").addEventListener("change", () => { $("f-project").dataset.touched = "1"; });
   $("f-title").addEventListener("input", renderQuickPreview);
+  setupMic($("mic"), $("f-title"));
+  setupMic($("mic2"), $("inbox-text"));
+  const openInbox = () => { if (!db) return; $("inbox-sheet").hidden = false; $("inbox-text").value = ""; setTimeout(() => $("inbox-text").focus(), 50); };
+  const closeInbox = () => { $("inbox-sheet").hidden = true; };
+  $("fab").addEventListener("click", openInbox);
+  $("inbox-cancel").addEventListener("click", closeInbox);
+  $("inbox-sheet").addEventListener("click", (e) => { if (e.target.id === "inbox-sheet") closeInbox(); });
+  $("inbox-text").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("inbox-form").requestSubmit(); } });
+  $("inbox-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const raw = $("inbox-text").value.trim(); if (!raw || !db) return;
+    const q = parseQuick(raw);
+    const data = { projectId: q.projectId || INBOX, title: q.title || raw, due: q.due || "", time: q.time || "", priority: q.priority === "high" ? "high" : "normal", done: false, created: new Date().toISOString() };
+    if (q.waitingFor) { data.waitingFor = q.waitingFor; data.waitingSince = data.created; }
+    if (q.recur) { data.recur = q.recur; if (!data.due) data.due = todayIso; }
+    write(() => db.collection("tasks").add(data));
+    closeInbox(); setStatus("📥 נשמר" + (data.projectId === INBOX ? " בקליטה – אפשר למיין אחר כך" : " ב" + projName(data.projectId)));
+  });
   document.querySelectorAll("#views button").forEach((b) => b.addEventListener("click", () => {
     view = b.dataset.v; query = ""; $("q").value = ""; editingNote = null;
     try { localStorage.setItem("view", view); } catch (_) {}
@@ -1246,6 +1510,6 @@ details.donebox ul { margin-top: 6px; }
 })();
 </script>
 
-<script type="module" src="firebase-store.js?v=7"></script>
+<script type="module" src="firebase-store.js?v=8"></script>
 </body>
 </html>
