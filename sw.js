@@ -1,5 +1,5 @@
 // Minimal service worker: makes the app installable and opens the shell offline.
-const CACHE = "board-v6";
+const CACHE = "board-v7";
 const SHELL = ["./", "index.html", "firebase-store.js", "manifest.webmanifest", "icon-192.png", "icon-512.png"];
 self.addEventListener("install", (e) => { e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL))); self.skipWaiting(); });
 self.addEventListener("activate", (e) => {
