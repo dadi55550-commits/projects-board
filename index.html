@@ -14,8 +14,10 @@
 <style>
 [hidden] { display: none !important; }
 a.note-btn { text-decoration: none; }
-.views { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 4px; }
-.views button { border: 0; background: transparent; color: var(--muted); border-radius: 9px; padding: 9px 2px; font-weight: 700; font-family: var(--font-display); font-size: .88rem; white-space: nowrap; }
+.views { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 4px; }
+.views button { border: 0; background: transparent; color: var(--muted); border-radius: 9px; padding: 6px 1px; font-weight: 700; font-family: var(--font-display); font-size: .78rem; white-space: nowrap; display: flex; flex-direction: column; align-items: center; gap: 1px; position: relative; }
+.views button .ic { font-size: 1.15rem; line-height: 1.2; }
+.views .badge { position: absolute; top: 2px; inset-inline-end: 6px; margin: 0; }
 .views button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
 .views .badge { display: inline-block; min-width: 1.4em; padding: 0 5px; margin-inline-start: 4px; border-radius: 999px; background: color-mix(in srgb, currentColor 18%, transparent); font-size: .8rem; }
 .search { width: 100%; font: inherit; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--fg); }
@@ -78,6 +80,29 @@ li.task.tender-r { box-shadow: inset 4px 0 0 var(--late); } li.task.tender-y { b
 .lane-head { flex-wrap: wrap; }
 .lane-head .lane-name, .lane-head .lane-name-input { flex: 1 1 100%; }
 body { padding-bottom: 96px !important; }
+.tools { display: flex; gap: 8px; flex-wrap: wrap; }
+.tools button { flex: 1 1 0; border: 1px dashed var(--accent); background: var(--surface); color: var(--accent); border-radius: 10px; padding: 9px 10px; font-weight: 700; }
+.sheet label { display: flex; flex-direction: column; gap: 4px; font-size: .88rem; color: var(--muted); }
+.sheet input, .sheet select { font: inherit; padding: 9px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--fg); }
+.sheet .preview { font-size: .85rem; color: var(--muted); max-height: 30vh; overflow: auto; margin: 0; padding-inline-start: 18px; }
+.stage-sel { font: inherit; font-size: .82rem; padding: 2px 6px; border: 1px solid currentColor; border-radius: 999px; background: var(--surface); color: var(--accent); }
+.chip.money { color: #2e7d32; } .chip.assignee { color: #0b7285; }
+a.link-chip { text-decoration: none; font-size: .82rem; border: 1px solid var(--line); border-radius: 999px; padding: 0 8px; color: var(--accent); background: var(--surface); max-width: 18ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.link-row { display: flex; gap: 6px; align-items: center; font-size: .85rem; }
+.link-row button { border: 0; background: transparent; color: var(--late); }
+.who-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 10px; }
+.who-row .btn { padding: 6px 12px; font-size: .88rem; }
+.bulk { margin-top: 10px; width: 100%; border: 1px dashed var(--today); background: transparent; color: var(--today); border-radius: 10px; padding: 9px; font-weight: 700; }
+.share-page { max-width: 640px; margin: 0 auto; padding: 8px 0 40px; }
+.share-h { font-family: var(--font-display); margin: 0 0 4px; }
+.share-sub { color: var(--muted); margin: 0 0 14px; }
+.share-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.share-list li { display: flex; gap: 12px; align-items: flex-start; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+.share-list li input { width: 24px; height: 24px; accent-color: var(--accent); margin-top: 2px; }
+.share-list li div { display: flex; flex-direction: column; }
+.share-list li small { color: var(--muted); }
+.share-list li.done b { text-decoration: line-through; color: var(--muted); }
+.share-foot { color: var(--muted); font-size: .85rem; margin-top: 16px; }
 .empty-big { text-align: center; color: var(--muted); padding: 22px 8px; font-size: 1.05rem; }
 .hint { font-size: .78rem; color: var(--muted); text-align: center; margin: 4px 0 0; }
 /* Date picker: always centered on screen so it never runs off the edge */
@@ -283,7 +308,7 @@ details.donebox ul { margin-top: 6px; }
   <div class="gate-box">
     <h2>לוח הפרויקטים</h2>
     <p id="gate-msg">טוען…</p>
-    <small style="color:var(--muted);font-size:.75rem">גרסה 8</small>
+    <small style="color:var(--muted);font-size:.75rem">גרסה 9</small>
     <button type="button" class="gbtn" id="signin" hidden><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>כניסה עם Google</button>
   </div>
 </div>
@@ -299,10 +324,11 @@ details.donebox ul { margin-top: 6px; }
   </div>
 
   <nav class="views" id="views" aria-label="תצוגה">
-    <button type="button" data-v="today">☀️ היום</button>
-    <button type="button" data-v="projects">📁 פרויקטים</button>
-    <button type="button" data-v="waiting">⏳ ממתין<span class="badge" id="n-wait">0</span></button>
-    <button type="button" data-v="review">📊 סקירה</button>
+    <button type="button" data-v="today"><span class="ic">☀️</span>היום</button>
+    <button type="button" data-v="projects"><span class="ic">📁</span>פרויקטים</button>
+    <button type="button" data-v="waiting"><span class="ic">⏳</span>ממתין<span class="badge" id="n-wait">0</span></button>
+    <button type="button" data-v="tenders"><span class="ic">🏁</span>מכרזים</button>
+    <button type="button" data-v="review"><span class="ic">📊</span>סקירה</button>
   </nav>
   <input id="q" class="search" type="search" placeholder="🔍 חיפוש משימה, הערה או איש קשר" aria-label="חיפוש">
 
@@ -336,6 +362,10 @@ details.donebox ul { margin-top: 6px; }
     <button class="btn" id="f-submit" type="submit">הוספה</button>
     <p class="qa-help">אפשר לכתוב הכול בשורה אחת: <b>היום / מחר / יום ג׳ / 25.11</b> · <b>14:30</b> · <b>#פרויקט</b> · <b>!</b> דחוף · <b>@שם</b> ממתין ל… · <b>כל שבוע</b></p>
   </form>
+  <div class="tools">
+    <button type="button" id="open-tpl">🧩 תבנית</button>
+    <button type="button" id="open-paste">📋 הדבקת סיכום</button>
+  </div>
   <div id="status" class="note" role="status">טוען את המשימות…</div>
 
   <section class="summary" aria-label="סיכום">
@@ -363,6 +393,33 @@ details.donebox ul { margin-top: 6px; }
         <button type="submit" class="btn">שמירה</button>
         <button type="button" class="edit-name" id="inbox-cancel">ביטול</button>
       </div>
+    </form>
+  </div>
+  <div class="sheet-bg" id="tpl-sheet" hidden>
+    <form class="sheet" id="tpl-form" autocomplete="off">
+      <h2>🧩 יצירה מתבנית</h2>
+      <label>תבנית
+        <select id="tpl-kind">
+          <option value="tender">🏁 מכרז חדש</option>
+          <option value="contractor">👷 קבלן חדש</option>
+          <option value="tour">🦺 סיור באתר</option>
+        </select>
+      </label>
+      <label id="tpl-name-l">שם <input id="tpl-name" placeholder="למשל: מכרז קריית גת"></label>
+      <label>פרויקט <select id="tpl-project"></select></label>
+      <label id="tpl-date-l">תאריך <input id="tpl-date" type="date"></label>
+      <ul class="preview" id="tpl-preview"></ul>
+      <div class="row"><button type="submit" class="btn">יצירה</button><button type="button" class="edit-name" data-close>ביטול</button></div>
+    </form>
+  </div>
+  <div class="sheet-bg" id="paste-sheet" hidden>
+    <form class="sheet" id="paste-form" autocomplete="off">
+      <h2>📋 הדבקת סיכום</h2>
+      <p class="review-step" style="margin:0">כל שורה הופכת למשימה. שורה שמסתיימת ב-":" היא כותרת – אם זה שם פרויקט, השורות שאחריה ייכנסו אליו; אחרת היא תתווסף כתחילית (למשל "בניין 2: …").</p>
+      <label>פרויקט ברירת מחדל <select id="paste-project"></select></label>
+      <textarea id="paste-text" placeholder="להדביק כאן סיכום סיור / ישיבה…" style="min-height:140px"></textarea>
+      <ul class="preview" id="paste-preview"></ul>
+      <div class="row"><button type="button" class="mic" id="mic3" hidden>🎤</button><button type="submit" class="btn" id="paste-go">יצירת משימות</button><button type="button" class="edit-name" data-close>ביטול</button></div>
     </form>
   </div>
   <p class="hint">טיפ: החלקה ימינה על משימה = בוצע ✓ · החלקה שמאלה = דחייה למחר ⏭</p>
@@ -727,6 +784,118 @@ details.donebox ul { margin-top: 6px; }
     return wrap;
   }
 
+  // ---------- tenders ----------
+  const STAGES = [["new", "📥 התקבל"], ["study", "📖 לימוד"], ["tour", "🦺 סיור קבלנים"], ["qa", "❓ שאלות הבהרה"], ["pricing", "🧮 תמחור"], ["submitted", "📨 הוגש"], ["won", "🏆 זכינו"], ["lost", "✖️ לא זכינו"]];
+  const stageName = (k) => (STAGES.find((x) => x[0] === k) || STAGES[0])[1];
+  function fmtMoney(v) { v = +v || 0; if (v >= 1e6) return "₪" + (Math.round(v / 1e5) / 10) + "M"; if (v >= 1e3) return "₪" + Math.round(v / 1e3) + "K"; return "₪" + v; }
+  function setStage(t, st) {
+    const upd = { stage: st };
+    if (st === "won" || st === "lost") { upd.done = true; upd.doneAt = new Date().toISOString(); }
+    else if (t.done) { upd.done = false; upd.doneAt = null; }
+    write(() => db.doc("tasks/" + t.id).update(upd));
+    setStatus("🏁 " + t.title + " ← " + stageName(st));
+  }
+
+  // ---------- templates ----------
+  const TEMPLATES = {
+    tender: { title: (n) => "מכרז: " + n, dueOffset: 0, kind: "tender", subs: [["לימוד מסמכי המכרז והתוכניות", -12], ["סיור קבלנים (לבדוק מועד במסמכים)", -11], ["שאלות הבהרה", -10], ["פנייה לספקים וקבלני משנה להצעות", -9], ["כתב כמויות ותמחור", -5], ["ערבות בנקאית", -5], ["מסמכי סף ואישורים (סיווג, ניהול ספרים, ניסיון)", -3], ["חתימות על מסמכי המכרז", -2], ["הגשה", 0]] },
+    contractor: { title: (n) => "קבלן חדש: " + n, dueOffset: 7, subs: [["הסכם / הזמנת עבודה חתומה", 0], ["אישור קיום ביטוחים", 0], ["ערבות ביצוע", 0], ["פתיחת ספק במערכת", 0], ["תדריך בטיחות", 0], ["תיאום כניסה לאתר", 0]] },
+    tour: { title: (n, pn) => "סיור באתר – " + (pn || n), dueOffset: 0, subs: [["בטיחות וגידור", 0], ["התקדמות מול לו״ז", 0], ["איכות ביצוע וליקויים", 0], ["צילום תמונות", 0], ["סיכום ושליחה לגורמים (📋 הדבקת סיכום)", 0]] },
+  };
+  function tplBuild() {
+    const kind = $("tpl-kind").value, T = TEMPLATES[kind];
+    const name = $("tpl-name").value.trim(), pid = $("tpl-project").value, pn = projName(pid);
+    const due = $("tpl-date").value || (T.dueOffset ? addDays(todayIso, T.dueOffset) : todayIso);
+    const subs = T.subs.map(([txt, off], i) => {
+      let d = off && kind === "tender" ? addDays(due, off) : ""; if (d && d < todayIso) d = todayIso;
+      return { id: "s" + Date.now() + i, text: txt + (d ? " – עד " + fmtDue(d) : ""), done: false };
+    });
+    const task = { projectId: pid, title: T.title(name || "", pn), due, time: "", priority: "normal", done: false, created: new Date().toISOString(), subtasks: subs };
+    if (T.kind) { task.kind = T.kind; task.stage = "new"; }
+    return task;
+  }
+  function tplPreview() {
+    const kind = $("tpl-kind").value;
+    $("tpl-name-l").hidden = kind === "tour";
+    $("tpl-name-l").firstChild.textContent = kind === "tender" ? "שם המכרז " : "שם הקבלן ";
+    $("tpl-date-l").firstChild.textContent = kind === "tender" ? "מועד הגשה " : kind === "tour" ? "תאריך הסיור " : "יעד לסיום הפתיחה ";
+    const t = tplBuild(); const ul = $("tpl-preview"); ul.textContent = "";
+    const h = document.createElement("li"); h.innerHTML = "<b></b>"; h.firstChild.textContent = t.title + " · " + fmtDue(t.due); ul.appendChild(h);
+    t.subtasks.forEach((x) => { const li = document.createElement("li"); li.textContent = "▫️ " + x.text; ul.appendChild(li); });
+  }
+
+  // ---------- paste summary ----------
+  function parsePaste(text, defPid) {
+    let pid = defPid, prefix = "";
+    const out = [];
+    text.split(/\r?\n/).forEach((raw) => {
+      let line = raw.replace(/^[\s•\-\*–·▪◦✔✓☐\u200f\u200e]+/, "").replace(/^\d+[.)]\s*/, "").trim();
+      if (!line) return;
+      if (/[:：]$/.test(line)) {
+        const head = line.replace(/[:：]$/, "").trim();
+        const p = findProject(head);
+        if (p) { pid = p.id; prefix = ""; } else prefix = head;
+        return;
+      }
+      const q = parseQuick(line);
+      const t = { projectId: q.projectId || pid, title: (prefix ? prefix + ": " : "") + (q.title || line), due: q.due || "", time: q.time || "", priority: q.priority === "high" ? "high" : "normal", done: false, created: new Date().toISOString() };
+      if (q.waitingFor) { t.waitingFor = q.waitingFor; t.waitingSince = t.created; }
+      out.push(t);
+    });
+    return out;
+  }
+  function pastePreview() {
+    const list = parsePaste($("paste-text").value, $("paste-project").value);
+    const ul = $("paste-preview"); ul.textContent = "";
+    list.slice(0, 40).forEach((t) => { const li = document.createElement("li"); li.textContent = t.title + " · " + projName(t.projectId) + (t.due ? " · " + fmtDue(t.due) : ""); ul.appendChild(li); });
+    $("paste-go").textContent = list.length ? "יצירת " + list.length + " משימות" : "יצירת משימות";
+  }
+
+  // ---------- delegation ----------
+  let shareList = [];
+  const syncing = new Set();
+  function syncShares(list) {
+    shareList = list;
+    list.forEach((sh) => (sh.items || []).forEach((it) => {
+      if (!it.done || syncing.has(it.taskId)) return;
+      const t = tasks.find((x) => x.id === it.taskId);
+      if (t && !t.done) { syncing.add(it.taskId); completeTask(t, true); setStatus("✓ " + (sh.assignee || "") + " סימן כבוצע: " + t.title); }
+    }));
+    render();
+  }
+  function sendShare(name) {
+    if (!db || !db.shares) return;
+    const prev = shareList.find((x) => x.assignee === name);
+    const id = prev ? prev.id : (crypto.randomUUID ? crypto.randomUUID().replace(/-/g, "") : (Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2)));
+    const items = tasks.filter((t) => !t.done && t.assignee === name).sort(sortOpen).map((t) => ({ taskId: t.id, title: t.title, project: projName(t.projectId), due: t.due || "", done: false }));
+    db.shares.set(id, { assignee: name, fromName: "דוד", items }).catch(() => setStatus("שליחת הרשימה נכשלה. בדוק שהכללים ב-Firebase עודכנו.", true));
+    const url = location.origin + location.pathname + "?share=" + id;
+    const msg = "היי " + name + ", זו רשימת המשימות שלך (" + items.length + "). אפשר לסמן ✓ כשמשהו בוצע:\n" + url;
+    const ph = phoneFor(name);
+    window.open("https://wa.me/" + (ph ? waPhone(ph) : "") + "?text=" + encodeURIComponent(msg), "_blank");
+  }
+
+  // ---------- automation API (used by the scheduled tasks through Chrome) ----------
+  window.boardAdd = async function (arr) {
+    if (!db) throw new Error("not signed in");
+    let added = 0, skipped = 0;
+    for (const x of (Array.isArray(arr) ? arr : [arr])) {
+      const key = String((x && x.id) || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 100);
+      if (!key || !x.title) { skipped++; continue; }
+      const ref = db.doc("tasks/ext_" + key);
+      const ex = await ref.get();
+      if (ex.exists) { skipped++; continue; }
+      const created = new Date().toISOString();
+      const data = { projectId: x.project ? ((findProject(x.project) || {}).id || INBOX) : INBOX, title: String(x.title).slice(0, 300), due: /^\d{4}-\d{2}-\d{2}$/.test(x.due || "") ? x.due : "", time: /^\d{2}:\d{2}$/.test(x.time || "") ? x.time : "", priority: x.priority === "high" ? "high" : "normal", done: false, created, source: String(x.source || "auto").slice(0, 40) };
+      if (x.waitingFor) { data.waitingFor = String(x.waitingFor).slice(0, 60); data.waitingSince = x.waitingSince || created; }
+      if (x.contactName) { data.contactName = String(x.contactName).slice(0, 60); if (x.contactPhone) data.contactPhone = String(x.contactPhone).slice(0, 30); }
+      if (x.note) data.noteList = [{ id: "n" + Date.now(), text: String(x.note).slice(0, 1500), at: created }];
+      await ref.set(data); added++;
+    }
+    return { added, skipped };
+  };
+  window.boardBrief = () => briefData();
+
   // ---------- voice ----------
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   function setupMic(btn, target, onDone) {
@@ -805,6 +974,30 @@ details.donebox ul { margin-top: 6px; }
       n.addEventListener("change", () => { if (!ph.value) ph.value = phoneFor(n.value.trim()); });
       save.addEventListener("click", () => { write(() => db.doc("tasks/" + t.id).update({ contactName: n.value.trim(), contactPhone: ph.value.trim() })); close(); });
       box.append(n, ph, save, cancel); setTimeout(() => n.focus(), 0);
+    } else if (kind === "link") {
+      (t.links || []).forEach((l, i) => {
+        const r = document.createElement("div"); r.className = "link-row"; r.style.flexBasis = "100%";
+        const a = document.createElement("span"); a.textContent = "📎 " + (l.label || l.url);
+        const x = document.createElement("button"); x.type = "button"; x.textContent = "הסרה";
+        x.addEventListener("click", () => { write(() => db.doc("tasks/" + t.id).update({ links: t.links.filter((_, j) => j !== i) })); close(); });
+        r.append(a, x); box.appendChild(r);
+      });
+      const u = document.createElement("input"); u.placeholder = "קישור (Google Drive, Dropbox…)"; u.type = "url"; u.inputMode = "url";
+      const lb = document.createElement("input"); lb.placeholder = "שם (למשל: תוכנית קומה 2)";
+      save.addEventListener("click", () => {
+        let v = u.value.trim(); if (!v) { close(); return; }
+        if (!/^https?:\/\//i.test(v)) v = "https://" + v;
+        write(() => db.doc("tasks/" + t.id).update({ links: (t.links || []).concat([{ url: v, label: lb.value.trim() }]) })); close();
+      });
+      box.append(u, lb, save, cancel); setTimeout(() => u.focus(), 0);
+    } else if (kind === "assignee") {
+      const inp = document.createElement("input"); inp.placeholder = "למי? (למשל: מנהל העבודה בני)"; inp.value = t.assignee || ""; inp.setAttribute("list", "contacts-dl");
+      save.addEventListener("click", () => { write(() => db.doc("tasks/" + t.id).update({ assignee: inp.value.trim() })); close(); if (inp.value.trim()) setStatus("👥 הועבר ל" + inp.value.trim() + ". שולחים לו קישור מלשונית ⏳ ממתין."); });
+      box.append(inp, save, cancel); setTimeout(() => inp.focus(), 0);
+    } else if (kind === "value") {
+      const inp = document.createElement("input"); inp.placeholder = "היקף בש״ח (למשל 2500000)"; inp.inputMode = "numeric"; inp.value = t.value || "";
+      save.addEventListener("click", () => { const v = +String(inp.value).replace(/[^\d.]/g, "") || 0; write(() => db.doc("tasks/" + t.id).update({ value: v })); close(); });
+      box.append(inp, save, cancel); setTimeout(() => inp.focus(), 0);
     } else if (kind === "est") {
       const sel = document.createElement("select");
       [["", "בלי הערכה"], ["15", "15 דקות"], ["30", "30 דקות"], ["60", "שעה"], ["120", "שעתיים"], ["240", "חצי יום"]].forEach(([v, l]) => { const o = document.createElement("option"); o.value = v; o.textContent = l; sel.appendChild(o); });
@@ -873,6 +1066,16 @@ details.donebox ul { margin-top: 6px; }
     if (t.recur) { const c = document.createElement("span"); c.className = "chip recur"; c.textContent = "🔁 " + RECUR[t.recur]; meta.appendChild(c); }
     if (isTop3(t)) { const c = document.createElement("span"); c.className = "chip star"; c.textContent = "⭐ חשובה היום"; meta.appendChild(c); }
     if (t.estimate && !t.done) { const c = document.createElement("span"); c.className = "chip est"; c.textContent = "⏱ " + (EST[t.estimate] || fmtMinutes(t.estimate)); meta.appendChild(c); }
+    if (t.assignee && !t.done) { const c = document.createElement("span"); c.className = "chip assignee"; c.textContent = "👥 אצל " + t.assignee; meta.appendChild(c); }
+    if (isTender(t) && t.value) { const c = document.createElement("span"); c.className = "chip money"; c.textContent = fmtMoney(t.value); meta.appendChild(c); }
+    (Array.isArray(t.links) ? t.links : []).forEach((l) => { const a = document.createElement("a"); a.className = "link-chip"; a.href = l.url; a.target = "_blank"; a.rel = "noopener"; a.textContent = "📎 " + (l.label || "קישור"); meta.appendChild(a); });
+    if (isTender(t) && canWrite && (!t.done || t.stage === "won" || t.stage === "lost")) {
+      const sel = document.createElement("select"); sel.className = "stage-sel"; sel.setAttribute("aria-label", "שלב המכרז");
+      STAGES.forEach(([k, l]) => { const o = document.createElement("option"); o.value = k; o.textContent = l; sel.appendChild(o); });
+      sel.value = t.stage || "new";
+      sel.addEventListener("change", () => setStage(t, sel.value));
+      meta.appendChild(sel);
+    }
     const tc = tenderClass(t);
     if (isTender(t) && !t.done) {
       const c = document.createElement("span"); c.className = "chip " + (tc || "tender-g");
@@ -969,6 +1172,9 @@ details.donebox ul { margin-top: 6px; }
       mk(t.estimate ? "⏱ שינוי זמן" : "⏱ זמן משוער", () => { editingNote = { taskId: t.id, noteId: "est" }; render(); });
       mk(isTender(t) ? "🏁 בטל סימון מכרז" : "🏁 סמן כמכרז", () => write(() => db.doc("tasks/" + t.id).update({ kind: isTender(t) ? "no" : "tender" })));
       mk("📄 שכפול", () => duplicateTask(t));
+      mk("🔗 קישור לקובץ", () => { editingNote = { taskId: t.id, noteId: "link" }; render(); });
+      mk(t.assignee ? "👥 שינוי אחראי" : "👥 העבר ל…", () => { editingNote = { taskId: t.id, noteId: "assignee" }; render(); });
+      if (isTender(t)) mk(t.value ? "₪ שינוי היקף" : "₪ היקף כספי", () => { editingNote = { taskId: t.id, noteId: "value" }; render(); });
       mk(t.waitingFor ? "⏳ שינוי ממתין" : "⏳ ממתין ל…", () => { editingNote = { taskId: t.id, noteId: "waiting" }; render(); });
       if (t.waitingFor) mk("✓ התקבל", () => write(() => db.doc("tasks/" + t.id).update({ waitingFor: "", waitingSince: "" })));
       mk(t.contactName ? "👤 שינוי איש קשר" : "👤 איש קשר", () => { editingNote = { taskId: t.id, noteId: "contact" }; render(); });
@@ -996,7 +1202,7 @@ details.donebox ul { margin-top: 6px; }
     body.append(title, meta);
     body.appendChild(subtaskBlock(t));
     if (isOpen && acts.childNodes.length) body.appendChild(acts);
-    if (editingNote && editingNote.taskId === t.id && ["waiting", "contact", "recur", "est"].includes(editingNote.noteId)) body.appendChild(miniEditor(t, editingNote.noteId));
+    if (editingNote && editingNote.taskId === t.id && ["waiting", "contact", "recur", "est", "link", "assignee", "value"].includes(editingNote.noteId)) body.appendChild(miniEditor(t, editingNote.noteId));
     if (notes.length) {
       const ul = document.createElement("ul"); ul.className = "notes-list";
       notes.forEach((n) => {
@@ -1045,7 +1251,7 @@ details.donebox ul { margin-top: 6px; }
     del.setAttribute("aria-label", "מחיקת המשימה " + t.title);
     del.hidden = !canWrite;
     del.addEventListener("click", () => {
-      if (del.dataset.armed) { write(() => db.doc("tasks/" + t.id).delete()); return; }
+      if (del.dataset.armed) { write(() => t.id.startsWith("ext_") ? db.doc("tasks/" + t.id).update({ deleted: true, done: true }) : db.doc("tasks/" + t.id).delete()); return; }
       del.dataset.armed = "1"; del.textContent = "למחוק?"; del.style.fontSize = ".8rem";
       setTimeout(() => { delete del.dataset.armed; del.textContent = "×"; del.style.fontSize = ""; }, 3000);
     });
@@ -1055,20 +1261,25 @@ details.donebox ul { margin-top: 6px; }
   }
 
   // Machine-readable snapshot of open tasks for the scheduled reminders (they open the app at #brief in Chrome).
-  function updateBrief() {
-    if (location.hash !== "#brief") return;
-    let pre = $("brief-data");
-    if (!pre) { pre = document.createElement("pre"); pre.id = "brief-data"; pre.style.cssText = "white-space:pre-wrap;font-size:11px;direction:ltr;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px"; document.querySelector(".wrap").appendChild(pre); }
+  function briefData() {
     const projIdx = new Map(projects.map((p, i) => [p.id, i]));
-    const data = {
+    return {
       generatedAt: new Date().toISOString(), today: todayIso,
       projects: projects.map((p, i) => ({ name: p.name, position: i + 1 })),
       openTasks: tasks.filter((t) => !t.done && (projIdx.has(t.projectId) || t.projectId === INBOX)).sort(sortOpen).map((t) => ({
         project: projName(t.projectId), title: t.title, due: t.due || "", time: t.time || "", top3: isTop3(t), tender: isTender(t),
         priority: t.priority || "normal", waitingFor: t.waitingFor || "", waitingSince: t.waitingSince || "",
-        recur: t.recur || "", contactName: t.contactName || "",
+        recur: t.recur || "", contactName: t.contactName || "", estimate: +t.estimate || 0, assignee: t.assignee || "",
+        stage: isTender(t) ? (t.stage || "new") : "", value: +t.value || 0,
       })),
+      doneToday: tasks.filter((t) => t.done && (t.doneAt || "").slice(0, 10) === todayIso).map((t) => ({ project: projName(t.projectId), title: t.title })),
     };
+  }
+  function updateBrief() {
+    if (location.hash !== "#brief") return;
+    let pre = $("brief-data");
+    if (!pre) { pre = document.createElement("pre"); pre.id = "brief-data"; pre.style.cssText = "white-space:pre-wrap;font-size:11px;direction:ltr;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px"; document.querySelector(".wrap").appendChild(pre); }
+    const data = briefData();
     pre.textContent = JSON.stringify(data, null, 1);
     pre.dataset.ready = "1";
   }
@@ -1090,6 +1301,30 @@ details.donebox ul { margin-top: 6px; }
     const ul = document.createElement("ul"); ul.className = "tasks" + (opts && opts.done ? "" : " open");
     list.forEach((t) => ul.appendChild(taskItem(t, { showProject: true })));
     lane.append(h, ul);
+  }
+
+  function renderTenders(lane, h, open) {
+    h.textContent = "🏁 לוח מכרזים";
+    const all = tasks.filter(isTender);
+    const openT = open.filter(isTender);
+    const won = all.filter((t) => t.stage === "won"), lost = all.filter((t) => t.stage === "lost");
+    const submitted = all.filter((t) => ["submitted", "won", "lost"].includes(t.stage));
+    const rate = won.length + lost.length ? Math.round(100 * won.length / (won.length + lost.length)) + "%" : "–";
+    const sum = (arr) => arr.reduce((m, t) => m + (+t.value || 0), 0);
+    const grid = document.createElement("div"); grid.className = "stats-grid";
+    [[openT.length, "מכרזים פתוחים"], [rate, "אחוז זכייה"], [sum(submitted) ? fmtMoney(sum(submitted)) : "–", "היקף שהוגש"], [sum(won) ? fmtMoney(sum(won)) : "–", "היקף שזכינו"]].forEach(([n, l]) => {
+      const d = document.createElement("div"); const b = document.createElement("b"); b.textContent = n; const sp = document.createElement("span"); sp.textContent = l; d.append(b, sp); grid.appendChild(d);
+    });
+    lane.appendChild(grid);
+    const tip = document.createElement("p"); tip.className = "review-step"; tip.textContent = "מכרז חדש: 🧩 תבנית ← מכרז חדש. מעבירים שלב בתפריט שעל כל מכרז. כל משימה בפרויקט \"מכרזים\" מופיעה כאן.";
+    lane.appendChild(tip);
+    STAGES.forEach(([k, l]) => {
+      let list;
+      if (k === "won" || k === "lost") list = all.filter((t) => t.stage === k && (t.doneAt || "") > addDays(todayIso, -180)).sort((a, b) => (b.doneAt || "").localeCompare(a.doneAt || ""));
+      else list = openT.filter((t) => (t.stage || "new") === k).sort(sortOpen);
+      section(lane, l, k === "won" ? "today" : "", list, { done: k === "won" || k === "lost" });
+    });
+    if (!all.length) { const e = document.createElement("div"); e.className = "empty-big"; e.textContent = "עוד אין מכרזים. לחץ 🧩 תבנית ← מכרז חדש."; lane.appendChild(e); }
   }
 
   function renderReview(lane, h, open) {
@@ -1156,6 +1391,8 @@ details.donebox ul { margin-top: 6px; }
       section(lane, "פתוחות", "", res.filter((t) => !t.done).sort(sortOpen));
       section(lane, "בוצעו", "", res.filter((t) => t.done).sort((a, b) => (b.doneAt || "").localeCompare(a.doneAt || "")).slice(0, 30), { done: true });
       if (!res.length) { const e = document.createElement("div"); e.className = "empty-big"; e.textContent = "לא נמצא כלום עבור \"" + query + "\""; lane.appendChild(e); }
+    } else if (view === "tenders") {
+      renderTenders(lane, h, open);
     } else if (view === "review") {
       renderReview(lane, h, open);
     } else if (view === "waiting") {
@@ -1164,7 +1401,23 @@ details.donebox ul { margin-top: 6px; }
       const old = w.filter((t) => daysSince(t.waitingSince) >= 3), fresh = w.filter((t) => daysSince(t.waitingSince) < 3);
       section(lane, "כדאי לנדנד (3 ימים ומעלה)", "late", old);
       section(lane, "ממתין", "", fresh);
-      if (!w.length) { const e = document.createElement("div"); e.className = "empty-big"; e.textContent = "אין משימות שממתינות למישהו. בכל משימה אפשר ללחוץ ⋯ ואז ⏳ ממתין ל…"; lane.appendChild(e); }
+      const people = [...new Set(open.filter((t) => t.assignee).map((t) => t.assignee))];
+      if (people.length) {
+        const hh = document.createElement("h3"); hh.className = "sec-h"; hh.textContent = "👥 אצל אחרים"; lane.appendChild(hh);
+        people.forEach((name) => {
+          const list = open.filter((t) => t.assignee === name).sort(sortOpen);
+          const row = document.createElement("div"); row.className = "who-row";
+          const nm = document.createElement("b"); nm.textContent = name + " (" + list.length + ")";
+          const sh = shareList.find((x) => x.assignee === name);
+          const doneN = sh ? (sh.items || []).filter((x) => x.done).length : 0;
+          const b = document.createElement("button"); b.type = "button"; b.className = "btn"; b.textContent = sh ? "📤 שלח שוב" : "📤 שלח קישור";
+          b.addEventListener("click", () => sendShare(name));
+          row.append(nm, b); lane.appendChild(row);
+          if (sh) { const p = document.createElement("p"); p.className = "review-step"; p.textContent = "קישור נשלח · " + doneN + " סומנו כבוצעו"; lane.appendChild(p); }
+          const ul = document.createElement("ul"); ul.className = "tasks open"; list.forEach((t) => ul.appendChild(taskItem(t, { showProject: true }))); lane.appendChild(ul);
+        });
+      }
+      if (!w.length && !open.some((t) => t.assignee)) { const e = document.createElement("div"); e.className = "empty-big"; e.textContent = "אין משימות שממתינות למישהו. בכל משימה: ⋯ ← ⏳ ממתין ל… או 👥 העבר ל…"; lane.appendChild(e); }
     } else {
       h.textContent = "☀️ היום שלי";
       const used = new Set();
@@ -1188,6 +1441,17 @@ details.donebox ul { margin-top: 6px; }
       section(lane, "דחוף", "late", urgent);
       section(lane, "🏁 מכרזים בשבוע הקרוב", "", tenders);
       section(lane, "מחר", "", tom);
+      const movable = late.concat(tod).filter((t) => !isTop3(t));
+      if (movable.length && canWrite) {
+        const b = document.createElement("button"); b.type = "button"; b.className = "bulk";
+        b.textContent = "⏭ להעביר למחר את כל מה שנשאר מהיום (" + movable.length + ")";
+        b.addEventListener("click", () => {
+          if (!b.dataset.armed) { b.dataset.armed = "1"; b.textContent = "בטוח? לחץ שוב כדי להעביר " + movable.length + " משימות למחר"; setTimeout(() => { delete b.dataset.armed; b.textContent = "⏭ להעביר למחר את כל מה שנשאר מהיום (" + movable.length + ")"; }, 4000); return; }
+          movable.forEach((t) => write(() => db.doc("tasks/" + t.id).update({ due: tomorrowIso, notified: null })));
+          setStatus("⏭ " + movable.length + " משימות הועברו למחר");
+        });
+        lane.appendChild(b);
+      }
       if (!top.length && !late.length && !tod.length && !urgent.length && !inbox.length) {
         const e = document.createElement("div"); e.className = "empty-big"; e.textContent = "🎉 אין משימות דחופות להיום. הוסף משימה למעלה או עבור ל📁 פרויקטים.";
         lane.insertBefore(e, lane.children[1] || null);
@@ -1454,6 +1718,50 @@ details.donebox ul { margin-top: 6px; }
   const openInbox = () => { if (!db) return; $("inbox-sheet").hidden = false; $("inbox-text").value = ""; setTimeout(() => $("inbox-text").focus(), 50); };
   const closeInbox = () => { $("inbox-sheet").hidden = true; };
   $("fab").addEventListener("click", openInbox);
+  const fillProjSel = (sel, withInbox, def) => {
+    sel.textContent = "";
+    if (withInbox) { const o = document.createElement("option"); o.value = INBOX; o.textContent = "📥 קליטה (למיין אחר כך)"; sel.appendChild(o); }
+    projects.forEach((p) => { const o = document.createElement("option"); o.value = p.id; o.textContent = p.name; sel.appendChild(o); });
+    if (def) sel.value = def;
+  };
+  document.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => b.closest(".sheet-bg").hidden = true));
+  ["tpl-sheet", "paste-sheet"].forEach((id) => $(id).addEventListener("click", (e) => { if (e.target.id === id) $(id).hidden = true; }));
+  $("open-tpl").addEventListener("click", () => {
+    if (!db) return;
+    const tp = projects.find((p) => p.name.includes("מכרז"));
+    fillProjSel($("tpl-project"), false, (tp || {}).id || selected);
+    $("tpl-kind").value = "tender"; $("tpl-name").value = ""; $("tpl-date").value = addDays(todayIso, 14);
+    tplPreview(); $("tpl-sheet").hidden = false; setTimeout(() => $("tpl-name").focus(), 50);
+  });
+  $("tpl-kind").addEventListener("change", () => {
+    const k = $("tpl-kind").value;
+    if (k === "tender") { const tp = projects.find((p) => p.name.includes("מכרז")); if (tp) $("tpl-project").value = tp.id; $("tpl-date").value = addDays(todayIso, 14); }
+    else { $("tpl-project").value = selected; $("tpl-date").value = k === "tour" ? todayIso : addDays(todayIso, 7); }
+    tplPreview();
+  });
+  ["tpl-name", "tpl-project", "tpl-date"].forEach((id) => $(id).addEventListener("input", tplPreview));
+  $("tpl-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    if ($("tpl-kind").value !== "tour" && !$("tpl-name").value.trim()) { $("tpl-name").focus(); return; }
+    const t = tplBuild();
+    write(() => db.collection("tasks").add(t));
+    $("tpl-sheet").hidden = true; setStatus("🧩 נוצר: " + t.title + " עם " + t.subtasks.length + " שלבים");
+  });
+  $("open-paste").addEventListener("click", () => {
+    if (!db) return;
+    fillProjSel($("paste-project"), true, view === "projects" ? selected : INBOX);
+    $("paste-text").value = ""; pastePreview(); $("paste-sheet").hidden = false; setTimeout(() => $("paste-text").focus(), 50);
+  });
+  $("paste-text").addEventListener("input", pastePreview);
+  $("paste-project").addEventListener("change", pastePreview);
+  setupMic($("mic3"), $("paste-text"));
+  $("paste-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const list = parsePaste($("paste-text").value, $("paste-project").value);
+    if (!list.length) return;
+    list.forEach((t, i) => { t.created = new Date(Date.now() + i).toISOString(); write(() => db.collection("tasks").add(t)); });
+    $("paste-sheet").hidden = true; setStatus("📋 נוצרו " + list.length + " משימות");
+  });
   $("inbox-cancel").addEventListener("click", closeInbox);
   $("inbox-sheet").addEventListener("click", (e) => { if (e.target.id === "inbox-sheet") closeInbox(); });
   $("inbox-text").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("inbox-form").requestSubmit(); } });
@@ -1482,6 +1790,7 @@ details.donebox ul { margin-top: 6px; }
   window.startBoard = function (store) {
     unsubs.forEach((u) => u()); unsubs = [];
     db = store; canWrite = true;
+    if (db.shares) unsubs.push(db.shares.watchMine(syncShares, () => {}));
     $("f-submit").disabled = false;
     setStatus("טוען את המשימות…");
     let gotP = false, gotT = false;
@@ -1500,7 +1809,7 @@ details.donebox ul { margin-top: 6px; }
       if (!editingProject && !editingNote) render();
     }, () => setStatus("החיבור ללוח נקטע. רענן את הדף.", true)));
     unsubs.push(db.collection("tasks").onSnapshot((snap) => {
-      tasks = snap.docs.map((d) => Object.assign({ id: d.id }, d.data()));
+      tasks = snap.docs.map((d) => Object.assign({ id: d.id }, d.data())).filter((t) => !t.deleted);
       setStatus("");
       gotT = true; maybeOffer(); updateBrief();
       if (!editingProject && !editingNote) render();
@@ -1510,6 +1819,6 @@ details.donebox ul { margin-top: 6px; }
 })();
 </script>
 
-<script type="module" src="firebase-store.js?v=8"></script>
+<script type="module" src="firebase-store.js?v=9"></script>
 </body>
 </html>

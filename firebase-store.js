@@ -7,7 +7,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
-  doc, collection, setDoc, updateDoc, deleteDoc, addDoc, onSnapshot, writeBatch,
+  doc, collection, setDoc, updateDoc, deleteDoc, addDoc, onSnapshot, writeBatch, getDoc, query, where,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -39,6 +39,8 @@ function makeStore(uid) {
         set: (data) => setDoc(ref, data),
         update: (data) => updateDoc(ref, data),
         delete: () => deleteDoc(ref),
+        get: async () => { const d = await getDoc(ref); return { exists: d.exists(), data: () => d.data() }; },
+        onSnapshot: (next, err) => onSnapshot(ref, (d) => next({ exists: d.exists(), data: () => d.data() }), err),
       };
     },
     collection(path) {
@@ -47,6 +49,13 @@ function makeStore(uid) {
         add: (data) => addDoc(ref, data),
         onSnapshot: (next, err) => onSnapshot(ref, (s) => next(wrapSnap(s)), err),
       };
+    },
+    uid,
+    // Delegation: shared lists live at shares/<random id>, readable by anyone with the link.
+    shares: {
+      set: (id, data) => setDoc(doc(fs, "shares/" + id), Object.assign({}, data, { ownerUid: uid, updatedAt: new Date().toISOString() })),
+      watchMine: (next, err) => onSnapshot(query(collection(fs, "shares"), where("ownerUid", "==", uid)), (snap) => next(snap.docs.map((d) => Object.assign({ id: d.id }, d.data()))), err),
+      remove: (id) => deleteDoc(doc(fs, "shares/" + id)),
     },
     async importData(data) {
       const ops = [];
@@ -138,7 +147,41 @@ async function runPendingImport() {
   }
 }
 
-onAuthStateChanged(auth, (user) => {
+// ---------- Delegate page: ?share=<id> (no sign-in needed) ----------
+const shareId = new URLSearchParams(location.search).get("share");
+function renderSharePage(id) {
+  document.querySelectorAll(".wrap, #gate, #fab, #inbox-sheet").forEach((el) => { el.hidden = true; el.style.display = "none"; });
+  const box = document.createElement("div"); box.className = "share-page";
+  box.innerHTML = '<h1 class="share-h">טוען…</h1><p class="share-sub"></p><ul class="share-list"></ul><p class="share-foot">מסמנים ✓ כשמשימה בוצעה – זה מתעדכן אצל מי ששלח את הרשימה.</p>';
+  document.body.appendChild(box);
+  const ref = doc(fs, "shares/" + id);
+  let cur = null;
+  const fmt = (iso) => { if (!iso) return ""; const [y, m, d] = iso.split("-"); return d + "." + m; };
+  onSnapshot(ref, (d) => {
+    if (!d.exists()) { box.querySelector(".share-h").textContent = "הרשימה לא נמצאה"; return; }
+    cur = d.data();
+    box.querySelector(".share-h").textContent = "המשימות של " + (cur.assignee || "");
+    const open = (cur.items || []).filter((x) => !x.done).length;
+    box.querySelector(".share-sub").textContent = (cur.fromName ? "מ" + cur.fromName + " · " : "") + open + " פתוחות";
+    const ul = box.querySelector(".share-list"); ul.textContent = "";
+    (cur.items || []).forEach((it, i) => {
+      const li = document.createElement("li"); if (it.done) li.className = "done";
+      const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = !!it.done;
+      cb.addEventListener("change", () => {
+        const items = cur.items.map((x, j) => j === i ? Object.assign({}, x, { done: cb.checked, doneAt: cb.checked ? new Date().toISOString() : "" }) : x);
+        updateDoc(ref, { items, updatedAt: new Date().toISOString() }).catch(() => { cb.checked = !cb.checked; });
+      });
+      const t = document.createElement("div");
+      const ti = document.createElement("b"); ti.textContent = it.title;
+      const meta = document.createElement("small"); meta.textContent = [it.project, it.due ? "עד " + fmt(it.due) : ""].filter(Boolean).join(" · ");
+      t.append(ti, meta);
+      li.append(cb, t); ul.appendChild(li);
+    });
+  }, () => { box.querySelector(".share-h").textContent = "אין גישה לרשימה הזו"; });
+}
+
+if (shareId) renderSharePage(shareId);
+else onAuthStateChanged(auth, (user) => {
   if (user) {
     store = makeStore(user.uid);
     $("who").textContent = user.email || user.displayName || "";
