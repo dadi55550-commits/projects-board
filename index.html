@@ -204,6 +204,12 @@ body { padding-top: max(20px, env(safe-area-inset-top, 0px)); }
 .meet-raw { white-space: pre-wrap; font-size: .78rem; max-height: 240px; overflow: auto; background: var(--surface); padding: 6px; border-radius: 6px; }
 .tile.meet-tile { border-style: dashed; }
 #paste-meet-hint .btn { width: 100%; }
+.meet-sec { border-top: 1px dashed var(--line); padding-top: 8px; }
+.meet-sec > summary { cursor: pointer; font-family: var(--font-display); font-weight: 700; color: #7c5cd6; margin-bottom: 6px; }
+.meet-sec > .edit-name { margin: 0 0 8px; }
+.meet-src > summary { cursor: pointer; font-size: .85rem; color: var(--today); font-weight: 600; margin: 4px 0; }
+.meet-img { width: 100%; max-width: 640px; border: 1px solid var(--line); border-radius: 6px; cursor: zoom-in; display: block; margin-bottom: 6px; }
+.meet-sec .meet { margin-bottom: 8px; }
 </style>
 </head>
 <body>
@@ -393,7 +399,7 @@ details.donebox ul { margin-top: 6px; }
   <div class="gate-box">
     <h2>לוח הפרויקטים</h2>
     <p id="gate-msg">טוען…</p>
-    <small style="color:var(--muted);font-size:.75rem">גרסה 28</small>
+    <small style="color:var(--muted);font-size:.75rem">גרסה 29</small>
     <button type="button" class="gbtn" id="signin" hidden><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>כניסה עם Google</button>
   </div>
 </div>
@@ -577,7 +583,7 @@ details.donebox ul { margin-top: 6px; }
       <div class="row"><button type="button" class="mic" id="mic3" hidden>🎤</button><button type="submit" class="btn" id="paste-go">יצירת משימות</button><button type="button" class="edit-name" data-close>ביטול</button></div>
     </form>
   </div>
-  <p class="hint" style="opacity:.6">גרסה 28</p>
+  <p class="hint" style="opacity:.6">גרסה 29</p>
   <p class="hint">טיפ: החלקה ימינה על משימה = בוצע ✓ · החלקה שמאלה = דחייה למחר ⏭</p>
   <p class="note">לחיצה על קובייה מציגה את המשימות של הפרויקט. ליד כל משימה אפשר להוסיף כמה הערות שרוצים.</p>
 </div>
@@ -1064,14 +1070,16 @@ details.donebox ul { margin-top: 6px; }
   }
   let pasteMode = "tasks";
   const PASTE_HELP = { tasks: "", meeting: "מדביקים או מעלים את סיכום הישיבה (PDF, Word, צילום מסך). הסיכום יישמר ב📝 סיכומי ישיבות, ושם בוחרים מה עובר למשימות שלך." };
-  function openPaste(mode) {
+  let pasteImages = [];
+  function openPaste(mode, pid) {
     if (!db) return;
-    pasteMode = mode === "meeting" ? "meeting" : "tasks";
+    pasteMode = mode === "meeting" ? "meeting" : "tasks"; pasteImages = [];
     if (!PASTE_HELP.tasks) PASTE_HELP.tasks = $("paste-help").textContent;
     $("paste-h").textContent = pasteMode === "meeting" ? "📝 סיכום ישיבה חדש" : "📋 הדבקת סיכום";
     $("paste-help").textContent = PASTE_HELP[pasteMode];
     $("paste-proj-l").textContent = pasteMode === "meeting" ? "פרויקט" : "פרויקט ברירת מחדל";
-    fillProjSel($("paste-project"), true, view === "projects" && selected !== MEET ? selected : INBOX);
+    if (pasteMode === "meeting") { fillProjSel($("paste-project"), false, pid || selected); $("paste-project").dataset.touched = pid ? "1" : ""; if (!pid) delete $("paste-project").dataset.touched; }
+    else { fillProjSel($("paste-project"), true, view === "projects" ? selected : INBOX); delete $("paste-project").dataset.touched; }
     $("paste-text").value = ""; pastePreview(); $("paste-sheet").hidden = false; setTimeout(() => $("paste-text").focus(), 50);
   }
   function pastePreview() {
@@ -1091,7 +1099,7 @@ details.donebox ul { margin-top: 6px; }
       const m = parseMeeting($("paste-text").value);
       if (m.items.length >= 2 && m.items.some((x) => x.owner)) {
         const b = document.createElement("button"); b.type = "button"; b.className = "btn"; b.textContent = "📝 זה נראה כמו סיכום ישיבה – לשמור בסיכומי ישיבות";
-        b.addEventListener("click", () => { const txt = $("paste-text").value; openPaste("meeting"); $("paste-text").value = txt; pastePreview(); });
+        b.addEventListener("click", () => { const txt = $("paste-text").value, imgs = pasteImages, pp = $("paste-project").value; openPaste("meeting", projects.some((x) => x.id === pp) ? pp : ""); pasteImages = imgs; $("paste-text").value = txt; pastePreview(); });
         hint.appendChild(b); hint.hidden = false;
       }
     }
@@ -1211,6 +1219,32 @@ details.donebox ul { margin-top: 6px; }
     return out;
   }
   const meetDate = (iso) => { const [y, mo, d] = (iso || "").split("-"); return iso ? +d + "." + +mo + "." + y : ""; };
+  // Does the parsed text look unreliable? (nothing found, rows without owner/date, digits glued to words)
+  function meetDoubt(m) {
+    const its = m.items || [];
+    if (!its.length) return true;
+    const bad = its.filter((x) => !x.owner || (!x.dueRaw && !x.due) || /[\u0590-\u05FF]\d|\d[\u0590-\u05FF]/.test(x.text)).length;
+    return bad / its.length > 0.25;
+  }
+  const meetPhotoCache = new Map();
+  function meetPhotos(m, open) {
+    const det = document.createElement("details"); det.className = "meet-src"; det.open = !!open;
+    const sm = document.createElement("summary"); sm.textContent = open ? "🖼 ייתכן שחלק מהטקסט לא הועתק טוב – תמונת המקור" : "🖼 תמונת המסמך המקורי";
+    const box = document.createElement("div"); box.className = "photos";
+    det.append(sm, box);
+    const fill = (list) => {
+      box.textContent = "";
+      list.forEach((ph) => { const im = document.createElement("img"); im.src = ph.data; im.alt = "המסמך המקורי"; im.loading = "lazy"; im.className = "meet-img"; im.addEventListener("click", () => showImage(ph.data, m.title)); box.appendChild(im); });
+    };
+    if (meetPhotoCache.has(m.id)) fill(meetPhotoCache.get(m.id));
+    else if (db) {
+      const un = db.collection("meetings/" + m.id + "/photos").onSnapshot((snap) => {
+        const list = snap.docs.map((d) => Object.assign({ id: d.id }, d.data())).sort((a, b) => (a.id < b.id ? -1 : 1));
+        meetPhotoCache.set(m.id, list); fill(list); un && un();
+      }, () => {});
+    }
+    return det;
+  }
   const isMine = (it) => MY_OWNER_RE.test(it.owner || "");
   function saveMeetingItems(m, items) { write(() => db.doc("meetings/" + m.id).update({ items })); }
   function meetItemTo(m, it, kind) {
@@ -1226,16 +1260,27 @@ details.donebox ul { margin-top: 6px; }
     write(async () => { const ref = await db.collection("tasks").add(data); cur.taskId = ref && ref.id ? ref.id : ""; await db.doc("meetings/" + m.id).update({ items }); });
     setStatus(kind === "follow" ? "⏳ נוסף למעקב מול " + data.waitingFor + ": " + it.text : "✓ נוסף למשימות: " + it.text);
   }
-  function renderMeetings(lane, head) {
-    const h = head.querySelector(".lane-name"); if (h) h.textContent = "📝 סיכומי ישיבות";
-    const add = document.createElement("button"); add.type = "button"; add.className = "btn"; add.textContent = "➕ הדבקת סיכום ישיבה";
-    add.addEventListener("click", () => openPaste("meeting"));
-    const hint = document.createElement("p"); hint.className = "review-step"; hint.style.margin = "0";
-    hint.textContent = "מדביקים או מעלים את הסיכום (PDF, Word, צילום מסך). לכל סעיף בוחרים: ➕ למשימות שלי, ⏳ מעקב מול האחראי, או ✕ לא שלי.";
-    lane.append(add, hint);
-    if (!meetings.length) { const e = document.createElement("div"); e.className = "empty-big"; e.textContent = "עוד אין סיכומי ישיבות."; lane.appendChild(e); return; }
-    const list = meetings.slice().sort((a, b) => (b.date || "").localeCompare(a.date || "") || (b.created || "").localeCompare(a.created || ""));
-    if (!openMeeting) openMeeting = list[0].id;
+  let meetSecOpen = new Set();
+  function meetSection(p) {
+    const real = (m) => projects.some((x) => x.id === m.projectId);
+    const list = meetings.filter((m) => m.projectId === p.id || (!real(m) && p.id === selected))
+      .sort((a, b) => (b.date || "").localeCompare(a.date || "") || (b.created || "").localeCompare(a.created || ""));
+    const pending = list.reduce((n, m) => n + (m.items || []).filter((x) => !x.status).length, 0);
+    const box = document.createElement("details"); box.className = "meet-sec";
+    box.open = meetSecOpen.has(p.id) || pending > 0;
+    box.addEventListener("toggle", () => { if (box.open) meetSecOpen.add(p.id); else meetSecOpen.delete(p.id); });
+    const s = document.createElement("summary");
+    s.textContent = "📝 סיכומי ישיבות" + (list.length ? " (" + list.length + ")" : "") + (pending ? " · " + pending + " סעיפים לטיפול" : "");
+    box.appendChild(s);
+    const add = document.createElement("button"); add.type = "button"; add.className = "edit-name"; add.textContent = "➕ סיכום ישיבה חדש";
+    add.addEventListener("click", () => openPaste("meeting", p.id));
+    box.appendChild(add);
+    if (!list.length) { const e = document.createElement("div"); e.className = "empty"; e.textContent = "עוד אין סיכומי ישיבות בפרויקט הזה. מעלים PDF, Word או צילום מסך, ולכל סעיף בוחרים: ➕ למשימות שלי, ⏳ מעקב מול האחראי, או ✕ לא שלי."; box.appendChild(e); return box; }
+    if (!openMeeting || !list.some((m) => m.id === openMeeting)) openMeeting = list[0].id;
+    renderMeetingList(box, list, real);
+    return box;
+  }
+  function renderMeetingList(lane, list, real) {
     list.forEach((m) => {
       const items = m.items || [];
       const pending = items.filter((x) => !x.status);
@@ -1248,9 +1293,10 @@ details.donebox ul { margin-top: 6px; }
       s.append(st, sm); d.appendChild(s);
       const bar = document.createElement("div"); bar.className = "meet-bar";
       const sel = document.createElement("select"); sel.setAttribute("aria-label", "פרויקט למשימות מהישיבה");
-      fillProjSel(sel, true, m.projectId || INBOX);
-      sel.addEventListener("change", () => write(() => db.doc("meetings/" + m.id).update({ projectId: sel.value })));
-      const sl = document.createElement("label"); sl.textContent = "משימות ייכנסו ל: "; sl.appendChild(sel); bar.appendChild(sl);
+      fillProjSel(sel, false, real(m) ? m.projectId : "");
+      if (!real(m)) { const o = document.createElement("option"); o.value = ""; o.textContent = "בחר…"; sel.insertBefore(o, sel.firstChild); sel.value = ""; }
+      sel.addEventListener("change", () => { if (!sel.value) return; write(() => db.doc("meetings/" + m.id).update({ projectId: sel.value })); setStatus("📁 הסיכום הועבר ל" + projName(sel.value)); });
+      const sl = document.createElement("label"); sl.textContent = real(m) ? "פרויקט: " : "⚠️ לא משויך – בחר פרויקט: "; sl.appendChild(sel); bar.appendChild(sl);
       const mineOpen = pending.filter(isMine);
       if (mineOpen.length > 1) {
         const all = document.createElement("button"); all.type = "button"; all.className = "edit-name"; all.textContent = "➕ כל " + mineOpen.length + " הסעיפים שבאחריותי";
@@ -1271,6 +1317,7 @@ details.donebox ul { margin-top: 6px; }
       }
       d.appendChild(bar);
       if (m.participants) { const p = document.createElement("p"); p.className = "meet-who"; p.textContent = "👥 " + m.participants; d.appendChild(p); }
+      if (+m.photoCount > 0) d.appendChild(meetPhotos(m, meetDoubt(m)));
       const ul = document.createElement("ul"); ul.className = "meet-items";
       items.forEach((it) => {
         const li = document.createElement("li"); li.className = "meet-item" + (it.status ? " st-" + it.status : "") + (!it.status && isMine(it) ? " mine" : "");
@@ -2403,8 +2450,7 @@ details.donebox ul { margin-top: 6px; }
     $("add-form").hidden = !addHere; document.querySelector(".tools").hidden = !addHere; $("fab").hidden = !addHere;
     $("open-tpl").hidden = !(view === "projects" && !query && projName(selected).includes("מכרז"));
     $("tiles").hidden = view !== "projects" || !!query;
-    if (!projects.some((p) => p.id === selected) && selected !== MEET) selected = projects[0].id;
-    if (view === "projects" && selected === MEET && !query) { $("add-form").hidden = true; $("fab").hidden = true; }
+    if (!projects.some((p) => p.id === selected)) selected = projects[0].id;
     if (query || view !== "projects") {
       renderList(open);
       renderProjectSelect();
@@ -2412,7 +2458,7 @@ details.donebox ul { margin-top: 6px; }
       return;
     }
 
-    if (!projects.some((p) => p.id === selected) && selected !== MEET) selected = projects[0].id;
+    if (!projects.some((p) => p.id === selected)) selected = projects[0].id;
     const tiles = $("tiles");
     tiles.textContent = "";
     projects.forEach((p, i) => {
@@ -2443,9 +2489,7 @@ details.donebox ul { margin-top: 6px; }
         render();
       });
       tiles.appendChild(b);
-      if (/אישי/.test(p.name) && !tiles.querySelector(".meet-tile")) tiles.appendChild(meetTile());
     });
-    if (!tiles.querySelector(".meet-tile")) tiles.appendChild(meetTile());
     if (canWrite && db) {
       const add = document.createElement("button");
       add.type = "button"; add.className = "tile add-tile";
@@ -2541,6 +2585,7 @@ details.donebox ul { margin-top: 6px; }
         e.textContent = "אין משימות פתוחות. הוסף משימה מהשורה למעלה.";
         lane.appendChild(e);
       }
+      lane.appendChild(meetSection(p));
       if (pDone.length) {
         const d = document.createElement("details"); d.className = "donebox";
         const s = document.createElement("summary"); s.textContent = "בוצעו (" + pDone.length + ")";
@@ -2551,27 +2596,8 @@ details.donebox ul { margin-top: 6px; }
       }
       lanes.appendChild(lane);
     });
-    if (selected === MEET) {
-      const lane = document.createElement("article"); lane.className = "lane"; lane.style.setProperty("--pc", "#7c5cd6");
-      const head = document.createElement("div"); head.className = "lane-head";
-      const h = document.createElement("span"); h.className = "lane-name"; head.appendChild(h); lane.appendChild(head);
-      renderMeetings(lane, head); lanes.appendChild(lane);
-    }
     renderProjectSelect();
-    if (!$("f-project").dataset.touched && selected !== MEET) $("f-project").value = selected;
-  }
-  function meetTile() {
-    const b = document.createElement("button"); b.type = "button"; b.className = "tile meet-tile";
-    b.style.setProperty("--pc", "#7c5cd6"); b.setAttribute("aria-pressed", selected === MEET ? "true" : "false");
-    const pending = meetings.reduce((n, m) => n + (m.items || []).filter((x) => !x.status).length, 0);
-    const nm = document.createElement("span"); nm.className = "tile-name"; nm.textContent = "📝 סיכומי ישיבות";
-    const cnt = document.createElement("span"); cnt.className = "tile-open"; cnt.append(String(meetings.length) + " ");
-    const sm = document.createElement("small"); sm.textContent = "ישיבות"; cnt.appendChild(sm);
-    const flags = document.createElement("span"); flags.className = "tile-flags";
-    if (pending) { const c = document.createElement("span"); c.className = "chip today"; c.textContent = pending + " סעיפים לטיפול"; flags.appendChild(c); }
-    b.append(nm, cnt, flags);
-    b.addEventListener("click", () => { selected = MEET; editingProject = null; editingNote = null; try { localStorage.setItem("selectedProject", selected); } catch (_) {} render(); });
-    return b;
+    if (!$("f-project").dataset.touched) $("f-project").value = selected;
   }
 
   function setStatus(msg, isErr) {
@@ -2799,12 +2825,21 @@ details.donebox ul { margin-top: 6px; }
     const out = [];
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i); const tc = await page.getTextContent();
+      if (!$("paste-sheet").hidden && i <= 4) {
+        try {
+          const vp = page.getViewport({ scale: 2 }); const c = document.createElement("canvas"); c.width = vp.width; c.height = vp.height;
+          const ctx = c.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height);
+          await page.render({ canvasContext: ctx, viewport: vp }).promise;
+          const blob = await new Promise((r) => c.toBlob(r, "image/jpeg", 0.85)); if (blob) pasteImages.push(blob);
+        } catch (_) {}
+      }
       out.push(...pdfLines(tc.items.map((it) => ({ s: it.str || "", x: it.transform[4], y: it.transform[5], w: it.width || 0, h: Math.abs(it.transform[3]) || it.height || 10 }))));
     }
     return out.join("\n");
   }
   // Reading text from a picture (screenshot, photo of a protocol). Hebrew + English, runs on the phone.
   async function readImage(blob) {
+    if (!$("paste-sheet").hidden && blob) pasteImages.push(blob);
     if (!window.Tesseract) await loadScript("https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js");
     setStatus("🔎 קורא את הטקסט מהתמונה… (בפעם הראשונה זה לוקח כחצי דקה)");
     const worker = await window.Tesseract.createWorker("heb+eng", 1, {
@@ -2878,7 +2913,7 @@ details.donebox ul { margin-top: 6px; }
     write(() => db.collection("tasks").add(t));
     $("tpl-sheet").hidden = true; setStatus("🧩 נוצר: " + t.title + " עם " + t.subtasks.length + " שלבים");
   });
-  $("open-paste").addEventListener("click", () => openPaste(selected === MEET && view === "projects" ? "meeting" : "tasks"));
+  $("open-paste").addEventListener("click", () => openPaste("tasks"));
   $("paste-text").addEventListener("input", pastePreview);
   $("paste-text").addEventListener("paste", async (e) => {
     const it = [...((e.clipboardData && e.clipboardData.items) || [])].find((x) => x.type.startsWith("image/"));
@@ -2894,11 +2929,23 @@ details.donebox ul { margin-top: 6px; }
     if (pasteMode === "meeting") {
       const raw = $("paste-text").value; if (!raw.trim()) return;
       const m = parseMeeting(raw);
-      const data = { title: m.title, date: m.date || todayIso, participants: m.participants, projectId: $("paste-project").value || INBOX, items: m.items, raw: raw.slice(0, 20000), created: new Date().toISOString() };
-      write(async () => { const ref = await db.collection("meetings").add(data); if (ref && ref.id) openMeeting = ref.id; render(); });
+      const pid = $("paste-project").value || selected;
+      const imgs = pasteImages.slice(0, 6); pasteImages = [];
+      const data = { title: m.title, date: m.date || todayIso, participants: m.participants, projectId: pid, items: m.items, raw: raw.slice(0, 20000), created: new Date().toISOString(), photoCount: 0 };
+      write(async () => {
+        const ref = await db.collection("meetings").add(data);
+        if (!ref || !ref.id) return;
+        openMeeting = ref.id; render();
+        let n = 0;
+        for (const blob of imgs) {
+          try { const img = await compressImage(blob); await db.doc("meetings/" + ref.id + "/photos/p" + Date.now().toString(36) + n).set({ data: img, at: new Date().toISOString() }); n++; } catch (_) {}
+        }
+        if (n) { meetPhotoCache.delete(ref.id); await db.doc("meetings/" + ref.id).update({ photoCount: n }); }
+      });
       $("paste-sheet").hidden = true; delete $("paste-project").dataset.touched;
-      view = "projects"; selected = MEET; try { localStorage.setItem("view", view); } catch (_) {}
-      setStatus("📝 הסיכום נשמר – " + m.items.length + " סעיפים. בחר מה עובר למשימות שלך.");
+      view = "projects"; selected = pid; meetSecOpen.add(pid); try { localStorage.setItem("view", view); localStorage.setItem("selectedProject", pid); } catch (_) {}
+      const doubt = meetDoubt({ items: m.items });
+      setStatus("📝 הסיכום נשמר ב" + projName(pid) + " – " + m.items.length + " סעיפים." + (imgs.length ? (doubt ? " חלק מהטקסט אולי לא הועתק טוב – תמונת המקור מצורפת לסיכום." : " תמונת המקור מצורפת לסיכום.") : ""));
       render(); return;
     }
     const list = parsePaste($("paste-text").value, $("paste-project").value);
@@ -2973,6 +3020,6 @@ details.donebox ul { margin-top: 6px; }
 })();
 </script>
 
-<script type="module" src="firebase-store.js?v=28"></script>
+<script type="module" src="firebase-store.js?v=29"></script>
 </body>
 </html>
