@@ -374,7 +374,7 @@ details.donebox ul { margin-top: 6px; }
   <div class="gate-box">
     <h2>לוח הפרויקטים</h2>
     <p id="gate-msg">טוען…</p>
-    <small style="color:var(--muted);font-size:.75rem">גרסה 17</small>
+    <small style="color:var(--muted);font-size:.75rem">גרסה 18</small>
     <button type="button" class="gbtn" id="signin" hidden><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>כניסה עם Google</button>
   </div>
 </div>
@@ -536,15 +536,15 @@ details.donebox ul { margin-top: 6px; }
       <p class="review-step" style="margin:0">כל שורה הופכת למשימה. שורה שמסתיימת ב-":" היא כותרת – אם זה שם פרויקט, השורות שאחריה ייכנסו אליו; אחרת היא תתווסף כתחילית (למשל "בניין 2: …").</p>
       <label>פרויקט ברירת מחדל <select id="paste-project"></select></label>
       <div class="row">
-        <label class="btn file-btn">📎 העלאת קובץ (Word / PDF / טקסט)<input type="file" id="paste-file" accept=".txt,.md,.csv,.docx,.pdf,text/plain,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"></label>
+        <label class="btn file-btn">📎 תמונה / קובץ (צילום מסך, Word, PDF)<input type="file" id="paste-file" accept="image/*,.txt,.md,.csv,.docx,.pdf,text/plain,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"></label>
         <button type="button" class="edit-name" id="paste-clip">📋 הדבק</button>
       </div>
-      <textarea id="paste-text" placeholder="או להדביק / לכתוב כאן את הסיכום…" style="min-height:140px"></textarea>
+      <textarea id="paste-text" placeholder="או להדביק / לכתוב כאן את הסיכום, או להדביק צילום מסך…" style="min-height:140px"></textarea>
       <ul class="preview" id="paste-preview"></ul>
       <div class="row"><button type="button" class="mic" id="mic3" hidden>🎤</button><button type="submit" class="btn" id="paste-go">יצירת משימות</button><button type="button" class="edit-name" data-close>ביטול</button></div>
     </form>
   </div>
-  <p class="hint" style="opacity:.6">גרסה 17</p>
+  <p class="hint" style="opacity:.6">גרסה 18</p>
   <p class="hint">טיפ: החלקה ימינה על משימה = בוצע ✓ · החלקה שמאלה = דחייה למחר ⏭</p>
   <p class="note">לחיצה על קובייה מציגה את המשימות של הפרויקט. ליד כל משימה אפשר להוסיף כמה הערות שרוצים.</p>
 </div>
@@ -853,6 +853,8 @@ details.donebox ul { margin-top: 6px; }
     const setDay = (iso) => { if (!out.due) out.due = iso; };
     take(/\sהיום(?=\s)/, () => setDay(todayIso)) ||
     take(/\s(?:ב)?מחרתיים(?=\s)/, () => setDay(addDays(todayIso, 2))) ||
+    take(/\s(?:ב)?שלשום(?=\s)/, () => setDay(addDays(todayIso, -2))) ||
+    take(/\s(?:ב)?אתמול(?=\s)/, () => setDay(addDays(todayIso, -1))) ||
     take(/\s(?:ב)?מחר(?=\s)/, () => setDay(tomorrowIso)) ||
     take(/\sבעוד\s(\d+)\sימים(?=\s)/, (m) => setDay(addDays(todayIso, +m[1]))) ||
     take(/\s(?:בעוד\sשבוע|שבוע\sהבא)(?=\s)/, () => setDay(addDays(todayIso, 7))) ||
@@ -976,20 +978,44 @@ details.donebox ul { margin-top: 6px; }
   }
 
   // ---------- paste summary ----------
+  // A line that only says when (e.g. "אתמול, 11:00 ⇄ כל יום") – it belongs to the task above it.
+  function isMetaLine(line) {
+    const q = parseQuick(line.replace(/[,،;=⇄↻🔁·|>]+/g, " "));
+    if (!(q.due || q.time || q.recur)) return null;
+    const rest = (q.title || "").replace(/[\s,.;:=⇄↻🔁·|\-–>]+/g, "");
+    return rest.length <= 1 ? q : null;
+  }
   function parsePaste(text, defPid) {
     let pid = defPid, prefix = "";
     const out = [];
     text.split(/\r?\n/).forEach((raw) => {
-      let line = raw.replace(/^[\s•\-\*–·▪◦✔✓☐\u200f\u200e]+/, "").replace(/^\d+[.)]\s*/, "").trim();
+      let line = raw.replace(/^[\s•\-\*–·▪◦✔✓☐○◯⚪●\u200f\u200e]+/, "").replace(/^\d+[.)]\s+/, "").trim();
       if (!line) return;
+      const letters = (line.match(/[\u0590-\u05FFA-Za-z]/g) || []).length;
+      if (letters < 2) return; // status-bar time, icons, OCR noise
       if (/[:：]$/.test(line)) {
         const head = line.replace(/[:：]$/, "").trim();
         const p = findProject(head);
         if (p) { pid = p.id; prefix = ""; } else prefix = head;
         return;
       }
+      const meta = isMetaLine(line);
+      if (meta) {
+        const prev = out[out.length - 1];
+        if (prev) {
+          if (meta.time) prev.time = meta.time;
+          if (meta.recur) { prev.recur = meta.recur; prev.due = todayIso; }
+          else if (meta.due) prev.due = meta.due;
+        }
+        return;
+      }
+      if (line.split(/\s+/).length <= 4) { // a title line that is a project name (e.g. a screenshot header)
+        const p = projects.find((x) => norm(x.name) === norm(line) || norm(x.name).startsWith(norm(line)) && norm(line).length >= 4);
+        if (p) { pid = p.id; prefix = ""; return; }
+      }
       const q = parseQuick(line);
       const t = { projectId: q.projectId || pid, title: (prefix ? prefix + ": " : "") + (q.title || line), due: q.due || "", time: q.time || "", priority: q.priority === "high" ? "high" : "normal", done: false, created: new Date().toISOString() };
+      if (q.recur) { t.recur = q.recur; if (!t.due) t.due = todayIso; }
       if (q.waitingFor) { t.waitingFor = q.waitingFor; t.waitingSince = t.created; }
       out.push(t);
     });
@@ -998,7 +1024,7 @@ details.donebox ul { margin-top: 6px; }
   function pastePreview() {
     const list = parsePaste($("paste-text").value, $("paste-project").value);
     const ul = $("paste-preview"); ul.textContent = "";
-    list.slice(0, 40).forEach((t) => { const li = document.createElement("li"); li.textContent = t.title + " · " + projName(t.projectId) + (t.due ? " · " + fmtDue(t.due) : ""); ul.appendChild(li); });
+    list.slice(0, 40).forEach((t) => { const li = document.createElement("li"); li.textContent = t.title + " · " + projName(t.projectId) + (t.due ? " · " + fmtDue(t.due) : "") + (t.time ? " · 🕐 " + t.time : "") + (t.recur ? " · 🔁 " + RECUR[t.recur] : ""); ul.appendChild(li); });
     $("paste-go").textContent = list.length ? "יצירת " + list.length + " משימות" : "יצירת משימות";
   }
 
@@ -2365,6 +2391,20 @@ details.donebox ul { margin-top: 6px; }
     }
     return out.join("\n");
   }
+  // Reading text from a picture (screenshot, photo of a protocol). Hebrew + English, runs on the phone.
+  async function readImage(blob) {
+    if (!window.Tesseract) await loadScript("https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js");
+    setStatus("🔎 קורא את הטקסט מהתמונה… (בפעם הראשונה זה לוקח כחצי דקה)");
+    const worker = await window.Tesseract.createWorker("heb+eng", 1, {
+      logger: (m) => { if (m.status === "recognizing text" && m.progress) setStatus("🔎 קורא את התמונה… " + Math.round(m.progress * 100) + "%"); },
+    });
+    try { const r = await worker.recognize(blob); return r.data.text || ""; }
+    finally { try { await worker.terminate(); } catch (_) {} }
+  }
+  function addPastedText(txt) {
+    $("paste-text").value = ($("paste-text").value.trim() ? $("paste-text").value.trim() + "\n" : "") + txt.trim();
+    pastePreview();
+  }
   $("paste-file").addEventListener("change", async (e) => {
     const f = e.target.files && e.target.files[0]; e.target.value = "";
     if (!f) return;
@@ -2372,19 +2412,30 @@ details.donebox ul { margin-top: 6px; }
     setStatus("📎 קורא את " + f.name + "…");
     try {
       let txt;
-      if (ext === "docx") txt = await readDocx(f);
+      if ((f.type || "").startsWith("image/") || ["jpg", "jpeg", "png", "heic", "heif", "webp"].includes(ext)) txt = await readImage(f);
+      else if (ext === "docx") txt = await readDocx(f);
       else if (ext === "pdf") txt = await readPdf(f);
       else if (ext === "doc") throw new Error("old-doc");
       else txt = await f.text();
-      $("paste-text").value = ($("paste-text").value.trim() ? $("paste-text").value.trim() + "\n" : "") + txt.trim();
-      pastePreview(); setStatus("📎 נקרא " + f.name + " – בדוק את הרשימה ולחץ יצירת משימות");
+      if (!txt.trim()) throw new Error("empty");
+      addPastedText(txt); setStatus("📎 נקרא " + (f.name || "התמונה") + " – בדוק את הרשימה ולחץ יצירת משימות");
     } catch (err) {
       setStatus(err && err.message === "old-doc" ? "קובץ Word ישן (.doc) לא נתמך – שמור אותו כ-.docx ונסה שוב." : "לא הצלחתי לקרוא את הקובץ. אפשר להעתיק את הטקסט ולהדביק.", true);
     }
   });
   $("paste-clip").addEventListener("click", async () => {
-    try { const t = await navigator.clipboard.readText(); if (t) { $("paste-text").value = ($("paste-text").value.trim() ? $("paste-text").value.trim() + "\n" : "") + t; pastePreview(); } else setStatus("הלוח ריק – העתק קודם טקסט.", true); }
-    catch (_) { $("paste-text").focus(); setStatus("לחץ לחיצה ארוכה בתיבה ובחר \"הדבק\".", true); }
+    try {
+      // An image on the clipboard (copied screenshot) → read it; otherwise plain text.
+      if (navigator.clipboard.read) {
+        const items = await navigator.clipboard.read();
+        for (const it of items) {
+          const type = it.types.find((t) => t.startsWith("image/"));
+          if (type) { const txt = await readImage(await it.getType(type)); if (txt.trim()) { addPastedText(txt); setStatus("📋 נקראה התמונה – בדוק את הרשימה ולחץ יצירת משימות"); } else setStatus("לא נמצא טקסט בתמונה.", true); return; }
+        }
+      }
+      const t = await navigator.clipboard.readText();
+      if (t) addPastedText(t); else setStatus("הלוח ריק – העתק קודם טקסט או צילום מסך.", true);
+    } catch (_) { $("paste-text").focus(); setStatus("לחץ לחיצה ארוכה בתיבה ובחר \"הדבק\", או השתמש ב-📎 לבחירת תמונה.", true); }
   });
   const fillProjSel = (sel, withInbox, def) => {
     sel.textContent = "";
@@ -2421,6 +2472,13 @@ details.donebox ul { margin-top: 6px; }
     $("paste-text").value = ""; pastePreview(); $("paste-sheet").hidden = false; setTimeout(() => $("paste-text").focus(), 50);
   });
   $("paste-text").addEventListener("input", pastePreview);
+  $("paste-text").addEventListener("paste", async (e) => {
+    const it = [...((e.clipboardData && e.clipboardData.items) || [])].find((x) => x.type.startsWith("image/"));
+    if (!it) return;
+    e.preventDefault();
+    try { const txt = await readImage(it.getAsFile()); if (txt.trim()) { addPastedText(txt); setStatus("📋 נקראה התמונה – בדוק את הרשימה ולחץ יצירת משימות"); } else setStatus("לא נמצא טקסט בתמונה.", true); }
+    catch (_) { setStatus("לא הצלחתי לקרוא את התמונה.", true); }
+  });
   $("paste-project").addEventListener("change", pastePreview);
   setupMic($("mic3"), $("paste-text"));
   $("paste-form").addEventListener("submit", (e) => {
@@ -2490,6 +2548,6 @@ details.donebox ul { margin-top: 6px; }
 })();
 </script>
 
-<script type="module" src="firebase-store.js?v=17"></script>
+<script type="module" src="firebase-store.js?v=18"></script>
 </body>
 </html>
