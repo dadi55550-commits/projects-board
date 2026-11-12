@@ -18,6 +18,11 @@ function fold(line) {
   out.push(cur);
   return out.join("\r\n ");
 }
+// Advance reminder in minutes before start (default: 15 min for timed tasks, at start otherwise).
+function trig(t) {
+  const m = (typeof t.remind === "number" && t.remind >= 0) ? Math.round(t.remind) : (t.time ? 15 : 0);
+  if (!m) return "PT0M"; if (m % 1440 === 0) return "-P" + (m / 1440) + "D"; if (m % 60 === 0) return "-PT" + (m / 60) + "H"; return "-PT" + m + "M";
+}
 function stamp(d) { return d.getUTCFullYear() + pad(d.getUTCMonth() + 1) + pad(d.getUTCDate()) + "T" + pad(d.getUTCHours()) + pad(d.getUTCMinutes()) + pad(d.getUTCSeconds()) + "Z"; }
 
 function buildIcs(items, updatedAt) {
@@ -36,7 +41,7 @@ function buildIcs(items, updatedAt) {
       "DTSTART;TZID=Asia/Jerusalem:" + local(startDt), "DTEND;TZID=Asia/Jerusalem:" + local(endDt),
       "SUMMARY:" + esc((t.priority === "high" ? "❗ " : "") + t.title), "DESCRIPTION:" + esc(desc));
     if (t.recur) L.push("RRULE:FREQ=" + ({ daily: "DAILY", weekly: "WEEKLY", monthly: "MONTHLY" }[t.recur] || "DAILY"));
-    L.push("BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:" + esc(t.title), "TRIGGER:" + (t.time ? "-PT15M" : "PT0M"), "END:VALARM", "END:VEVENT");
+    L.push("BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:" + esc(t.title), "TRIGGER:" + trig(t), "END:VALARM", "END:VEVENT");
   }
   L.push("END:VCALENDAR");
   return L.map(fold).join("\r\n") + "\r\n";
