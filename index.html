@@ -272,7 +272,7 @@ form.add { background: var(--surface); border: 1px solid var(--line); border-rad
 .dp-quick { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .dp-quick button { border: 1px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 999px; padding: 3px 10px; font-size: .85rem; }
 form.add input, form.add select { font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); color: var(--fg); }
-#f-title { flex: 1 1 240px; min-width: 0; }
+#f-title { flex: 1 1 240px; min-width: 0; font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); color: var(--fg); resize: none; overflow: hidden; line-height: 1.4; }
 .time-in { width: 7.2em; }
 .t-time { font-weight: 700; color: var(--accent); }
 .time-edit { font: inherit; padding: 2px 6px; border: 1px solid var(--accent); border-radius: 6px; background: var(--bg); color: var(--fg); }
@@ -377,7 +377,7 @@ details.donebox ul { margin-top: 6px; }
   <div class="gate-box">
     <h2>לוח הפרויקטים</h2>
     <p id="gate-msg">טוען…</p>
-    <small style="color:var(--muted);font-size:.75rem">גרסה 22</small>
+    <small style="color:var(--muted);font-size:.75rem">גרסה 23</small>
     <button type="button" class="gbtn" id="signin" hidden><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>כניסה עם Google</button>
   </div>
 </div>
@@ -409,7 +409,7 @@ details.donebox ul { margin-top: 6px; }
 
   <form class="add" id="add-form" autocomplete="off">
     <select id="f-project" aria-label="פרויקט"></select>
-    <input id="f-title" type="text" placeholder="למשל: מחר 9:00 לדבר עם אביתר #חבצלת !" aria-label="משימה" required enterkeyhint="done">
+    <textarea id="f-title" rows="1" placeholder="למשל: מחר 9:00 לדבר עם אביתר #חבצלת !" aria-label="משימה" required enterkeyhint="enter"></textarea>
     <button type="button" class="mic" id="mic" title="הקלטה קולית" aria-label="הקלטה קולית" hidden>🎤</button>
     <div class="qa-preview" id="qa-preview"></div>
     <input id="f-due" type="hidden">
@@ -560,7 +560,7 @@ details.donebox ul { margin-top: 6px; }
       <div class="row"><button type="button" class="mic" id="mic3" hidden>🎤</button><button type="submit" class="btn" id="paste-go">יצירת משימות</button><button type="button" class="edit-name" data-close>ביטול</button></div>
     </form>
   </div>
-  <p class="hint" style="opacity:.6">גרסה 22</p>
+  <p class="hint" style="opacity:.6">גרסה 23</p>
   <p class="hint">טיפ: החלקה ימינה על משימה = בוצע ✓ · החלקה שמאלה = דחייה למחר ⏭</p>
   <p class="note">לחיצה על קובייה מציגה את המשימות של הפרויקט. ליד כל משימה אפשר להוסיף כמה הערות שרוצים.</p>
 </div>
@@ -889,7 +889,7 @@ details.donebox ul { margin-top: 6px; }
   }
   function renderQuickPreview() {
     const box = $("qa-preview"); box.textContent = "";
-    const v = $("f-title").value; if (!v.trim()) return;
+    const v = $("f-title").value.split("\n")[0]; if (!v.trim()) return;
     const q = parseQuick(v); const bits = [];
     if (q.due) bits.push("📅 " + fmtDue(q.due));
     if (q.time) bits.push("🕐 " + q.time);
@@ -2283,7 +2283,8 @@ details.donebox ul { margin-top: 6px; }
 
   $("add-form").addEventListener("submit", (e) => {
     e.preventDefault();
-    const title = $("f-title").value.trim();
+    const lines = $("f-title").value.split(/\r?\n/).map((x) => x.trim()).filter(Boolean);
+    const title = lines.shift() || "";
     if (!title || !db) return;
     const q = parseQuick(title);
     const data = {
@@ -2303,9 +2304,10 @@ details.donebox ul { margin-top: 6px; }
     if ($("f-est").value) data.estimate = +$("f-est").value;
     if (toolState.top3) data.top3Date = todayIso;
     if (data.time && !data.due) data.due = todayIso;
+    if (lines.length) data.noteList = [{ id: "n" + Date.now(), text: lines.join("\n"), at: data.created }];
     const id = newId();
     resetTools();
-    $("f-title").value = ""; $("f-high").checked = false; $("f-time").value = ""; setDue("");
+    $("f-title").value = ""; growTitle(); $("f-high").checked = false; $("f-time").value = ""; setDue("");
     renderQuickPreview();
     const pn = (projects.find((p) => p.id === data.projectId) || {}).name || "";
     setStatus("✓ נוספה: " + data.title + (pn ? " · " + pn : "") + (data.due ? " · " + fmtDue(data.due) : "") + (data.recur ? " · 🔁 " + RECUR[data.recur] : ""));
@@ -2366,7 +2368,9 @@ details.donebox ul { margin-top: 6px; }
   $("viewer").addEventListener("click", (e) => { if (e.target.id === "viewer") $("viewer-close").click(); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("viewer").hidden) $("viewer-close").click(); });
   $("f-project").addEventListener("change", () => { $("f-project").dataset.touched = "1"; });
-  $("f-title").addEventListener("input", renderQuickPreview);
+  function growTitle() { const el = $("f-title"); el.style.height = "auto"; el.style.height = el.scrollHeight + 2 + "px"; }
+  $("f-title").addEventListener("input", () => { growTitle(); renderQuickPreview(); });
+  $("f-title").addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); $("add-form").requestSubmit(); } });
   setupMic($("mic"), $("f-title"));
   setupMic($("mic2"), $("inbox-text"));
   const openInbox = () => { if (!db) return; $("inbox-sheet").hidden = false; $("inbox-text").value = ""; setTimeout(() => $("inbox-text").focus(), 50); };
@@ -2621,6 +2625,6 @@ details.donebox ul { margin-top: 6px; }
 })();
 </script>
 
-<script type="module" src="firebase-store.js?v=22"></script>
+<script type="module" src="firebase-store.js?v=23"></script>
 </body>
 </html>
