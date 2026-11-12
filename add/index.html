@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>➕ משימה</title>
+<meta name="theme-color" content="#2f6b55">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="➕ משימה">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-add-192.png">
+<style>body{font-family:system-ui,sans-serif;background:#f3f4f1;color:#1d2420;display:flex;min-height:90vh;align-items:center;justify-content:center;text-align:center;padding:24px}a{color:#2f6b55;font-weight:700}</style>
+</head>
+<body>
+<div>
+  <h1>➕ משימה חדשה</h1>
+  <p>כדי לשים את הכפתור במסך הבית: כפתור השיתוף ← <b>הוסף למסך הבית</b>.</p>
+  <p><a href="../?quick=1">לפתיחת הוספת משימה עכשיו</a></p>
+</div>
+<script>
+  // Opened from the home-screen icon (standalone) → go straight to quick add.
+  if (window.matchMedia("(display-mode: standalone)").matches || navigator.standalone) location.replace("../?quick=1");
+</script>
+</body>
+</html>

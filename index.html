@@ -103,6 +103,18 @@ a.link-chip { text-decoration: none; font-size: .82rem; border: 1px solid var(--
 .share-list li small { color: var(--muted); }
 .share-list li.done b { text-decoration: line-through; color: var(--muted); }
 .share-foot { color: var(--muted); font-size: .85rem; margin-top: 16px; }
+.toast { position: fixed; bottom: max(90px, calc(env(safe-area-inset-bottom, 0px) + 80px)); left: 50%; transform: translateX(-50%); z-index: 45; background: var(--fg); color: var(--bg); border-radius: 12px; padding: 10px 14px; display: flex; gap: 14px; align-items: center; box-shadow: 0 6px 20px color-mix(in srgb, #000 30%, transparent); max-width: calc(100vw - 32px); font-size: .92rem; }
+.toast button { border: 0; background: transparent; color: var(--accent); font-weight: 800; font-size: .95rem; filter: brightness(1.4); }
+.due-btn { border: 0; background: transparent; color: inherit; font: inherit; padding: 0; text-decoration: underline dotted; cursor: pointer; }
+.due-pick { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.due-pick button { border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 999px; padding: 3px 11px; font-size: .85rem; }
+.due-pick input { font: inherit; font-size: .85rem; padding: 2px 6px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--fg); }
+.photos { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.photos .ph { position: relative; }
+.photos img { width: 72px; height: 72px; object-fit: cover; border-radius: 8px; display: block; border: 1px solid var(--line); }
+.photos .ph button { position: absolute; top: -6px; left: -6px; width: 22px; height: 22px; border-radius: 50%; border: 0; background: var(--late); color: #fff; font-size: .75rem; line-height: 1; }
+.guess { border: 1px dashed var(--accent); background: transparent; color: var(--accent); border-radius: 999px; padding: 0 9px; font-size: .82rem; }
+.here { width: 100%; border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 10px; padding: 9px; font-weight: 700; }
 .empty-big { text-align: center; color: var(--muted); padding: 22px 8px; font-size: 1.05rem; }
 .hint { font-size: .78rem; color: var(--muted); text-align: center; margin: 4px 0 0; }
 /* Date picker: always centered on screen so it never runs off the edge */
@@ -308,7 +320,7 @@ details.donebox ul { margin-top: 6px; }
   <div class="gate-box">
     <h2>לוח הפרויקטים</h2>
     <p id="gate-msg">טוען…</p>
-    <small style="color:var(--muted);font-size:.75rem">גרסה 9</small>
+    <small style="color:var(--muted);font-size:.75rem">גרסה 10</small>
     <button type="button" class="gbtn" id="signin" hidden><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>כניסה עם Google</button>
   </div>
 </div>
@@ -330,6 +342,7 @@ details.donebox ul { margin-top: 6px; }
     <button type="button" data-v="tenders"><span class="ic">🏁</span>מכרזים</button>
     <button type="button" data-v="review"><span class="ic">📊</span>סקירה</button>
   </nav>
+  <button type="button" class="here" id="here">📍 מה יש לי כאן? (משימות של הפרויקט שאני נמצא בו)</button>
   <input id="q" class="search" type="search" placeholder="🔍 חיפוש משימה, הערה או איש קשר" aria-label="חיפוש">
 
   <nav class="tiles" id="tiles" aria-label="פרויקטים"></nav>
@@ -726,6 +739,7 @@ details.donebox ul { margin-top: 6px; }
     if (q.due) bits.push("📅 " + fmtDue(q.due));
     if (q.time) bits.push("🕐 " + q.time);
     if (q.projectId) bits.push("📁 " + (projects.find((p) => p.id === q.projectId) || {}).name);
+    else if (!$("f-project").dataset.touched) { const g = guessProject(q.title || v); if (g) bits.push("📁 " + projName(g) + " (ניחוש)"); }
     if (q.priority === "high") bits.push("❗ דחוף");
     if (q.waitingFor) bits.push("⏳ ממתין ל" + q.waitingFor);
     if (q.recur) bits.push("🔁 " + RECUR[q.recur]);
@@ -859,7 +873,7 @@ details.donebox ul { margin-top: 6px; }
     list.forEach((sh) => (sh.items || []).forEach((it) => {
       if (!it.done || syncing.has(it.taskId)) return;
       const t = tasks.find((x) => x.id === it.taskId);
-      if (t && !t.done) { syncing.add(it.taskId); completeTask(t, true); setStatus("✓ " + (sh.assignee || "") + " סימן כבוצע: " + t.title); }
+      if (t && !t.done) { syncing.add(it.taskId); completeTask(t, true, true); setStatus("✓ " + (sh.assignee || "") + " סימן כבוצע: " + t.title); }
     }));
     render();
   }
@@ -943,8 +957,150 @@ details.donebox ul { margin-top: 6px; }
   }
   function phoneFor(name) { if (!name) return ""; const m = knownContacts(); if (m.has(name)) return m.get(name); for (const [k, v] of m) if (norm(k).startsWith(norm(name)) || norm(name).startsWith(norm(k))) return v; return ""; }
 
+  // ---------- undo ----------
+  let toastTimer = null;
+  function undoable(label, undoFn) {
+    let el = $("toast");
+    if (!el) { el = document.createElement("div"); el.id = "toast"; el.className = "toast"; el.setAttribute("role", "status"); document.body.appendChild(el); }
+    el.textContent = "";
+    const sp = document.createElement("span"); sp.textContent = label;
+    const b = document.createElement("button"); b.type = "button"; b.textContent = "↩️ ביטול";
+    b.addEventListener("click", () => { clearTimeout(toastTimer); el.remove(); undoFn(); setStatus("↩️ בוטל"); });
+    el.append(sp, b);
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => el.remove(), 6000);
+  }
+  const newId = () => "t" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  function deleteTask(t) {
+    const snapshot = Object.assign({}, t); delete snapshot.id;
+    write(() => t.id.startsWith("ext_") ? db.doc("tasks/" + t.id).update({ deleted: true, done: true }) : db.doc("tasks/" + t.id).delete());
+    undoable("🗑 נמחקה: " + t.title, () => write(() => db.doc("tasks/" + t.id).set(Object.assign(snapshot, { deleted: false }))));
+  }
+
+  // ---------- project guess (learns from your own history) ----------
+  const STOP = new Set("לדבר לבדוק לשלוח להכין לסיים להעביר לקבוע לוודא לתאם עם על את של לגבי כל גם או אם זה זו מה מי היום מחר מחרתיים בעוד שבוע יום עד אחרי לפני חדש חדשה צריך משימה לו לי לה להם הצעת".split(" "));
+  function words(txt) {
+    const out = new Set();
+    String(txt || "").replace(/[^\u0590-\u05FFA-Za-z0-9 ]/g, " ").split(/\s+/).forEach((w) => {
+      if (w.length < 3 || STOP.has(w) || /^\d+$/.test(w)) return;
+      out.add(w);
+      if (w.length >= 4 && "לבהומש".includes(w[0])) { const s2 = w.slice(1); if (!STOP.has(s2)) out.add(s2); }
+    });
+    return out;
+  }
+  let guessIndex = null, guessIndexN = -1;
+  function buildGuessIndex() {
+    if (guessIndexN === tasks.length && guessIndex) return guessIndex;
+    const idx = new Map();
+    tasks.forEach((t) => {
+      if (!t.projectId || t.projectId === INBOX) return;
+      const ws = words([t.title, t.contactName, t.waitingFor, t.assignee].concat(notesOf(t).map((n) => n.text)).join(" "));
+      ws.forEach((w) => { if (!idx.has(w)) idx.set(w, new Map()); const m = idx.get(w); m.set(t.projectId, (m.get(t.projectId) || 0) + 1); });
+    });
+    projects.forEach((p) => words(p.name).forEach((w) => { if (!idx.has(w)) idx.set(w, new Map()); idx.get(w).set(p.id, (idx.get(w).get(p.id) || 0) + 5); }));
+    guessIndex = idx; guessIndexN = tasks.length; return idx;
+  }
+  function guessProject(title) {
+    const idx = buildGuessIndex(); const score = new Map();
+    words(title).forEach((w) => {
+      const m = idx.get(w); if (!m) return;
+      const total = [...m.values()].reduce((a, b) => a + b, 0);
+      m.forEach((c, pid) => score.set(pid, (score.get(pid) || 0) + c / total));
+    });
+    const ranked = [...score.entries()].filter(([pid]) => projects.some((p) => p.id === pid)).sort((a, b) => b[1] - a[1]);
+    if (!ranked.length || ranked[0][1] < 0.6) return null;
+    if (ranked[1] && ranked[1][1] > ranked[0][1] * 0.7) return null;
+    return ranked[0][0];
+  }
+
+  // ---------- photos (stored small, inside the task's own sub-collection) ----------
+  const photoCache = new Map();
+  function compressImage(file) {
+    return new Promise((resolve, reject) => {
+      const img = new Image(); const url = URL.createObjectURL(file);
+      img.onload = () => {
+        let q = 0.6, max = 1280, out;
+        for (let i = 0; i < 4; i++) {
+          const sc = Math.min(1, max / Math.max(img.width, img.height));
+          const c = document.createElement("canvas"); c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
+          c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+          out = c.toDataURL("image/jpeg", q);
+          if (out.length < 600000) break;
+          max = Math.round(max * 0.75); q = Math.max(0.4, q - 0.1);
+        }
+        URL.revokeObjectURL(url); resolve(out);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("bad image")); };
+      img.src = url;
+    });
+  }
+  async function addPhoto(t, file) {
+    setStatus("📷 שומר תמונה…");
+    try {
+      const data = await compressImage(file);
+      const pid = "p" + Date.now().toString(36);
+      await db.doc("tasks/" + t.id + "/photos/" + pid).set({ data, at: new Date().toISOString() });
+      photoCache.delete(t.id);
+      await db.doc("tasks/" + t.id).update({ photoCount: (+t.photoCount || 0) + 1 });
+      setStatus("📷 התמונה נשמרה");
+    } catch (_) { setStatus("לא הצלחתי לשמור את התמונה. נסה תמונה אחרת.", true); }
+  }
+  function photoBlock(t) {
+    const box = document.createElement("div"); box.className = "photos";
+    if (!(+t.photoCount > 0) || !db) return box;
+    const fill = (list) => {
+      box.textContent = "";
+      list.forEach((ph) => {
+        const w = document.createElement("span"); w.className = "ph";
+        const im = document.createElement("img"); im.src = ph.data; im.alt = "תמונה למשימה"; im.loading = "lazy";
+        im.addEventListener("click", () => showImage(ph.data, t.title));
+        w.appendChild(im);
+        if (canWrite) {
+          const x = document.createElement("button"); x.type = "button"; x.textContent = "✕"; x.setAttribute("aria-label", "מחיקת תמונה");
+          x.addEventListener("click", () => { write(async () => { await db.doc("tasks/" + t.id + "/photos/" + ph.id).delete(); await db.doc("tasks/" + t.id).update({ photoCount: Math.max(0, (+t.photoCount || 1) - 1) }); }); photoCache.delete(t.id); });
+          w.appendChild(x);
+        }
+        box.appendChild(w);
+      });
+    };
+    if (photoCache.has(t.id) && photoCache.get(t.id).n === +t.photoCount) fill(photoCache.get(t.id).list);
+    else {
+      box.textContent = "📷 טוען תמונות…";
+      const un = db.collection("tasks/" + t.id + "/photos").onSnapshot((snap) => {
+        const list = snap.docs.map((d) => Object.assign({ id: d.id }, d.data())).sort((a, b) => (a.at || "").localeCompare(b.at || ""));
+        photoCache.set(t.id, { n: +t.photoCount, list }); fill(list); try { un && un(); } catch (_) {}
+      }, () => { box.textContent = ""; });
+    }
+    return box;
+  }
+
+  // ---------- location ----------
+  function distKm(a, b) { const R = 6371, r = Math.PI / 180; const dLat = (b.lat - a.lat) * r, dLng = (b.lng - a.lng) * r; const x = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dLng / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(x)); }
+  function getPos() { return new Promise((res, rej) => { if (!navigator.geolocation) return rej(new Error("no geo")); navigator.geolocation.getCurrentPosition((p) => res({ lat: p.coords.latitude, lng: p.coords.longitude }), rej, { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }); }); }
+  function projDoc(p, extra) { const d = { name: p.name, order: p.order }; if (p.lat != null) { d.lat = p.lat; d.lng = p.lng; } return Object.assign(d, extra || {}); }
+  async function saveHere(p) {
+    setStatus("📍 מאתר מיקום…");
+    try { const pos = await getPos(); write(() => db.doc("projects/" + p.id).set(projDoc(p, pos))); setStatus("📍 נשמר המיקום של " + p.name); }
+    catch (_) { setStatus("לא הצלחתי לקבל מיקום. צריך לאשר גישה למיקום בהגדרות הדפדפן.", true); }
+  }
+  async function whatsHere() {
+    const withLoc = projects.filter((p) => p.lat != null);
+    if (!withLoc.length) { setStatus("עוד לא נשמר מיקום לאף פרויקט. כשאתה באתר: 📁 פרויקטים ← בחר פרויקט ← 📍 שמור מיקום.", true); return; }
+    setStatus("📍 מאתר מיקום…");
+    try {
+      const pos = await getPos();
+      const near = withLoc.map((p) => ({ p, d: distKm(pos, p) })).sort((a, b) => a.d - b.d)[0];
+      if (near.d > 1.5) { setStatus("אין פרויקט קרוב. הכי קרוב: " + near.p.name + " (" + (Math.round(near.d * 10) / 10) + " ק״מ)", true); return; }
+      selected = near.p.id; view = "projects"; query = ""; $("q").value = "";
+      try { localStorage.setItem("view", view); localStorage.setItem("selectedProject", selected); } catch (_) {}
+      render(); setStatus("📍 אתה ב" + near.p.name);
+      const lane = $("lanes"); if (lane) lane.scrollIntoView({ behavior: "smooth" });
+    } catch (_) { setStatus("לא הצלחתי לקבל מיקום. צריך לאשר גישה למיקום בהגדרות הדפדפן.", true); }
+  }
+
   // ---------- task actions ----------
-  function completeTask(t, done) {
+  function completeTask(t, done, quiet) {
+    const copyId = newId(); let madeCopy = false;
+    if (done && !quiet) undoable("✓ בוצעה: " + t.title, () => write(async () => { await db.doc("tasks/" + t.id).update({ done: false, doneAt: null }); if (madeCopy) await db.doc("tasks/" + copyId).delete(); }));
     write(async () => {
       await db.doc("tasks/" + t.id).update({ done, doneAt: done ? new Date().toISOString() : null });
       if (done && t.recur) {
@@ -952,12 +1108,17 @@ details.donebox ul { margin-top: 6px; }
         if (t.contactName) { copy.contactName = t.contactName; copy.contactPhone = t.contactPhone || ""; }
         ["kind", "estimate"].forEach((k) => { if (t[k]) copy[k] = t[k]; });
         if (Array.isArray(t.subtasks) && t.subtasks.length) copy.subtasks = t.subtasks.map((x, i) => ({ id: "s" + Date.now() + i, text: x.text, done: false }));
-        await db.collection("tasks").add(copy);
+        await db.doc("tasks/" + copyId).set(copy); madeCopy = true;
         setStatus("🔁 המשימה החוזרת נוספה שוב ל-" + fmtDue(copy.due));
       }
     });
   }
-  function postpone(t) { write(() => db.doc("tasks/" + t.id).update({ due: t.due && t.due >= tomorrowIso ? addDays(t.due, 1) : tomorrowIso, notified: null })); setStatus("⏭ נדחה ל" + (t.due && t.due >= tomorrowIso ? fmtDue(addDays(t.due, 1)) : "מחר")); }
+  function setDueTo(t, d, label) {
+    const prev = t.due || "";
+    write(() => db.doc("tasks/" + t.id).update({ due: d, notified: null }));
+    undoable(label || ("📅 " + (d ? fmtDue(d) : "בלי תאריך") + ": " + t.title), () => write(() => db.doc("tasks/" + t.id).update({ due: prev })));
+  }
+  function postpone(t) { const d = t.due && t.due >= tomorrowIso ? addDays(t.due, 1) : tomorrowIso; setDueTo(t, d, "⏭ נדחה ל" + fmtDue(d) + ": " + t.title); }
 
   function miniEditor(t, kind) {
     const box = document.createElement("div"); box.className = "mini-edit";
@@ -1093,8 +1254,12 @@ details.donebox ul { margin-top: 6px; }
       sel.addEventListener("change", () => { if (sel.value) { write(() => db.doc("tasks/" + t.id).update({ projectId: sel.value })); setStatus("📁 הועבר ל" + projName(sel.value)); } });
       meta.appendChild(sel);
     }
-    if (t.due && st !== "today") { const s = document.createElement("span"); s.textContent = fmtDue(t.due); meta.appendChild(s); }
-    if (!t.due) { const s = document.createElement("span"); s.textContent = "בלי תאריך"; meta.appendChild(s); }
+    {
+      const s = document.createElement(canWrite && !t.done ? "button" : "span");
+      s.textContent = "📅 " + (t.due ? (st === "today" ? "היום" : fmtDue(t.due)) : "בלי תאריך");
+      if (s.tagName === "BUTTON") { s.type = "button"; s.className = "due-btn"; s.title = "שינוי תאריך"; s.addEventListener("click", () => { editingNote = editingNote && editingNote.taskId === t.id && editingNote.noteId === "due" ? null : { taskId: t.id, noteId: "due" }; render(); }); }
+      meta.appendChild(s);
+    }
     const editingTime = editingNote && editingNote.taskId === t.id && editingNote.noteId === "time";
     if (editingTime) {
       const ti = document.createElement("input");
@@ -1175,6 +1340,7 @@ details.donebox ul { margin-top: 6px; }
       mk(isTender(t) ? "🏁 בטל סימון מכרז" : "🏁 סמן כמכרז", () => write(() => db.doc("tasks/" + t.id).update({ kind: isTender(t) ? "no" : "tender" })));
       mk("📄 שכפול", () => duplicateTask(t));
       mk("🔗 קישור לקובץ", () => { editingNote = { taskId: t.id, noteId: "link" }; render(); });
+      mk("📷 תמונה", () => { const fi = document.createElement("input"); fi.type = "file"; fi.accept = "image/*"; fi.setAttribute("capture", "environment"); fi.addEventListener("change", () => { const f = fi.files && fi.files[0]; if (f) addPhoto(t, f); }); fi.click(); });
       mk(t.assignee ? "👥 שינוי אחראי" : "👥 העבר ל…", () => { editingNote = { taskId: t.id, noteId: "assignee" }; render(); });
       if (isTender(t)) mk(t.value ? "₪ שינוי היקף" : "₪ היקף כספי", () => { editingNote = { taskId: t.id, noteId: "value" }; render(); });
       mk(t.waitingFor ? "⏳ שינוי ממתין" : "⏳ ממתין ל…", () => { editingNote = { taskId: t.id, noteId: "waiting" }; render(); });
@@ -1202,7 +1368,23 @@ details.donebox ul { margin-top: 6px; }
       meta.appendChild(more);
     }
     body.append(title, meta);
+    if (editingNote && editingNote.taskId === t.id && editingNote.noteId === "due") {
+      const pick = document.createElement("div"); pick.className = "due-pick";
+      const opts = [["היום", todayIso], ["מחר", tomorrowIso]];
+      for (let i = 2; i <= 6; i++) { const d = addDays(todayIso, i); const dt = new Date(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10)); if (dt.getDay() <= 4) opts.push(["יום " + dayNames[dt.getDay()], d]); }
+      opts.push(["בעוד שבוע", addDays(todayIso, 7)], ["בלי תאריך", ""]);
+      opts.forEach(([l, d]) => { const b = document.createElement("button"); b.type = "button"; b.textContent = l; b.addEventListener("click", () => { editingNote = null; setDueTo(t, d); }); pick.appendChild(b); });
+      const inp = document.createElement("input"); inp.type = "date"; inp.value = t.due || ""; inp.setAttribute("aria-label", "תאריך אחר");
+      inp.addEventListener("change", () => { if (inp.value) { editingNote = null; setDueTo(t, inp.value); } });
+      pick.appendChild(inp);
+      body.appendChild(pick);
+    }
+    if (t.projectId === INBOX && canWrite && !t.done) {
+      const g = guessProject(t.title);
+      if (g) { const b = document.createElement("button"); b.type = "button"; b.className = "guess"; b.textContent = "📁 להעביר ל" + projName(g) + "?"; b.addEventListener("click", () => { write(() => db.doc("tasks/" + t.id).update({ projectId: g })); setStatus("📁 הועבר ל" + projName(g)); }); meta.appendChild(b); }
+    }
     body.appendChild(subtaskBlock(t));
+    if (+t.photoCount > 0) body.appendChild(photoBlock(t));
     if (isOpen && acts.childNodes.length) body.appendChild(acts);
     if (editingNote && editingNote.taskId === t.id && ["waiting", "contact", "recur", "est", "link", "assignee", "value"].includes(editingNote.noteId)) body.appendChild(miniEditor(t, editingNote.noteId));
     if (notes.length) {
@@ -1252,11 +1434,7 @@ details.donebox ul { margin-top: 6px; }
     del.className = "del"; del.type = "button"; del.textContent = "×"; del.title = "מחיקה";
     del.setAttribute("aria-label", "מחיקת המשימה " + t.title);
     del.hidden = !canWrite;
-    del.addEventListener("click", () => {
-      if (del.dataset.armed) { write(() => t.id.startsWith("ext_") ? db.doc("tasks/" + t.id).update({ deleted: true, done: true }) : db.doc("tasks/" + t.id).delete()); return; }
-      del.dataset.armed = "1"; del.textContent = "למחוק?"; del.style.fontSize = ".8rem";
-      setTimeout(() => { delete del.dataset.armed; del.textContent = "×"; del.style.fontSize = ""; }, 3000);
-    });
+    del.addEventListener("click", () => deleteTask(t));
     li.append(cb, body, del);
     attachSwipe(li, t);
     return li;
@@ -1449,7 +1627,9 @@ details.donebox ul { margin-top: 6px; }
         b.textContent = "⏭ להעביר למחר את כל מה שנשאר מהיום (" + movable.length + ")";
         b.addEventListener("click", () => {
           if (!b.dataset.armed) { b.dataset.armed = "1"; b.textContent = "בטוח? לחץ שוב כדי להעביר " + movable.length + " משימות למחר"; setTimeout(() => { delete b.dataset.armed; b.textContent = "⏭ להעביר למחר את כל מה שנשאר מהיום (" + movable.length + ")"; }, 4000); return; }
+          const prev = movable.map((t) => [t.id, t.due || ""]);
           movable.forEach((t) => write(() => db.doc("tasks/" + t.id).update({ due: tomorrowIso, notified: null })));
+          undoable("⏭ " + movable.length + " משימות הועברו למחר", () => prev.forEach(([id, d]) => write(() => db.doc("tasks/" + id).update({ due: d }))));
           setStatus("⏭ " + movable.length + " משימות הועברו למחר");
         });
         lane.appendChild(b);
@@ -1545,7 +1725,7 @@ details.donebox ul { margin-top: 6px; }
         const finish = (save) => {
           editingProject = null;
           const v = inp.value.trim();
-          if (save && v && v !== p.name) write(() => db.doc("projects/" + p.id).set({ name: v, order: p.order }));
+          if (save && v && v !== p.name) write(() => db.doc("projects/" + p.id).set(projDoc(p, { name: v })));
           render();
         };
         inp.addEventListener("keydown", (e) => { if (e.key === "Enter") finish(true); if (e.key === "Escape") finish(false); });
@@ -1563,6 +1743,7 @@ details.donebox ul { margin-top: 6px; }
         ed.type = "button"; ed.className = "edit-name"; ed.textContent = "שינוי שם"; ed.hidden = !canWrite;
         ed.addEventListener("click", () => { editingProject = p.id; render(); });
         head.appendChild(ed);
+        if (canWrite) { const lc = document.createElement("button"); lc.type = "button"; lc.className = "edit-name"; lc.textContent = p.lat != null ? "📍 עדכון מיקום" : "📍 שמור מיקום (אני באתר)"; lc.title = "שומר את המיקום הנוכחי כמיקום של הפרויקט"; lc.addEventListener("click", () => saveHere(p)); head.appendChild(lc); }
         if (canWrite && projects.length > 1) {
           const pd = document.createElement("button");
           pd.type = "button"; pd.className = "edit-name proj-del"; pd.textContent = "מחיקת פרויקט";
@@ -1574,7 +1755,7 @@ details.donebox ul { margin-top: 6px; }
               setTimeout(() => { delete pd.dataset.armed; pd.textContent = "מחיקת פרויקט"; }, 4000);
               return;
             }
-            await write(() => db.doc("projects/" + p.id).set({ name: p.name, order: p.order, deleted: true }));
+            await write(() => db.doc("projects/" + p.id).set(projDoc(p, { deleted: true })));
             for (const t of its) await write(() => db.doc("tasks/" + t.id).delete());
             projects = projects.filter((x) => x.id !== p.id);
             selected = projects[0].id;
@@ -1643,7 +1824,7 @@ details.donebox ul { margin-top: 6px; }
     if (!title || !db) return;
     const q = parseQuick(title);
     const data = {
-      projectId: q.projectId || $("f-project").value,
+      projectId: q.projectId || (!$("f-project").dataset.touched && guessProject(q.title || title)) || $("f-project").value,
       title: q.title || title,
       due: q.due || $("f-due").value || "",
       time: q.time || $("f-time").value || "",
@@ -1720,6 +1901,7 @@ details.donebox ul { margin-top: 6px; }
   const openInbox = () => { if (!db) return; $("inbox-sheet").hidden = false; $("inbox-text").value = ""; setTimeout(() => $("inbox-text").focus(), 50); };
   const closeInbox = () => { $("inbox-sheet").hidden = true; };
   $("fab").addEventListener("click", openInbox);
+  $("here").addEventListener("click", whatsHere);
   const fillProjSel = (sel, withInbox, def) => {
     sel.textContent = "";
     if (withInbox) { const o = document.createElement("option"); o.value = INBOX; o.textContent = "📥 קליטה (למיין אחר כך)"; sel.appendChild(o); }
@@ -1789,7 +1971,7 @@ details.donebox ul { margin-top: 6px; }
 
   let unsubs = [];
   // Called by the Firebase loader once the user is signed in. `store` mimics the old db API.
-  window.startBoard = function (store) {
+  window.startBoard = function startBoard(store) {
     unsubs.forEach((u) => u()); unsubs = [];
     db = store; canWrite = true;
     if (db.shares) unsubs.push(db.shares.watchMine(syncShares, () => {}));
@@ -1804,6 +1986,7 @@ details.donebox ul { margin-top: 6px; }
       Object.keys(byId).forEach((id) => {
         if (!projects.some((p) => p.id === id)) projects.push({ id: id, name: byId[id].name || "פרויקט חדש", order: byId[id].order || 99, saved: true });
       });
+      projects.forEach((p) => { const d = byId[p.id]; if (d && d.lat != null) { p.lat = d.lat; p.lng = d.lng; } });
       projects = projects.filter((p) => !(byId[p.id] && byId[p.id].deleted));
       if (!projects.length) projects = [DEFAULT_PROJECTS[0]];
       projects.sort((a, b) => a.order - b.order);
@@ -1814,6 +1997,7 @@ details.donebox ul { margin-top: 6px; }
       tasks = snap.docs.map((d) => Object.assign({ id: d.id }, d.data())).filter((t) => !t.deleted);
       setStatus("");
       gotT = true; maybeOffer(); updateBrief();
+      if (!startBoard.quickDone && new URLSearchParams(location.search).get("quick")) { startBoard.quickDone = true; setTimeout(openInbox, 100); }
       if (!editingProject && !editingNote) render();
     }, () => setStatus("החיבור ללוח נקטע. רענן את הדף.", true)));
   };
@@ -1821,6 +2005,6 @@ details.donebox ul { margin-top: 6px; }
 })();
 </script>
 
-<script type="module" src="firebase-store.js?v=9"></script>
+<script type="module" src="firebase-store.js?v=10"></script>
 </body>
 </html>
