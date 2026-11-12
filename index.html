@@ -121,6 +121,9 @@ a.link-chip { text-decoration: none; font-size: .82rem; border: 1px solid var(--
 .tool[aria-pressed="true"], .toolbar .dp-btn.set { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
 .tool.open { outline: 2px solid var(--accent); outline-offset: 1px; }
 .tool-panel { flex-basis: 100%; }
+.time-chips { flex-basis: 100%; display: flex; gap: 6px; align-items: center; overflow-x: auto; scrollbar-width: none; padding: 2px 0; }
+.time-chips button { flex: none; border: 1px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: .88rem; }
+.time-chips button.on { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
 .tool-panel > div { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 8px; background: var(--bg); border-radius: 10px; }
 .tool-panel input, .tool-panel select { font: inherit; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--fg); min-width: 0; flex: 1 1 120px; }
 .tool-panel small { flex-basis: 100%; color: var(--muted); }
@@ -374,7 +377,7 @@ details.donebox ul { margin-top: 6px; }
   <div class="gate-box">
     <h2>לוח הפרויקטים</h2>
     <p id="gate-msg">טוען…</p>
-    <small style="color:var(--muted);font-size:.75rem">גרסה 20</small>
+    <small style="color:var(--muted);font-size:.75rem">גרסה 21</small>
     <button type="button" class="gbtn" id="signin" hidden><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>כניסה עם Google</button>
   </div>
 </div>
@@ -382,7 +385,7 @@ details.donebox ul { margin-top: 6px; }
   <header>
     <h1>לוח הפרויקטים</h1>
     <span class="date" id="today-label"></span>
-    <span class="userbar"><button type="button" id="open-cal">📅 חיבור ליומן</button><span id="who"></span><button type="button" id="signout">יציאה</button></span>
+    <span class="userbar"><button type="button" id="open-cal" hidden>📅 חיבור ליומן</button><span id="who"></span><button type="button" id="signout">יציאה</button></span>
   </header>
   <div class="importbox" id="importbox" hidden>
     <span>הלוח ריק. רוצה להעביר את הפרויקטים והמשימות מהלוח הישן?</span>
@@ -429,18 +432,17 @@ details.donebox ul { margin-top: 6px; }
         </div>
       </div>
     </div>
-    <button type="button" class="tool" data-tool="time">🕐 שעה</button>
     <button type="button" class="tool" data-tool="high" aria-pressed="false">❗ דחוף</button>
-    <button type="button" class="tool" data-tool="cal" aria-pressed="false">🔔 ליומן באייפון</button>
     <button type="button" class="tool" data-tool="recur">🔁 חזרה</button>
     <button type="button" class="tool" data-tool="top3" aria-pressed="false">⭐ חשובה היום</button>
     <button type="button" class="tool" data-tool="wait">⏳ ממתין ל…</button>
     <button type="button" class="tool" data-tool="contact">👤 איש קשר</button>
     <button type="button" class="tool" data-tool="est">⏱ זמן</button>
     </div>
+    <div class="time-chips" id="time-chips"><span>🕐</span><button type="button" data-t="07:00">7:00</button><button type="button" data-t="09:00">9:00</button><button type="button" data-t="12:00">12:00</button><button type="button" data-t="15:00">15:00</button><button type="button" data-t="17:00">17:00</button><button type="button" data-t="other">שעה אחרת</button></div>
     <div class="tool-panel" id="tool-panel">
-      <div data-panel="time" hidden><input id="f-time" type="time" aria-label="שעה"><small>עם 🔔 ליומן – תקבל התראה 15 דקות לפני.</small></div>
-      <div data-panel="recur" hidden><select id="f-recur" aria-label="חזרה"><option value="">בלי חזרה</option><option value="daily">כל יום</option><option value="weekly">כל שבוע</option><option value="monthly">כל חודש</option></select><small>עם 🔔 ליומן – גם ההתראה ביומן תחזור.</small></div>
+      <div data-panel="time" hidden><input id="f-time" type="time" aria-label="שעה"><small>יש שעה → התראה ביומן 15 דקות לפני.</small></div>
+      <div data-panel="recur" hidden><select id="f-recur" aria-label="חזרה"><option value="">בלי חזרה</option><option value="daily">כל יום</option><option value="weekly">כל שבוע</option><option value="monthly">כל חודש</option></select><small>ביומן תופיע רק הפעם הקרובה; כשמסמנים בוצע – נכנסת הבאה.</small></div>
       <div data-panel="wait" hidden><input id="f-wait" list="contacts-dl" placeholder="ממתין למי? (למשל: אביתר)"></div>
       <div data-panel="contact" hidden><input id="f-cname" list="contacts-dl" placeholder="שם"><input id="f-cphone" type="tel" inputmode="tel" placeholder="טלפון"></div>
       <div data-panel="est" hidden><select id="f-est" aria-label="זמן משוער"><option value="">בלי הערכה</option><option value="15">15 דקות</option><option value="30">30 דקות</option><option value="60">שעה</option><option value="120">שעתיים</option><option value="240">חצי יום</option></select></div>
@@ -558,7 +560,7 @@ details.donebox ul { margin-top: 6px; }
       <div class="row"><button type="button" class="mic" id="mic3" hidden>🎤</button><button type="submit" class="btn" id="paste-go">יצירת משימות</button><button type="button" class="edit-name" data-close>ביטול</button></div>
     </form>
   </div>
-  <p class="hint" style="opacity:.6">גרסה 20</p>
+  <p class="hint" style="opacity:.6">גרסה 21</p>
   <p class="hint">טיפ: החלקה ימינה על משימה = בוצע ✓ · החלקה שמאלה = דחייה למחר ⏭</p>
   <p class="note">לחיצה על קובייה מציגה את המשימות של הפרויקט. ליד כל משימה אפשר להוסיף כמה הערות שרוצים.</p>
 </div>
@@ -2300,8 +2302,7 @@ details.donebox ul { margin-top: 6px; }
     if ($("f-cname").value.trim()) { data.contactName = $("f-cname").value.trim(); data.contactPhone = $("f-cphone").value.trim() || phoneFor(data.contactName); }
     if ($("f-est").value) data.estimate = +$("f-est").value;
     if (toolState.top3) data.top3Date = todayIso;
-    const toCal = toolState.cal;
-    if (toCal) { data.inCal = true; if (!data.due) data.due = todayIso; }
+    if (data.time && !data.due) data.due = todayIso;
     const id = newId();
     resetTools();
     $("f-title").value = ""; $("f-high").checked = false; $("f-time").value = ""; setDue("");
@@ -2309,7 +2310,6 @@ details.donebox ul { margin-top: 6px; }
     const pn = (projects.find((p) => p.id === data.projectId) || {}).name || "";
     setStatus("✓ נוספה: " + data.title + (pn ? " · " + pn : "") + (data.due ? " · " + fmtDue(data.due) : "") + (data.recur ? " · 🔁 " + RECUR[data.recur] : ""));
     write(() => db.doc("tasks/" + id).set(data));
-    if (toCal && !settings.calConnected) setStatus("🔔 נשמרה ליומן. כדי שתופיע באייפון – לחץ פעם אחת 📅 חיבור ליומן למעלה");
     $("f-title").focus();
   });
 
@@ -2406,6 +2406,8 @@ details.donebox ul { margin-top: 6px; }
       b.classList.toggle("open", openPanel === k);
     });
     document.querySelectorAll("#tool-panel > div").forEach((d) => { d.hidden = d.dataset.panel !== openPanel; });
+    const tv = $("f-time").value, preset = ["07:00","09:00","12:00","15:00","17:00"].includes(tv);
+    document.querySelectorAll("#time-chips button").forEach((b) => b.classList.toggle("on", b.dataset.t === "other" ? (!!tv && !preset) || openPanel === "time" : b.dataset.t === tv));
     $("f-high").checked = toolState.high;
   }
   function resetTools() {
@@ -2413,6 +2415,13 @@ details.donebox ul { margin-top: 6px; }
     ["f-time", "f-recur", "f-wait", "f-cname", "f-cphone", "f-est"].forEach((id) => { $(id).value = ""; });
     updateTools();
   }
+  document.querySelectorAll("#time-chips button").forEach((b) => b.addEventListener("click", () => {
+    const t = b.dataset.t;
+    if (t === "other") { openPanel = openPanel === "time" ? null : "time"; updateTools(); if (openPanel === "time") try { $("f-time").showPicker(); } catch (_) { $("f-time").focus(); } return; }
+    $("f-time").value = $("f-time").value === t ? "" : t;
+    if (openPanel === "time") openPanel = null;
+    updateTools();
+  }));
   document.querySelectorAll("#toolbar .tool").forEach((b) => b.addEventListener("click", () => {
     const k = b.dataset.tool;
     if (k in toolState) {
@@ -2612,6 +2621,6 @@ details.donebox ul { margin-top: 6px; }
 })();
 </script>
 
-<script type="module" src="firebase-store.js?v=20"></script>
+<script type="module" src="firebase-store.js?v=21"></script>
 </body>
 </html>
