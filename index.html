@@ -374,7 +374,7 @@ details.donebox ul { margin-top: 6px; }
   <div class="gate-box">
     <h2>לוח הפרויקטים</h2>
     <p id="gate-msg">טוען…</p>
-    <small style="color:var(--muted);font-size:.75rem">גרסה 19</small>
+    <small style="color:var(--muted);font-size:.75rem">גרסה 20</small>
     <button type="button" class="gbtn" id="signin" hidden><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>כניסה עם Google</button>
   </div>
 </div>
@@ -558,7 +558,7 @@ details.donebox ul { margin-top: 6px; }
       <div class="row"><button type="button" class="mic" id="mic3" hidden>🎤</button><button type="submit" class="btn" id="paste-go">יצירת משימות</button><button type="button" class="edit-name" data-close>ביטול</button></div>
     </form>
   </div>
-  <p class="hint" style="opacity:.6">גרסה 19</p>
+  <p class="hint" style="opacity:.6">גרסה 20</p>
   <p class="hint">טיפ: החלקה ימינה על משימה = בוצע ✓ · החלקה שמאלה = דחייה למחר ⏭</p>
   <p class="note">לחיצה על קובייה מציגה את המשימות של הפרויקט. ליד כל משימה אפשר להוסיף כמה הערות שרוצים.</p>
 </div>
@@ -1499,7 +1499,7 @@ details.donebox ul { margin-top: 6px; }
   const cleanSettings = (o) => { const c = Object.assign({}, o); delete c.loaded; return c; };
   let settings = {}, lastFeedJson = null, feedTimer = null;
   function feedItems() {
-    return tasks.filter((t) => !t.done && t.inCal && t.due).map((t) => ({
+    return tasks.filter((t) => !t.done && t.due && t.inCal !== false).map((t) => ({
       id: t.id, title: t.title, project: projName(t.projectId), due: t.due, time: t.time || "", recur: t.recur || "", priority: t.priority || "normal",
       notes: notesOf(t).map((n) => n.text), subtasks: (t.subtasks || []).map((x) => ({ text: x.text, done: !!x.done })),
     })).sort((a, b) => (a.id < b.id ? -1 : 1));
@@ -1523,7 +1523,7 @@ details.donebox ul { margin-top: 6px; }
   }
   const calUrl = () => settings.feedId ? CAL_SERVER.replace(/^https?:/, "webcal:") + "/api/cal?id=" + settings.feedId : "";
   function toggleCal(t) {
-    const on = !t.inCal;
+    const on = !(t.due && t.inCal !== false);
     if (on && !t.due) { write(() => db.doc("tasks/" + t.id).update({ inCal: true, due: todayIso })); }
     else write(() => db.doc("tasks/" + t.id).update({ inCal: on }));
     setStatus(on ? "🔔 נוספה ליומן" + (settings.calConnected ? " – תופיע באייפון תוך כמה דקות" : ". כדי שתופיע באייפון: 📅 חיבור ליומן (למעלה)") : "🔕 הוסרה מהיומן");
@@ -1544,7 +1544,7 @@ details.donebox ul { margin-top: 6px; }
       if (done && t.recur) {
         const copy = { projectId: t.projectId, title: t.title, due: nextDue(t), time: t.time || "", priority: t.priority || "normal", done: false, created: new Date().toISOString(), recur: t.recur };
         if (t.contactName) { copy.contactName = t.contactName; copy.contactPhone = t.contactPhone || ""; }
-        ["kind", "estimate", "inCal"].forEach((k) => { if (t[k]) copy[k] = t[k]; });
+        ["kind", "estimate"].forEach((k) => { if (t[k]) copy[k] = t[k]; }); if (t.inCal === false) copy.inCal = false;
         if (Array.isArray(t.subtasks) && t.subtasks.length) copy.subtasks = t.subtasks.map((x, i) => ({ id: "s" + Date.now() + i, text: x.text, done: false }));
         await db.doc("tasks/" + copyId).set(copy); madeCopy = true;
         setStatus("🔁 המשימה החוזרת נוספה שוב ל-" + fmtDue(copy.due));
@@ -1677,7 +1677,7 @@ details.donebox ul { margin-top: 6px; }
     }
     if (t.waitingFor && !t.done) { const c = document.createElement("span"); c.className = "chip wait"; c.style.cursor = "pointer"; c.addEventListener("click", () => openPerson(t.waitingFor)); const ds = daysSince(t.waitingSince); c.textContent = "⏳ ממתין ל" + t.waitingFor + (ds ? " · " + ds + " ימים" : ""); meta.appendChild(c); }
     if (t.recur) { const c = document.createElement("span"); c.className = "chip recur"; c.textContent = "🔁 " + RECUR[t.recur]; meta.appendChild(c); }
-    if (t.inCal && !t.done) { const c = document.createElement("span"); c.className = "chip recur"; c.textContent = "🔔 ביומן"; meta.appendChild(c); }
+    if (t.due && t.inCal !== false && !t.done) { const c = document.createElement("span"); c.className = "chip recur"; c.textContent = "🔔 ביומן"; meta.appendChild(c); }
     if (isTop3(t)) { const c = document.createElement("span"); c.className = "chip star"; c.textContent = "⭐ חשובה היום"; meta.appendChild(c); }
     if (t.estimate && !t.done) { const c = document.createElement("span"); c.className = "chip est"; c.textContent = "⏱ " + (EST[t.estimate] || fmtMinutes(t.estimate)); meta.appendChild(c); }
     if (t.assignee && !t.done) { const c = document.createElement("span"); c.className = "chip assignee"; c.textContent = "👥 אצל " + t.assignee; meta.appendChild(c); }
@@ -1768,7 +1768,7 @@ details.donebox ul { margin-top: 6px; }
     }
     if (!t.done) {
       const cal = document.createElement("button");
-      cal.type = "button"; cal.className = "note-btn"; cal.textContent = t.inCal ? "🔕 הסר מהיומן" : "🔔 ליומן באייפון";
+      cal.type = "button"; cal.className = "note-btn"; cal.textContent = (t.due && t.inCal !== false) ? "🔕 הסר מהיומן" : "🔔 ליומן";
       cal.title = "הוספת המשימה ליומן של האייפון עם התראה";
       cal.addEventListener("click", () => toggleCal(t));
       meta.appendChild(cal);
@@ -2612,6 +2612,6 @@ details.donebox ul { margin-top: 6px; }
 })();
 </script>
 
-<script type="module" src="firebase-store.js?v=19"></script>
+<script type="module" src="firebase-store.js?v=20"></script>
 </body>
 </html>
