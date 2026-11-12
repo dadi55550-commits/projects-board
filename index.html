@@ -188,6 +188,22 @@ body { padding-top: max(20px, env(safe-area-inset-top, 0px)); }
 .importbox { background: var(--surface); border: 1px dashed var(--accent); border-radius: 10px; padding: 12px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
 .importbox label { cursor: pointer; }
 .importbox input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.meet { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; background: var(--bg); }
+.meet > summary { cursor: pointer; display: flex; flex-direction: column; gap: 2px; list-style: none; }
+.meet > summary small { color: var(--muted); }
+.meet-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; font-size: .88rem; }
+.meet-bar select { font: inherit; padding: 4px 6px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--fg); }
+.meet-who { color: var(--muted); font-size: .82rem; margin: 0 0 6px; }
+.meet-items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.meet-item { border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; background: var(--surface); display: flex; flex-direction: column; gap: 3px; }
+.meet-item.mine { border-color: var(--today); box-shadow: inset 3px 0 0 var(--today); }
+.meet-item.st-skip { opacity: .5; }
+.meet-item.st-mine, .meet-item.st-follow { opacity: .75; }
+.meet-meta { color: var(--muted); font-size: .8rem; }
+.meet-acts { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
+.meet-raw { white-space: pre-wrap; font-size: .78rem; max-height: 240px; overflow: auto; background: var(--surface); padding: 6px; border-radius: 6px; }
+.tile.meet-tile { border-style: dashed; }
+#paste-meet-hint .btn { width: 100%; }
 </style>
 </head>
 <body>
@@ -377,7 +393,7 @@ details.donebox ul { margin-top: 6px; }
   <div class="gate-box">
     <h2>לוח הפרויקטים</h2>
     <p id="gate-msg">טוען…</p>
-    <small style="color:var(--muted);font-size:.75rem">גרסה 27</small>
+    <small style="color:var(--muted);font-size:.75rem">גרסה 28</small>
     <button type="button" class="gbtn" id="signin" hidden><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>כניסה עם Google</button>
   </div>
 </div>
@@ -548,9 +564,10 @@ details.donebox ul { margin-top: 6px; }
   </div>
   <div class="sheet-bg" id="paste-sheet" hidden>
     <form class="sheet" id="paste-form" autocomplete="off">
-      <h2>📋 הדבקת סיכום</h2>
-      <p class="review-step" style="margin:0">כל שורה הופכת למשימה. שורה שמסתיימת ב-":" היא כותרת – אם זה שם פרויקט, השורות שאחריה ייכנסו אליו; אחרת היא תתווסף כתחילית (למשל "בניין 2: …").</p>
-      <label>פרויקט ברירת מחדל <select id="paste-project"></select></label>
+      <h2 id="paste-h">📋 הדבקת סיכום</h2>
+      <p class="review-step" id="paste-help" style="margin:0">כל שורה הופכת למשימה. שורה שמסתיימת ב-":" היא כותרת – אם זה שם פרויקט, השורות שאחריה ייכנסו אליו; אחרת היא תתווסף כתחילית (למשל "בניין 2: …").</p>
+      <label><span id="paste-proj-l">פרויקט ברירת מחדל</span> <select id="paste-project"></select></label>
+      <div id="paste-meet-hint" hidden></div>
       <div class="row">
         <label class="btn file-btn">📎 תמונה / קובץ (צילום מסך, Word, PDF)<input type="file" id="paste-file" accept="image/*,.txt,.md,.csv,.docx,.pdf,text/plain,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"></label>
         <button type="button" class="edit-name" id="paste-clip">📋 הדבק</button>
@@ -560,7 +577,7 @@ details.donebox ul { margin-top: 6px; }
       <div class="row"><button type="button" class="mic" id="mic3" hidden>🎤</button><button type="submit" class="btn" id="paste-go">יצירת משימות</button><button type="button" class="edit-name" data-close>ביטול</button></div>
     </form>
   </div>
-  <p class="hint" style="opacity:.6">גרסה 27</p>
+  <p class="hint" style="opacity:.6">גרסה 28</p>
   <p class="hint">טיפ: החלקה ימינה על משימה = בוצע ✓ · החלקה שמאלה = דחייה למחר ⏭</p>
   <p class="note">לחיצה על קובייה מציגה את המשימות של הפרויקט. ליד כל משימה אפשר להוסיף כמה הערות שרוצים.</p>
 </div>
@@ -583,6 +600,9 @@ details.donebox ul { margin-top: 6px; }
   let editingNote = null;
   let selected = "p1";
   let view = "today";
+  const MEET = "__meetings";
+  let meetings = [];
+  let openMeeting = "";
   try { view = localStorage.getItem("view") || "today"; } catch (_) {}
   let query = "";
   const expanded = new Set();
@@ -1042,11 +1062,247 @@ details.donebox ul { margin-top: 6px; }
     });
     return out;
   }
+  let pasteMode = "tasks";
+  const PASTE_HELP = { tasks: "", meeting: "מדביקים או מעלים את סיכום הישיבה (PDF, Word, צילום מסך). הסיכום יישמר ב📝 סיכומי ישיבות, ושם בוחרים מה עובר למשימות שלך." };
+  function openPaste(mode) {
+    if (!db) return;
+    pasteMode = mode === "meeting" ? "meeting" : "tasks";
+    if (!PASTE_HELP.tasks) PASTE_HELP.tasks = $("paste-help").textContent;
+    $("paste-h").textContent = pasteMode === "meeting" ? "📝 סיכום ישיבה חדש" : "📋 הדבקת סיכום";
+    $("paste-help").textContent = PASTE_HELP[pasteMode];
+    $("paste-proj-l").textContent = pasteMode === "meeting" ? "פרויקט" : "פרויקט ברירת מחדל";
+    fillProjSel($("paste-project"), true, view === "projects" && selected !== MEET ? selected : INBOX);
+    $("paste-text").value = ""; pastePreview(); $("paste-sheet").hidden = false; setTimeout(() => $("paste-text").focus(), 50);
+  }
   function pastePreview() {
+    const hint = $("paste-meet-hint"); hint.hidden = true; hint.textContent = "";
+    if (pasteMode === "meeting") {
+      const m = parseMeeting($("paste-text").value);
+      const ul = $("paste-preview"); ul.textContent = "";
+      if ($("paste-text").value.trim()) {
+        const h = document.createElement("li"); h.innerHTML = "<b></b>"; h.firstChild.textContent = "📝 " + m.title + (m.date ? " · " + meetDate(m.date) : ""); ul.appendChild(h);
+        if (!$("paste-project").dataset.touched) { const g = findProject(m.title.split(/[-–]/)[0]) || null; const gp = g ? g.id : guessProject(m.title); if (gp) $("paste-project").value = gp; }
+        m.items.slice(0, 40).forEach((it) => { const li = document.createElement("li"); li.textContent = it.n + ". " + (it.topic ? "[" + it.topic + "] " : "") + it.text + (it.owner ? " · " + it.owner : "") + (it.dueRaw ? " · " + it.dueRaw : it.due ? " · " + fmtDue(it.due) : "") + (isMine(it) ? " ✋" : ""); ul.appendChild(li); });
+      }
+      $("paste-go").textContent = m.items.length ? "שמירת הסיכום (" + m.items.length + " סעיפים)" : "שמירת הסיכום";
+      return;
+    }
+    if ($("paste-text").value.trim()) {
+      const m = parseMeeting($("paste-text").value);
+      if (m.items.length >= 2 && m.items.some((x) => x.owner)) {
+        const b = document.createElement("button"); b.type = "button"; b.className = "btn"; b.textContent = "📝 זה נראה כמו סיכום ישיבה – לשמור בסיכומי ישיבות";
+        b.addEventListener("click", () => { const txt = $("paste-text").value; openPaste("meeting"); $("paste-text").value = txt; pastePreview(); });
+        hint.appendChild(b); hint.hidden = false;
+      }
+    }
     const list = parsePaste($("paste-text").value, $("paste-project").value);
     const ul = $("paste-preview"); ul.textContent = "";
     list.slice(0, 40).forEach((t) => { const li = document.createElement("li"); li.textContent = t.title + " · " + projName(t.projectId) + (t.due ? " · " + fmtDue(t.due) : "") + (t.time ? " · 🕐 " + t.time : "") + (t.recur ? " · 🔁 " + RECUR[t.recur] : ""); ul.appendChild(li); });
     $("paste-go").textContent = list.length ? "יצירת " + list.length + " משימות" : "יצירת משימות";
+  }
+
+  // ---------- meeting summaries ----------
+  // A pasted protocol (table: מס' | נושא | סיכום | באחריות | ת.ג.ב) is kept as a meeting; each row can then be sent to my tasks,
+  // kept as a follow-up on whoever is responsible, or marked as not mine.
+  const MY_OWNER_RE = /ביטוגרף|bitograf|דוד|^אני$/i;
+  const DUE_CELL_RE = /^(?:מיידי|מידי|מיידית|מידית|היום|מחר|שוטף|\d{1,2}[./]\d{1,2}(?:[./]\d{2,4})?)$/;
+  const TOPIC_RE = /^(?:בטיחות|חשמל|אינסטלציה|לוגיסטיקה|שלד|איטום|פיתוח|גמרים|אלומיניום|מסגרות|נגרות|ריצוף|טיח|צבע|מיזוג|ביוב|ניקוז|מים|כללי|תכנון|לו"?ז|תקציב|כספים|חוזים|רכש|איכות|פיקוח|ספקים|עפר|כלונסאות|הנדסה|תיאום|מערכות|אחר)$/;
+  function meetDue(raw, baseIso) {
+    const s = (raw || "").trim();
+    if (/^(?:מיידי|מידי|מיידית|מידית|היום)$/.test(s)) return todayIso;
+    if (s === "מחר") return tomorrowIso;
+    const m = s.match(/^(\d{1,2})[./](\d{1,2})(?:[./](\d{2,4}))?$/);
+    if (!m) return "";
+    const d = +m[1], mo = +m[2]; if (d < 1 || d > 31 || mo < 1 || mo > 12) return "";
+    const by = +(baseIso || todayIso).slice(0, 4);
+    let y = m[3] ? (+m[3] < 100 ? 2000 + +m[3] : +m[3]) : by;
+    let iso = y + "-" + pad(mo) + "-" + pad(d);
+    if (!m[3] && iso < addDays(baseIso || todayIso, -60)) iso = (y + 1) + "-" + pad(mo) + "-" + pad(d);
+    return iso;
+  }
+  function parseMeeting(text) {
+    const lines = String(text || "").split(/\r?\n/).map((l) => l.replace(/[‎‏‪-‮]/g, "").replace(/\t| {3,}/g, " | ").replace(/\s+/g, " ").replace(/^\s*\|\s*|\s*\|\s*$/g, "").trim()).filter(Boolean);
+    const out = { title: "", date: "", participants: "", items: [] };
+    for (const l of lines) {
+      const m = l.match(/תאריך(?:\s*ה?(?:פגישה|ישיבה|סיור|דיון))?\s*[:：]?\s*\|?\s*(\d{1,2})[./](\d{1,2})[./](\d{2,4})/) || l.match(/(\d{1,2})[./](\d{1,2})[./](\d{2,4})\s*\|?\s*[:：]?\s*תאריך\s*ה?(?:פגישה|ישיבה)/);
+      if (m) { const y = +m[3] < 100 ? 2000 + +m[3] : +m[3]; out.date = y + "-" + pad(+m[2]) + "-" + pad(+m[1]); break; }
+    }
+    const label = /^(?:משתתפים|נוכחים|תאריך|לו"?ז|סיכום|נושא|מס['׳]?|רשם|תפוצה|יום)\b/;
+    const tl = lines.find((l) => !label.test(l) && (l.match(/[֐-׿A-Za-z]/g) || []).length >= 4 && !/^\d/.test(l));
+    out.title = (tl || "סיכום ישיבה").replace(/\s*\|\s*/g, " – ").slice(0, 120);
+    const pi = lines.findIndex((l) => /^(?:משתתפים|נוכחים)/.test(l));
+    if (pi >= 0) {
+      const ps = [];
+      for (let i = pi; i < lines.length && i < pi + 8; i++) {
+        const l = lines[i];
+        if (i > pi && /^(?:לו"?ז|סיכום|נושא|מס['׳])/.test(l)) break;
+        const c = l.replace(/^(?:משתתפים|נוכחים)\s*[:：]?/, "").replace(/\|?\s*תאריך\s*ה?(?:פגישה|ישיבה)[^|]*$/, "").replace(/^\s*\|\s*/, "").trim();
+        if (c && !/^תאריך/.test(c)) ps.push(c.replace(/\s*\|\s*/g, " "));
+      }
+      out.participants = ps.join(" · ").slice(0, 400);
+    }
+    let inTable = false, last = null;
+    const rows = [];
+    lines.forEach((line) => {
+      const bare = line.replace(/^[\s|]+/, "");
+      if (/^(?:רשם|נרשם|תפוצה|הפגישה הבאה|הישיבה הבאה|ישיבה הבאה|פגישה הבאה)/.test(bare)) { inTable = false; last = null; return; }
+      if (/נושא/.test(line) && /(באחריות|אחראי|אחריות)/.test(line)) { inTable = true; last = null; return; }
+      if (/^סיכום ה?(?:פגישה|ישיבה)\s*[:：]?$/.test(bare)) { inTable = true; last = null; return; }
+      let cells = line.split(/\s*(?:\||\t)\s*/).map((c) => c.trim()).filter(Boolean);
+      // "9 לוגיסטיקה …" with the number glued to the first/last cell
+      if (cells.length && !/^\d{1,2}[.)]?$/.test(cells[0]) && !/^\d{1,2}[.)]?$/.test(cells[cells.length - 1])) {
+        const g = cells[0].match(/^(\d{1,2})[.)]?\s+(.+)$/);
+        if (g && inTable) cells = [g[1], g[2]].concat(cells.slice(1));
+      }
+      const numAt = /^\d{1,2}[.)]?$/.test(cells[0] || "") ? 0 : /^\d{1,2}[.)]?$/.test(cells[cells.length - 1] || "") ? cells.length - 1 : -1;
+      if (numAt < 0) {
+        if (inTable && last && cells.length === 1 && !DUE_CELL_RE.test(cells[0]) && cells[0].split(" ").length <= 8 && !/[:：]$/.test(cells[0])) last.text += " " + cells[0];
+        else last = null;
+        return;
+      }
+      const n = parseInt(cells[numAt], 10);
+      cells.splice(numAt, 1);
+      if (!cells.length) { last = null; return; }
+      if (!inTable && cells.length < 3) { last = null; return; }
+      if (cells.every((c) => !/[֐-׿A-Za-z]{2}/.test(c))) { last = null; return; }
+      inTable = true;
+      let dueRaw = "";
+      const di = cells.findIndex((c) => DUE_CELL_RE.test(c));
+      if (di >= 0) dueRaw = cells.splice(di, 1)[0];
+      // cells are in reading order; the one right next to the number is the topic
+      const near = numAt === 0 ? cells : cells.slice().reverse();
+      let longest = 0; near.forEach((c, i) => { if (c.length > near[longest].length) longest = i; });
+      const textCell = near[longest];
+      const others = near.filter((_, i) => i !== longest);
+      let topic = "", owner = "";
+      if (others.length >= 2) { topic = others[0]; owner = others[others.length - 1]; }
+      else if (others.length === 1) { if (TOPIC_RE.test(others[0]) || longest > 0) topic = others[0]; else owner = others[0]; }
+      const it = { n, topic, text: textCell, owner, dueRaw };
+      rows.push(it); last = it;
+    });
+    // owners that ended up glued to the end/start of the text ("… קומה מינוס 1 כהן לביא")
+    const owners = [...new Set(rows.map((r) => r.owner).filter(Boolean).concat(["כולם", "ביטוגרף"]))].sort((a, b) => b.length - a.length);
+    const TOPIC_WORDS = TOPIC_RE.source.replace(/^\^\(\?:|\)\$$/g, "").split("|").filter((w) => w.length >= 3 && !/[^\u0590-\u05FF]/.test(w));
+    rows.forEach((r) => {
+      const od = r.owner.match(/^(\d[\d,./]*)\s+(.+)$/); if (od) { r.text += " " + od[1]; r.owner = od[2]; }
+      if (!r.topic) {
+        const w = r.text.split(" ");
+        if (TOPIC_RE.test(w[0])) { r.topic = w.shift(); r.text = w.join(" "); }
+        else { const g = TOPIC_WORDS.find((t) => w[0].startsWith(t) && w[0].length > t.length + 1 && w.length >= 3); if (g) { r.topic = g; w[0] = w[0].slice(g.length); r.text = w.join(" "); } }
+      }
+      if (r.owner) return;
+      for (const o of owners) {
+        const re = new RegExp("(^|[\\s\\d])" + o.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "(?=\\s|$)");
+        const mm = r.text.match(re);
+        if (mm) { r.owner = o; r.text = (r.text.slice(0, mm.index) + mm[1] + " " + r.text.slice(mm.index + mm[0].length)).replace(/\s+/g, " ").trim(); break; }
+      }
+      if (!r.topic && r.text) { const w = r.text.split(" "); if (TOPIC_RE.test(w[0])) { r.topic = w.shift(); r.text = w.join(" "); } else if (TOPIC_RE.test(w[w.length - 1])) { r.topic = w.pop(); r.text = w.join(" "); } }
+      if (!r.dueRaw) { const m = r.text.match(/(?:^|\s)(מיידי|\d{1,2}[./]\d{1,2})$/); if (m) { r.dueRaw = m[1]; r.text = r.text.slice(0, -m[1].length).trim(); } }
+    });
+    out.items = rows.filter((r) => r.text && r.text.length > 1).map((r, i) => ({
+      id: "i" + Date.now().toString(36) + i, n: r.n || i + 1, topic: r.topic || "", text: r.text.slice(0, 400), owner: r.owner || "",
+      dueRaw: r.dueRaw || "", due: meetDue(r.dueRaw, out.date), status: "", taskId: "",
+    }));
+    // no table found: fall back to one item per line
+    if (!out.items.length) {
+      const skipT = (x) => x.replace(/\s+/g, " ").trim() === out.title.trim() || /^תאריך/.test(x);
+      out.items = parsePaste(text.split(/\r?\n/).filter((l) => !skipT(l.replace(/[\u200e\u200f]/g, ""))).join("\n"), INBOX).map((t, i) => ({ id: "i" + Date.now().toString(36) + i, n: i + 1, topic: "", text: t.title, owner: t.waitingFor || "", dueRaw: "", due: t.due || "", status: "", taskId: "" }));
+    }
+    return out;
+  }
+  const meetDate = (iso) => { const [y, mo, d] = (iso || "").split("-"); return iso ? +d + "." + +mo + "." + y : ""; };
+  const isMine = (it) => MY_OWNER_RE.test(it.owner || "");
+  function saveMeetingItems(m, items) { write(() => db.doc("meetings/" + m.id).update({ items })); }
+  function meetItemTo(m, it, kind) {
+    const items = (m.items || []).map((x) => Object.assign({}, x));
+    const cur = items.find((x) => x.id === it.id); if (!cur) return;
+    if (kind === "skip" || kind === "") { cur.status = kind; saveMeetingItems(m, items); return; }
+    const pid = m.projectId && projects.some((p) => p.id === m.projectId) ? m.projectId : INBOX;
+    const created = new Date().toISOString();
+    const data = { projectId: pid, title: it.text, due: it.due || "", time: "", priority: it.dueRaw && /^מי/.test(it.dueRaw) ? "high" : "normal", done: false, created, source: "meeting", meetingId: m.id,
+      noteList: [{ id: "n" + Date.now(), text: "📝 מסיכום ישיבה: " + m.title + (m.date ? " (" + meetDate(m.date) + ")" : "") + (it.topic ? " · " + it.topic : "") + (it.owner ? " · באחריות: " + it.owner : ""), at: created }] };
+    if (kind === "follow") { data.waitingFor = it.owner || "אחר"; data.waitingSince = created; }
+    cur.status = kind;
+    write(async () => { const ref = await db.collection("tasks").add(data); cur.taskId = ref && ref.id ? ref.id : ""; await db.doc("meetings/" + m.id).update({ items }); });
+    setStatus(kind === "follow" ? "⏳ נוסף למעקב מול " + data.waitingFor + ": " + it.text : "✓ נוסף למשימות: " + it.text);
+  }
+  function renderMeetings(lane, head) {
+    const h = head.querySelector(".lane-name"); if (h) h.textContent = "📝 סיכומי ישיבות";
+    const add = document.createElement("button"); add.type = "button"; add.className = "btn"; add.textContent = "➕ הדבקת סיכום ישיבה";
+    add.addEventListener("click", () => openPaste("meeting"));
+    const hint = document.createElement("p"); hint.className = "review-step"; hint.style.margin = "0";
+    hint.textContent = "מדביקים או מעלים את הסיכום (PDF, Word, צילום מסך). לכל סעיף בוחרים: ➕ למשימות שלי, ⏳ מעקב מול האחראי, או ✕ לא שלי.";
+    lane.append(add, hint);
+    if (!meetings.length) { const e = document.createElement("div"); e.className = "empty-big"; e.textContent = "עוד אין סיכומי ישיבות."; lane.appendChild(e); return; }
+    const list = meetings.slice().sort((a, b) => (b.date || "").localeCompare(a.date || "") || (b.created || "").localeCompare(a.created || ""));
+    if (!openMeeting) openMeeting = list[0].id;
+    list.forEach((m) => {
+      const items = m.items || [];
+      const pending = items.filter((x) => !x.status);
+      const d = document.createElement("details"); d.className = "meet"; d.open = m.id === openMeeting;
+      d.addEventListener("toggle", () => { if (d.open) openMeeting = m.id; else if (openMeeting === m.id) openMeeting = "-"; });
+      const s = document.createElement("summary");
+      const st = document.createElement("b"); st.textContent = m.title || "סיכום ישיבה";
+      const sm = document.createElement("small");
+      sm.textContent = (m.date ? meetDate(m.date) + " · " : "") + items.length + " סעיפים" + (pending.length ? " · " + pending.length + " לא טופלו" : " · ✓ הכול טופל") + (m.projectId && m.projectId !== INBOX ? " · 📁 " + projName(m.projectId) : "");
+      s.append(st, sm); d.appendChild(s);
+      const bar = document.createElement("div"); bar.className = "meet-bar";
+      const sel = document.createElement("select"); sel.setAttribute("aria-label", "פרויקט למשימות מהישיבה");
+      fillProjSel(sel, true, m.projectId || INBOX);
+      sel.addEventListener("change", () => write(() => db.doc("meetings/" + m.id).update({ projectId: sel.value })));
+      const sl = document.createElement("label"); sl.textContent = "משימות ייכנסו ל: "; sl.appendChild(sel); bar.appendChild(sl);
+      const mineOpen = pending.filter(isMine);
+      if (mineOpen.length > 1) {
+        const all = document.createElement("button"); all.type = "button"; all.className = "edit-name"; all.textContent = "➕ כל " + mineOpen.length + " הסעיפים שבאחריותי";
+        all.addEventListener("click", () => {
+          const its = items.map((x) => Object.assign({}, x)); const pid = m.projectId && projects.some((p) => p.id === m.projectId) ? m.projectId : INBOX;
+          write(async () => {
+            for (const it of its.filter((x) => !x.status && isMine(x))) {
+              const created = new Date().toISOString();
+              const ref = await db.collection("tasks").add({ projectId: pid, title: it.text, due: it.due || "", time: "", priority: it.dueRaw && /^מי/.test(it.dueRaw) ? "high" : "normal", done: false, created, source: "meeting", meetingId: m.id,
+                noteList: [{ id: "n" + Date.now(), text: "📝 מסיכום ישיבה: " + m.title + (m.date ? " (" + meetDate(m.date) + ")" : "") + (it.topic ? " · " + it.topic : ""), at: created }] });
+              it.status = "mine"; it.taskId = ref && ref.id ? ref.id : "";
+            }
+            await db.doc("meetings/" + m.id).update({ items: its });
+          });
+          setStatus("✓ " + mineOpen.length + " סעיפים נוספו למשימות");
+        });
+        bar.appendChild(all);
+      }
+      d.appendChild(bar);
+      if (m.participants) { const p = document.createElement("p"); p.className = "meet-who"; p.textContent = "👥 " + m.participants; d.appendChild(p); }
+      const ul = document.createElement("ul"); ul.className = "meet-items";
+      items.forEach((it) => {
+        const li = document.createElement("li"); li.className = "meet-item" + (it.status ? " st-" + it.status : "") + (!it.status && isMine(it) ? " mine" : "");
+        const tx = document.createElement("div"); tx.className = "meet-text";
+        const nb = document.createElement("b"); nb.textContent = it.n + ". "; tx.appendChild(nb);
+        if (it.topic) { const c = document.createElement("span"); c.className = "chip est"; c.textContent = it.topic; tx.append(c, " "); }
+        tx.append(it.text);
+        const mt = document.createElement("small"); mt.className = "meet-meta";
+        mt.textContent = [it.owner ? "באחריות: " + it.owner : "", it.dueRaw ? "ת.ג.ב: " + it.dueRaw : it.due ? "עד " + fmtDue(it.due) : ""].filter(Boolean).join(" · ");
+        li.append(tx, mt);
+        const acts = document.createElement("div"); acts.className = "meet-acts";
+        const mk = (t, fn, cls) => { const b = document.createElement("button"); b.type = "button"; b.className = cls || "note-btn"; b.textContent = t; b.addEventListener("click", fn); acts.appendChild(b); };
+        if (!it.status) {
+          if (isMine(it)) { const c = document.createElement("span"); c.className = "chip today"; c.textContent = "נראה שלך"; acts.appendChild(c); }
+          mk("➕ למשימות שלי", () => meetItemTo(m, it, "mine"));
+          mk("⏳ מעקב" + (it.owner && !isMine(it) ? " מול " + it.owner : ""), () => meetItemTo(m, it, "follow"));
+          mk("✕ לא שלי", () => meetItemTo(m, it, "skip"));
+        } else {
+          const c = document.createElement("span"); c.className = "chip " + (it.status === "skip" ? "est" : "recur");
+          c.textContent = it.status === "mine" ? "✓ במשימות שלי" : it.status === "follow" ? "⏳ במעקב" : "לא שלי"; acts.appendChild(c);
+          if (it.status === "skip") mk("↺ החזר", () => meetItemTo(m, it, ""));
+        }
+        li.appendChild(acts); ul.appendChild(li);
+      });
+      d.appendChild(ul);
+      const foot = document.createElement("div"); foot.className = "meet-bar";
+      if (m.raw) { const r = document.createElement("details"); const rs = document.createElement("summary"); rs.textContent = "📄 הטקסט המקורי"; const pre = document.createElement("pre"); pre.className = "meet-raw"; pre.textContent = m.raw; r.append(rs, pre); foot.appendChild(r); }
+      const del = document.createElement("button"); del.type = "button"; del.className = "edit-name"; del.textContent = "🗑 מחיקת הסיכום";
+      del.addEventListener("click", () => { if (del.dataset.sure) { write(() => db.doc("meetings/" + m.id).delete()); setStatus("🗑 הסיכום נמחק (המשימות שנוצרו ממנו נשארו)"); } else { del.dataset.sure = "1"; del.textContent = "לחץ שוב למחיקה"; } });
+      foot.appendChild(del); d.appendChild(foot);
+      lane.appendChild(d);
+    });
   }
 
   // ---------- delegation ----------
@@ -2147,7 +2403,8 @@ details.donebox ul { margin-top: 6px; }
     $("add-form").hidden = !addHere; document.querySelector(".tools").hidden = !addHere; $("fab").hidden = !addHere;
     $("open-tpl").hidden = !(view === "projects" && !query && projName(selected).includes("מכרז"));
     $("tiles").hidden = view !== "projects" || !!query;
-    if (!projects.some((p) => p.id === selected)) selected = projects[0].id;
+    if (!projects.some((p) => p.id === selected) && selected !== MEET) selected = projects[0].id;
+    if (view === "projects" && selected === MEET && !query) { $("add-form").hidden = true; $("fab").hidden = true; }
     if (query || view !== "projects") {
       renderList(open);
       renderProjectSelect();
@@ -2155,7 +2412,7 @@ details.donebox ul { margin-top: 6px; }
       return;
     }
 
-    if (!projects.some((p) => p.id === selected)) selected = projects[0].id;
+    if (!projects.some((p) => p.id === selected) && selected !== MEET) selected = projects[0].id;
     const tiles = $("tiles");
     tiles.textContent = "";
     projects.forEach((p, i) => {
@@ -2186,7 +2443,9 @@ details.donebox ul { margin-top: 6px; }
         render();
       });
       tiles.appendChild(b);
+      if (/אישי/.test(p.name) && !tiles.querySelector(".meet-tile")) tiles.appendChild(meetTile());
     });
+    if (!tiles.querySelector(".meet-tile")) tiles.appendChild(meetTile());
     if (canWrite && db) {
       const add = document.createElement("button");
       add.type = "button"; add.className = "tile add-tile";
@@ -2292,8 +2551,27 @@ details.donebox ul { margin-top: 6px; }
       }
       lanes.appendChild(lane);
     });
+    if (selected === MEET) {
+      const lane = document.createElement("article"); lane.className = "lane"; lane.style.setProperty("--pc", "#7c5cd6");
+      const head = document.createElement("div"); head.className = "lane-head";
+      const h = document.createElement("span"); h.className = "lane-name"; head.appendChild(h); lane.appendChild(head);
+      renderMeetings(lane, head); lanes.appendChild(lane);
+    }
     renderProjectSelect();
-    if (!$("f-project").dataset.touched) $("f-project").value = selected;
+    if (!$("f-project").dataset.touched && selected !== MEET) $("f-project").value = selected;
+  }
+  function meetTile() {
+    const b = document.createElement("button"); b.type = "button"; b.className = "tile meet-tile";
+    b.style.setProperty("--pc", "#7c5cd6"); b.setAttribute("aria-pressed", selected === MEET ? "true" : "false");
+    const pending = meetings.reduce((n, m) => n + (m.items || []).filter((x) => !x.status).length, 0);
+    const nm = document.createElement("span"); nm.className = "tile-name"; nm.textContent = "📝 סיכומי ישיבות";
+    const cnt = document.createElement("span"); cnt.className = "tile-open"; cnt.append(String(meetings.length) + " ");
+    const sm = document.createElement("small"); sm.textContent = "ישיבות"; cnt.appendChild(sm);
+    const flags = document.createElement("span"); flags.className = "tile-flags";
+    if (pending) { const c = document.createElement("span"); c.className = "chip today"; c.textContent = pending + " סעיפים לטיפול"; flags.appendChild(c); }
+    b.append(nm, cnt, flags);
+    b.addEventListener("click", () => { selected = MEET; editingProject = null; editingNote = null; try { localStorage.setItem("selectedProject", selected); } catch (_) {} render(); });
+    return b;
   }
 
   function setStatus(msg, isErr) {
@@ -2485,6 +2763,34 @@ details.donebox ul { margin-top: 6px; }
     const W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
     return [...doc.getElementsByTagNameNS(W, "p")].map((p) => [...p.getElementsByTagNameNS(W, "t")].map((t) => t.textContent).join("")).join("\n");
   }
+  // Rebuild lines from positioned PDF text: group by row across the whole page, order right-to-left for Hebrew,
+  // and mark wide gaps (table columns) with " | " so table rows stay together.
+  function pdfLines(its) {
+    its = its.filter((it) => it.s && it.s.trim());
+    const heb = its.reduce((n, it) => n + (it.s.match(/[֐-׿]/g) || []).length, 0);
+    const lat = its.reduce((n, it) => n + (it.s.match(/[A-Za-z]/g) || []).length, 0);
+    const rtl = heb >= lat;
+    const rows = [];
+    its.slice().sort((a, b) => b.y - a.y).forEach((it) => {
+      const r = rows.find((x) => Math.abs(x.y - it.y) <= Math.max(2, it.h * 0.35));
+      if (r) r.items.push(it); else rows.push({ y: it.y, items: [it] });
+    });
+    rows.sort((a, b) => b.y - a.y);
+    return rows.map((r) => {
+      const xs = r.items.sort((a, b) => rtl ? (b.x + b.w) - (a.x + a.w) : a.x - b.x);
+      let line = "", prev = null;
+      xs.forEach((it) => {
+        if (prev) {
+          const gap = rtl ? prev.x - (it.x + it.w) : it.x - (prev.x + prev.w);
+          const h = Math.max(prev.h, it.h, 4);
+          if (gap > h * 1.6) line = line.replace(/\s+$/, "") + " | ";
+          else if (gap > h * 0.12 && !/\s$/.test(line) && !/^\s/.test(it.s)) line += " ";
+        }
+        line += it.s; prev = it;
+      });
+      return line.replace(/[ \t]+/g, " ").trim();
+    });
+  }
   async function readPdf(file) {
     const base = "https://cdn.jsdelivr.net/npm/pdfjs-dist@6.2.108/build/";
     const pdfjs = await import(base + "pdf.min.mjs");
@@ -2493,9 +2799,7 @@ details.donebox ul { margin-top: 6px; }
     const out = [];
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i); const tc = await page.getTextContent();
-      let lastY = null, line = [];
-      tc.items.forEach((it) => { const y = Math.round(it.transform[5]); if (lastY !== null && Math.abs(y - lastY) > 3) { out.push(line.join("")); line = []; } line.push(it.str); if (it.hasEOL) { out.push(line.join("")); line = []; lastY = null; } else lastY = y; });
-      if (line.length) out.push(line.join(""));
+      out.push(...pdfLines(tc.items.map((it) => ({ s: it.str || "", x: it.transform[4], y: it.transform[5], w: it.width || 0, h: Math.abs(it.transform[3]) || it.height || 10 }))));
     }
     return out.join("\n");
   }
@@ -2574,11 +2878,7 @@ details.donebox ul { margin-top: 6px; }
     write(() => db.collection("tasks").add(t));
     $("tpl-sheet").hidden = true; setStatus("🧩 נוצר: " + t.title + " עם " + t.subtasks.length + " שלבים");
   });
-  $("open-paste").addEventListener("click", () => {
-    if (!db) return;
-    fillProjSel($("paste-project"), true, view === "projects" ? selected : INBOX);
-    $("paste-text").value = ""; pastePreview(); $("paste-sheet").hidden = false; setTimeout(() => $("paste-text").focus(), 50);
-  });
+  $("open-paste").addEventListener("click", () => openPaste(selected === MEET && view === "projects" ? "meeting" : "tasks"));
   $("paste-text").addEventListener("input", pastePreview);
   $("paste-text").addEventListener("paste", async (e) => {
     const it = [...((e.clipboardData && e.clipboardData.items) || [])].find((x) => x.type.startsWith("image/"));
@@ -2587,10 +2887,20 @@ details.donebox ul { margin-top: 6px; }
     try { const txt = await readImage(it.getAsFile()); if (txt.trim()) { addPastedText(txt); setStatus("📋 נקראה התמונה – בדוק את הרשימה ולחץ יצירת משימות"); } else setStatus("לא נמצא טקסט בתמונה.", true); }
     catch (_) { setStatus("לא הצלחתי לקרוא את התמונה.", true); }
   });
-  $("paste-project").addEventListener("change", pastePreview);
+  $("paste-project").addEventListener("change", () => { $("paste-project").dataset.touched = "1"; pastePreview(); });
   setupMic($("mic3"), $("paste-text"));
   $("paste-form").addEventListener("submit", (e) => {
     e.preventDefault();
+    if (pasteMode === "meeting") {
+      const raw = $("paste-text").value; if (!raw.trim()) return;
+      const m = parseMeeting(raw);
+      const data = { title: m.title, date: m.date || todayIso, participants: m.participants, projectId: $("paste-project").value || INBOX, items: m.items, raw: raw.slice(0, 20000), created: new Date().toISOString() };
+      write(async () => { const ref = await db.collection("meetings").add(data); if (ref && ref.id) openMeeting = ref.id; render(); });
+      $("paste-sheet").hidden = true; delete $("paste-project").dataset.touched;
+      view = "projects"; selected = MEET; try { localStorage.setItem("view", view); } catch (_) {}
+      setStatus("📝 הסיכום נשמר – " + m.items.length + " סעיפים. בחר מה עובר למשימות שלך.");
+      render(); return;
+    }
     const list = parsePaste($("paste-text").value, $("paste-project").value);
     if (!list.length) return;
     list.forEach((t, i) => { t.created = new Date(Date.now() + i).toISOString(); write(() => db.collection("tasks").add(t)); });
@@ -2645,6 +2955,11 @@ details.donebox ul { margin-top: 6px; }
     }, () => setStatus("החיבור ללוח נקטע. רענן את הדף.", true)));
     settings = {};
     unsubs.push(db.doc("meta/settings").onSnapshot((d) => { settings = Object.assign({}, d.exists ? d.data() : {}, { loaded: true }); scheduleFeedSync(); }, () => {}));
+    meetings = [];
+    unsubs.push(db.collection("meetings").onSnapshot((snap) => {
+      meetings = snap.docs.map((d) => Object.assign({ id: d.id }, d.data())).filter((m) => !m.deleted);
+      if (!editingProject && !editingNote) render();
+    }, () => {}));
     unsubs.push(db.collection("tasks").onSnapshot((snap) => {
       tasks = snap.docs.map((d) => Object.assign({ id: d.id }, d.data())).filter((t) => !t.deleted);
       setStatus("");
@@ -2654,10 +2969,10 @@ details.donebox ul { margin-top: 6px; }
       if (!editingProject && !editingNote) render();
     }, () => setStatus("החיבור ללוח נקטע. רענן את הדף.", true)));
   };
-  window.stopBoard = function () { unsubs.forEach((u) => u()); unsubs = []; db = null; tasks = []; projects = DEFAULT_PROJECTS.slice(); render(); };
+  window.stopBoard = function () { unsubs.forEach((u) => u()); unsubs = []; db = null; tasks = []; meetings = []; projects = DEFAULT_PROJECTS.slice(); render(); };
 })();
 </script>
 
-<script type="module" src="firebase-store.js?v=25"></script>
+<script type="module" src="firebase-store.js?v=28"></script>
 </body>
 </html>
