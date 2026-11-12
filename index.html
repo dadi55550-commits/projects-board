@@ -14,7 +14,7 @@
 <style>
 [hidden] { display: none !important; }
 a.note-btn { text-decoration: none; }
-.views { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 4px; }
+.views { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 4px; }
 .views button { border: 0; background: transparent; color: var(--muted); border-radius: 9px; padding: 6px 1px; font-weight: 700; font-family: var(--font-display); font-size: .78rem; white-space: nowrap; display: flex; flex-direction: column; align-items: center; gap: 1px; position: relative; }
 .views button .ic { font-size: 1.15rem; line-height: 1.2; }
 .views .badge { position: absolute; top: 2px; inset-inline-end: 6px; margin: 0; }
@@ -115,6 +115,17 @@ a.link-chip { text-decoration: none; font-size: .82rem; border: 1px solid var(--
 .photos .ph button { position: absolute; top: -6px; left: -6px; width: 22px; height: 22px; border-radius: 50%; border: 0; background: var(--late); color: #fff; font-size: .75rem; line-height: 1; }
 .guess { border: 1px dashed var(--accent); background: transparent; color: var(--accent); border-radius: 999px; padding: 0 9px; font-size: .82rem; }
 .here { width: 100%; border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 10px; padding: 9px; font-weight: 700; }
+.toolbar { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 6px; }
+.toolbar::-webkit-scrollbar { display: none; }
+.toolbar .dp-btn, .tool { flex: none; border: 1px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: .88rem; white-space: nowrap; }
+.tool[aria-pressed="true"], .toolbar .dp-btn.set { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.tool.open { outline: 2px solid var(--accent); outline-offset: 1px; }
+.tool-panel { flex-basis: 100%; }
+.tool-panel > div { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 8px; background: var(--bg); border-radius: 10px; }
+.tool-panel input, .tool-panel select { font: inherit; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--fg); min-width: 0; flex: 1 1 120px; }
+.tool-panel small { flex-basis: 100%; color: var(--muted); }
+.file-btn { position: relative; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; }
+.file-btn input { position: absolute; inset: 0; opacity: 0; }
 .empty-big { text-align: center; color: var(--muted); padding: 22px 8px; font-size: 1.05rem; }
 .hint { font-size: .78rem; color: var(--muted); text-align: center; margin: 4px 0 0; }
 /* Date picker: always centered on screen so it never runs off the edge */
@@ -320,7 +331,7 @@ details.donebox ul { margin-top: 6px; }
   <div class="gate-box">
     <h2>לוח הפרויקטים</h2>
     <p id="gate-msg">טוען…</p>
-    <small style="color:var(--muted);font-size:.75rem">גרסה 12</small>
+    <small style="color:var(--muted);font-size:.75rem">גרסה 13</small>
     <button type="button" class="gbtn" id="signin" hidden><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>כניסה עם Google</button>
   </div>
 </div>
@@ -339,10 +350,9 @@ details.donebox ul { margin-top: 6px; }
     <button type="button" data-v="today"><span class="ic">☀️</span>היום</button>
     <button type="button" data-v="projects"><span class="ic">📁</span>פרויקטים</button>
     <button type="button" data-v="waiting"><span class="ic">⏳</span>ממתין<span class="badge" id="n-wait">0</span></button>
-    <button type="button" data-v="tenders"><span class="ic">🏁</span>מכרזים</button>
     <button type="button" data-v="review"><span class="ic">📊</span>סקירה</button>
   </nav>
-  <button type="button" class="here" id="here">📍 מה יש לי כאן? (משימות של הפרויקט שאני נמצא בו)</button>
+  <button type="button" class="here" id="here">📍 מה יש לי כאן?</button>
   <input id="q" class="search" type="search" placeholder="🔍 חיפוש משימה, הערה או איש קשר" aria-label="חיפוש">
 
   <nav class="tiles" id="tiles" aria-label="פרויקטים"></nav>
@@ -353,8 +363,10 @@ details.donebox ul { margin-top: 6px; }
     <button type="button" class="mic" id="mic" title="הקלטה קולית" aria-label="הקלטה קולית" hidden>🎤</button>
     <div class="qa-preview" id="qa-preview"></div>
     <input id="f-due" type="hidden">
+    <input id="f-high" type="checkbox" hidden>
+    <div class="toolbar" id="toolbar" aria-label="אפשרויות למשימה">
     <div class="dp">
-      <button type="button" id="dp-btn" class="dp-btn" aria-haspopup="dialog" aria-expanded="false">📅 <span id="dp-label">תאריך יעד</span></button>
+      <button type="button" id="dp-btn" class="dp-btn" aria-haspopup="dialog" aria-expanded="false">📅 <span id="dp-label">תאריך</span></button>
       <div id="dp-pop" class="dp-pop" hidden role="dialog" aria-label="בחירת תאריך יעד">
         <div class="dp-head">
           <button type="button" class="dp-nav" id="dp-prev" aria-label="החודש הקודם">›</button>
@@ -370,8 +382,22 @@ details.donebox ul { margin-top: 6px; }
         </div>
       </div>
     </div>
-    <input id="f-time" class="time-in" type="time" aria-label="שעה לתזכורת" title="שעה – תקבל תזכורת בוואטסאפ ובמייל">
-    <label class="prio"><input id="f-high" type="checkbox"> דחוף</label>
+    <button type="button" class="tool" data-tool="time">🕐 שעה</button>
+    <button type="button" class="tool" data-tool="high" aria-pressed="false">❗ דחוף</button>
+    <button type="button" class="tool" data-tool="cal" aria-pressed="false">🔔 ליומן באייפון</button>
+    <button type="button" class="tool" data-tool="recur">🔁 חזרה</button>
+    <button type="button" class="tool" data-tool="top3" aria-pressed="false">⭐ חשובה היום</button>
+    <button type="button" class="tool" data-tool="wait">⏳ ממתין ל…</button>
+    <button type="button" class="tool" data-tool="contact">👤 איש קשר</button>
+    <button type="button" class="tool" data-tool="est">⏱ זמן</button>
+    </div>
+    <div class="tool-panel" id="tool-panel">
+      <div data-panel="time" hidden><input id="f-time" type="time" aria-label="שעה"><small>עם 🔔 ליומן – תקבל התראה 15 דקות לפני.</small></div>
+      <div data-panel="recur" hidden><select id="f-recur" aria-label="חזרה"><option value="">בלי חזרה</option><option value="daily">כל יום</option><option value="weekly">כל שבוע</option><option value="monthly">כל חודש</option></select><small>עם 🔔 ליומן – גם ההתראה ביומן תחזור.</small></div>
+      <div data-panel="wait" hidden><input id="f-wait" list="contacts-dl" placeholder="ממתין למי? (למשל: אביתר)"></div>
+      <div data-panel="contact" hidden><input id="f-cname" list="contacts-dl" placeholder="שם"><input id="f-cphone" type="tel" inputmode="tel" placeholder="טלפון"></div>
+      <div data-panel="est" hidden><select id="f-est" aria-label="זמן משוער"><option value="">בלי הערכה</option><option value="15">15 דקות</option><option value="30">30 דקות</option><option value="60">שעה</option><option value="120">שעתיים</option><option value="240">חצי יום</option></select></div>
+    </div>
     <button class="btn" id="f-submit" type="submit">הוספה</button>
     <p class="qa-help">אפשר לכתוב הכול בשורה אחת: <b>היום / מחר / יום ג׳ / 25.11</b> · <b>14:30</b> · <b>#פרויקט</b> · <b>!</b> דחוף · <b>@שם</b> ממתין ל… · <b>כל שבוע</b></p>
   </form>
@@ -430,12 +456,16 @@ details.donebox ul { margin-top: 6px; }
       <h2>📋 הדבקת סיכום</h2>
       <p class="review-step" style="margin:0">כל שורה הופכת למשימה. שורה שמסתיימת ב-":" היא כותרת – אם זה שם פרויקט, השורות שאחריה ייכנסו אליו; אחרת היא תתווסף כתחילית (למשל "בניין 2: …").</p>
       <label>פרויקט ברירת מחדל <select id="paste-project"></select></label>
-      <textarea id="paste-text" placeholder="להדביק כאן סיכום סיור / ישיבה…" style="min-height:140px"></textarea>
+      <div class="row">
+        <label class="btn file-btn">📎 העלאת קובץ (Word / PDF / טקסט)<input type="file" id="paste-file" accept=".txt,.md,.csv,.docx,.pdf,text/plain,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"></label>
+        <button type="button" class="edit-name" id="paste-clip">📋 הדבק</button>
+      </div>
+      <textarea id="paste-text" placeholder="או להדביק / לכתוב כאן את הסיכום…" style="min-height:140px"></textarea>
       <ul class="preview" id="paste-preview"></ul>
       <div class="row"><button type="button" class="mic" id="mic3" hidden>🎤</button><button type="submit" class="btn" id="paste-go">יצירת משימות</button><button type="button" class="edit-name" data-close>ביטול</button></div>
     </form>
   </div>
-  <p class="hint" style="opacity:.6">גרסה 12</p>
+  <p class="hint" style="opacity:.6">גרסה 13</p>
   <p class="hint">טיפ: החלקה ימינה על משימה = בוצע ✓ · החלקה שמאלה = דחייה למחר ⏭</p>
   <p class="note">לחיצה על קובייה מציגה את המשימות של הפרויקט. ליד כל משימה אפשר להוסיף כמה הערות שרוצים.</p>
 </div>
@@ -663,6 +693,33 @@ details.donebox ul { margin-top: 6px; }
   }
 
   // Google Calendar "new event" link, prefilled. With a time: a 30-minute event; without: an all-day event.
+  // iPhone / any calendar: build an .ics event (with alarm, and repeat for recurring tasks) and open it.
+  function icsEsc(x) { return String(x || "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n"); }
+  function buildIcs(t) {
+    const d = (t.due || todayIso).replace(/-/g, "");
+    const [h, m] = (t.time || "09:00").split(":").map(Number);
+    const start = d + "T" + pad(h) + pad(m) + "00";
+    const endDt = new Date(+d.slice(0, 4), +d.slice(4, 6) - 1, +d.slice(6, 8), h, m + (t.time ? 30 : 15));
+    const end = isoDay(endDt).replace(/-/g, "") + "T" + pad(endDt.getHours()) + pad(endDt.getMinutes()) + "00";
+    const now = new Date(); const stamp = now.getUTCFullYear() + pad(now.getUTCMonth() + 1) + pad(now.getUTCDate()) + "T" + pad(now.getUTCHours()) + pad(now.getUTCMinutes()) + pad(now.getUTCSeconds()) + "Z";
+    const proj = projName(t.projectId);
+    const notes = notesOf(t).map((n) => "• " + n.text).join("\n");
+    const desc = (proj ? "פרויקט: " + proj + "\n" : "") + (notes ? notes + "\n" : "") + "https://dadi55550-commits.github.io/projects-board/";
+    const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//projects-board//HE", "CALSCALE:GREGORIAN", "BEGIN:VEVENT",
+      "UID:" + (t.id || ("t" + Date.now())) + "-" + Date.now() + "@projects-board", "DTSTAMP:" + stamp,
+      "DTSTART:" + start, "DTEND:" + end, "SUMMARY:" + icsEsc((t.priority === "high" ? "❗ " : "") + t.title), "DESCRIPTION:" + icsEsc(desc)];
+    if (t.recur) lines.push("RRULE:FREQ=" + ({ daily: "DAILY", weekly: "WEEKLY", monthly: "MONTHLY" }[t.recur]));
+    lines.push("BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:" + icsEsc(t.title), "TRIGGER:" + (t.time ? "-PT15M" : "PT0M"), "END:VALARM", "END:VEVENT", "END:VCALENDAR");
+    return lines.join("\r\n");
+  }
+  function openIcs(t) {
+    const ics = buildIcs(t);
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    if (isIOS) { window.location.href = "data:text/calendar;charset=utf-8," + encodeURIComponent(ics); return; }
+    const url = URL.createObjectURL(new Blob([ics], { type: "text/calendar;charset=utf-8" }));
+    const a = document.createElement("a"); a.href = url; a.download = "משימה.ics"; document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 2000);
+  }
   function calendarLink(t) {
     const d = t.due.replace(/-/g, "");
     let dates;
@@ -1328,12 +1385,11 @@ details.donebox ul { margin-top: 6px; }
       hb.addEventListener("click", () => { editingNote = { taskId: t.id, noteId: "time" }; render(); });
       meta.appendChild(hb);
     }
-    if (t.due && !t.done) {
-      const cal = document.createElement("a");
-      cal.className = "note-btn"; cal.textContent = "📅 ליומן";
-      cal.target = "_blank"; cal.rel = "noopener";
-      cal.href = calendarLink(t);
-      cal.title = "הוספת המשימה ל-Google Calendar עם תזכורת";
+    if (!t.done) {
+      const cal = document.createElement("button");
+      cal.type = "button"; cal.className = "note-btn"; cal.textContent = "🔔 ליומן באייפון";
+      cal.title = "הוספת המשימה ליומן של האייפון עם התראה";
+      cal.addEventListener("click", () => openIcs(t));
       meta.appendChild(cal);
     }
     if (canWrite && editing !== "new") {
@@ -1664,6 +1720,9 @@ details.donebox ul { margin-top: 6px; }
     $("n-wait").textContent = open.filter((t) => t.waitingFor).length;
     document.querySelectorAll("#views button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === view && !query)));
     renderContactsList();
+    if (view === "tenders") view = "today";
+    const addHere = view === "today" || view === "projects";
+    $("add-form").hidden = !addHere; document.querySelector(".tools").hidden = !addHere; $("fab").hidden = !addHere;
     $("tiles").hidden = view !== "projects" || !!query;
     if (!projects.some((p) => p.id === selected)) selected = projects[0].id;
     if (query || view !== "projects") {
@@ -1846,13 +1905,23 @@ details.donebox ul { margin-top: 6px; }
       done: false,
       created: new Date().toISOString(),
     };
-    if (q.waitingFor) { data.waitingFor = q.waitingFor; data.waitingSince = data.created; }
-    if (q.recur) { data.recur = q.recur; if (!data.due) data.due = todayIso; }
+    const wf = q.waitingFor || $("f-wait").value.trim();
+    if (wf) { data.waitingFor = wf; data.waitingSince = data.created; }
+    const rc = q.recur || $("f-recur").value;
+    if (rc) { data.recur = rc; if (!data.due) data.due = todayIso; }
+    if ($("f-cname").value.trim()) { data.contactName = $("f-cname").value.trim(); data.contactPhone = $("f-cphone").value.trim() || phoneFor(data.contactName); }
+    if ($("f-est").value) data.estimate = +$("f-est").value;
+    if (toolState.top3) data.top3Date = todayIso;
+    const toCal = toolState.cal;
+    if (toCal && !data.due) data.due = todayIso;
+    const id = newId();
+    resetTools();
     $("f-title").value = ""; $("f-high").checked = false; $("f-time").value = ""; setDue("");
     renderQuickPreview();
     const pn = (projects.find((p) => p.id === data.projectId) || {}).name || "";
-    setStatus("✓ נוספה: " + data.title + (pn ? " · " + pn : "") + (data.due ? " · " + fmtDue(data.due) : ""));
-    write(() => db.collection("tasks").add(data));
+    setStatus("✓ נוספה: " + data.title + (pn ? " · " + pn : "") + (data.due ? " · " + fmtDue(data.due) : "") + (data.recur ? " · 🔁 " + RECUR[data.recur] : ""));
+    write(() => db.doc("tasks/" + id).set(data));
+    if (toCal) openIcs(Object.assign({ id }, data));
     $("f-title").focus();
   });
 
@@ -1916,6 +1985,92 @@ details.donebox ul { margin-top: 6px; }
   const closeInbox = () => { $("inbox-sheet").hidden = true; };
   $("fab").addEventListener("click", openInbox);
   $("here").addEventListener("click", whatsHere);
+
+  // ----- add-form toolbar -----
+  const toolState = { high: false, top3: false, cal: false };
+  let openPanel = null;
+  function updateTools() {
+    document.querySelectorAll("#toolbar .tool").forEach((b) => {
+      const k = b.dataset.tool;
+      let on = false;
+      if (k in toolState) on = toolState[k];
+      else if (k === "time") on = !!$("f-time").value;
+      else if (k === "recur") on = !!$("f-recur").value;
+      else if (k === "wait") on = !!$("f-wait").value.trim();
+      else if (k === "contact") on = !!$("f-cname").value.trim();
+      else if (k === "est") on = !!$("f-est").value;
+      b.setAttribute("aria-pressed", String(on));
+      b.classList.toggle("open", openPanel === k);
+    });
+    document.querySelectorAll("#tool-panel > div").forEach((d) => { d.hidden = d.dataset.panel !== openPanel; });
+    $("f-high").checked = toolState.high;
+  }
+  function resetTools() {
+    toolState.high = toolState.top3 = toolState.cal = false; openPanel = null;
+    ["f-time", "f-recur", "f-wait", "f-cname", "f-cphone", "f-est"].forEach((id) => { $(id).value = ""; });
+    updateTools();
+  }
+  document.querySelectorAll("#toolbar .tool").forEach((b) => b.addEventListener("click", () => {
+    const k = b.dataset.tool;
+    if (k in toolState) {
+      toolState[k] = !toolState[k];
+      if (k === "top3" && toolState.top3 && tasks.filter(isTop3).length >= 3) { toolState.top3 = false; setStatus("כבר יש 3 משימות חשובות להיום.", true); }
+      if (k === "cal" && toolState.cal) setStatus("🔔 אחרי ההוספה ייפתח חלון להוספה ליומן של האייפון");
+    } else {
+      openPanel = openPanel === k ? null : k;
+      setTimeout(() => { const el = document.querySelector('#tool-panel > div[data-panel="' + k + '"] input, #tool-panel > div[data-panel="' + k + '"] select'); if (el && openPanel === k) el.focus(); }, 0);
+    }
+    updateTools();
+  }));
+  ["f-time", "f-recur", "f-wait", "f-cname", "f-cphone", "f-est"].forEach((id) => { $(id).addEventListener("input", updateTools); $(id).addEventListener("change", updateTools); });
+  $("f-cname").addEventListener("change", () => { if (!$("f-cphone").value) $("f-cphone").value = phoneFor($("f-cname").value.trim()); });
+  updateTools();
+
+  // ----- paste summary: upload a file or paste from clipboard -----
+  const loadScript = (src) => new Promise((res, rej) => { const sc = document.createElement("script"); sc.src = src; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); });
+  async function readDocx(file) {
+    if (!window.JSZip) await loadScript("https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js");
+    const zip = await window.JSZip.loadAsync(await file.arrayBuffer());
+    const xml = await zip.file("word/document.xml").async("string");
+    const doc = new DOMParser().parseFromString(xml, "application/xml");
+    const W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
+    return [...doc.getElementsByTagNameNS(W, "p")].map((p) => [...p.getElementsByTagNameNS(W, "t")].map((t) => t.textContent).join("")).join("\n");
+  }
+  async function readPdf(file) {
+    const base = "https://cdn.jsdelivr.net/npm/pdfjs-dist@6.2.108/build/";
+    const pdfjs = await import(base + "pdf.min.mjs");
+    pdfjs.GlobalWorkerOptions.workerSrc = base + "pdf.worker.min.mjs";
+    const pdf = await pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise;
+    const out = [];
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i); const tc = await page.getTextContent();
+      let lastY = null, line = [];
+      tc.items.forEach((it) => { const y = Math.round(it.transform[5]); if (lastY !== null && Math.abs(y - lastY) > 3) { out.push(line.join("")); line = []; } line.push(it.str); if (it.hasEOL) { out.push(line.join("")); line = []; lastY = null; } else lastY = y; });
+      if (line.length) out.push(line.join(""));
+    }
+    return out.join("\n");
+  }
+  $("paste-file").addEventListener("change", async (e) => {
+    const f = e.target.files && e.target.files[0]; e.target.value = "";
+    if (!f) return;
+    const ext = (f.name.split(".").pop() || "").toLowerCase();
+    setStatus("📎 קורא את " + f.name + "…");
+    try {
+      let txt;
+      if (ext === "docx") txt = await readDocx(f);
+      else if (ext === "pdf") txt = await readPdf(f);
+      else if (ext === "doc") throw new Error("old-doc");
+      else txt = await f.text();
+      $("paste-text").value = ($("paste-text").value.trim() ? $("paste-text").value.trim() + "\n" : "") + txt.trim();
+      pastePreview(); setStatus("📎 נקרא " + f.name + " – בדוק את הרשימה ולחץ יצירת משימות");
+    } catch (err) {
+      setStatus(err && err.message === "old-doc" ? "קובץ Word ישן (.doc) לא נתמך – שמור אותו כ-.docx ונסה שוב." : "לא הצלחתי לקרוא את הקובץ. אפשר להעתיק את הטקסט ולהדביק.", true);
+    }
+  });
+  $("paste-clip").addEventListener("click", async () => {
+    try { const t = await navigator.clipboard.readText(); if (t) { $("paste-text").value = ($("paste-text").value.trim() ? $("paste-text").value.trim() + "\n" : "") + t; pastePreview(); } else setStatus("הלוח ריק – העתק קודם טקסט.", true); }
+    catch (_) { $("paste-text").focus(); setStatus("לחץ לחיצה ארוכה בתיבה ובחר \"הדבק\".", true); }
+  });
   const fillProjSel = (sel, withInbox, def) => {
     sel.textContent = "";
     if (withInbox) { const o = document.createElement("option"); o.value = INBOX; o.textContent = "📥 קליטה (למיין אחר כך)"; sel.appendChild(o); }
@@ -2019,6 +2174,6 @@ details.donebox ul { margin-top: 6px; }
 })();
 </script>
 
-<script type="module" src="firebase-store.js?v=12"></script>
+<script type="module" src="firebase-store.js?v=13"></script>
 </body>
 </html>
