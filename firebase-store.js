@@ -80,6 +80,7 @@ let store = null;
 signinBtn.addEventListener("click", async () => {
   const provider = new GoogleAuthProvider();
   gateMsg.textContent = "מתחבר…";
+  if (/[?&]login=redirect/.test(location.search)) { await signInWithRedirect(auth, provider); return; }
   try {
     // Open the popup synchronously inside the tap: any await before it makes Safari block the popup.
     // (Local persistence is already the default in browsers.)
