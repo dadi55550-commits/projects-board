@@ -126,6 +126,49 @@ a.link-chip { text-decoration: none; font-size: .82rem; border: 1px solid var(--
 .tool-panel small { flex-basis: 100%; color: var(--muted); }
 .file-btn { position: relative; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; }
 .file-btn input { position: absolute; inset: 0; opacity: 0; }
+.quickbar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.quickbar .here { font-size: .85rem; padding: 9px 4px; }
+.person-pick { list-style: none; margin: 0; padding: 0; max-height: 55vh; overflow: auto; display: flex; flex-direction: column; gap: 4px; }
+.person-pick button { width: 100%; text-align: right; border: 1px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 10px; padding: 10px 12px; display: flex; justify-content: space-between; font: inherit; }
+.person-pick small { color: var(--muted); }
+.person-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 6px; }
+.person-head a, .person-head button { text-decoration: none; border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; color: var(--fg); background: var(--surface); font: inherit; }
+button.chip-link { border: 0; background: transparent; padding: 0; font: inherit; color: inherit; cursor: pointer; text-decoration: underline dotted; }
+.drive { position: fixed; inset: 0; z-index: 60; background: #0f1512; color: #fff; display: flex; flex-direction: column; gap: 14px; padding: max(18px, env(safe-area-inset-top, 0px)) 16px max(18px, env(safe-area-inset-bottom, 0px)); }
+.drive-top { display: flex; justify-content: space-between; align-items: center; }
+.drive-top h2 { margin: 0; font-family: var(--font-display); font-size: 1.3rem; }
+.drive-top button { border: 1px solid #ffffff55; background: transparent; color: #fff; border-radius: 999px; padding: 6px 14px; font-size: 1rem; }
+.drive-msg { min-height: 4.5em; font-size: 1.35rem; font-weight: 700; line-height: 1.35; text-align: center; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+.drive-msg small { font-size: .95rem; font-weight: 400; color: #ffffffb0; }
+.drive-btns { flex: 1; display: grid; grid-template-rows: repeat(3, 1fr); gap: 12px; }
+.drive-btns button, .drive-btns a { border: 0; border-radius: 22px; font-size: 1.6rem; font-weight: 800; color: #fff; display: flex; align-items: center; justify-content: center; gap: 12px; text-decoration: none; }
+.d-voice { background: #2f6b55; } .d-call { background: #1f5eff; } .d-next { background: #9a5b00; }
+.d-voice.on { background: #b3261e; animation: pulse 1s infinite; }
+.drive-sub { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.drive-sub button, .drive-sub a { border: 0; border-radius: 16px; padding: 16px; font-size: 1.15rem; font-weight: 700; color: #0f1512; background: #e6ebe7; text-align: center; text-decoration: none; }
+.drive-auto { font-size: .85rem; color: #ffffffb0; display: flex; gap: 8px; align-items: center; justify-content: center; }
+.drive-banner { position: fixed; top: max(10px, env(safe-area-inset-top, 0px)); left: 12px; right: 12px; z-index: 50; background: #2f6b55; color: #fff; border-radius: 14px; padding: 12px; display: flex; gap: 10px; align-items: center; justify-content: space-between; box-shadow: 0 6px 18px #0005; font-weight: 700; }
+.drive-banner button { border: 0; border-radius: 10px; padding: 8px 12px; font-weight: 800; }
+.morning { position: fixed; inset: 0; z-index: 58; background: var(--bg); display: flex; flex-direction: column; padding: max(16px, env(safe-area-inset-top, 0px)) 16px max(16px, env(safe-area-inset-bottom, 0px)); gap: 12px; }
+.morning-top { display: flex; justify-content: space-between; align-items: center; }
+.morning-top h2 { margin: 0; font-family: var(--font-display); }
+.morning-top button { border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 999px; padding: 5px 12px; }
+.m-stage { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; }
+.m-card { width: 100%; max-width: 420px; min-height: 46vh; background: var(--surface); border: 1px solid var(--line); border-top: 6px solid var(--pc, var(--accent)); border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px color-mix(in srgb, #000 15%, transparent); display: flex; flex-direction: column; gap: 10px; touch-action: none; user-select: none; transition: transform .2s ease, opacity .2s ease; }
+.m-card.drag { transition: none; }
+.m-card h3 { margin: 0; font-family: var(--font-display); font-size: 1.45rem; line-height: 1.3; }
+.m-card .m-meta { display: flex; flex-wrap: wrap; gap: 6px; }
+.m-card .m-notes { color: var(--muted); font-size: .95rem; white-space: pre-wrap; }
+.m-hint { position: absolute; top: 18px; font-weight: 800; font-size: 1.3rem; padding: 4px 12px; border-radius: 10px; border: 3px solid; opacity: 0; }
+.m-hint.r { right: 18px; color: var(--accent); transform: rotate(8deg); } .m-hint.l { left: 18px; color: var(--today); transform: rotate(-8deg); } .m-hint.u { left: 50%; transform: translateX(-50%); color: var(--late); }
+.m-legend { text-align: center; color: var(--muted); font-size: .88rem; }
+.m-btns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.m-btns button { border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 14px; padding: 12px 4px; font-weight: 700; font-size: .95rem; }
+.m-btns .m-today { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.m-btns .m-tom { background: var(--today-bg); color: var(--today); }
+.m-done { text-align: center; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.m-done b { font-size: 3rem; }
+.morning-cta { width: 100%; border: 0; background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 70%, #e0a800)); color: #fff; border-radius: 12px; padding: 12px; font-weight: 800; font-size: 1rem; }
 .empty-big { text-align: center; color: var(--muted); padding: 22px 8px; font-size: 1.05rem; }
 .hint { font-size: .78rem; color: var(--muted); text-align: center; margin: 4px 0 0; }
 /* Date picker: always centered on screen so it never runs off the edge */
@@ -331,7 +374,7 @@ details.donebox ul { margin-top: 6px; }
   <div class="gate-box">
     <h2>לוח הפרויקטים</h2>
     <p id="gate-msg">טוען…</p>
-    <small style="color:var(--muted);font-size:.75rem">גרסה 15</small>
+    <small style="color:var(--muted);font-size:.75rem">גרסה 16</small>
     <button type="button" class="gbtn" id="signin" hidden><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>כניסה עם Google</button>
   </div>
 </div>
@@ -352,7 +395,11 @@ details.donebox ul { margin-top: 6px; }
     <button type="button" data-v="waiting"><span class="ic">⏳</span>ממתין<span class="badge" id="n-wait">0</span></button>
     <button type="button" data-v="review"><span class="ic">📊</span>סקירה</button>
   </nav>
-  <button type="button" class="here" id="here">📍 מה יש לי כאן?</button>
+  <div class="quickbar">
+    <button type="button" class="here" id="here">📍 מה יש לי כאן?</button>
+    <button type="button" class="here" id="open-person">👤 מה פתוח מול…</button>
+    <button type="button" class="here" id="open-drive">🚗 מצב נהיגה</button>
+  </div>
   <input id="q" class="search" type="search" placeholder="🔍 חיפוש משימה, הערה או איש קשר" aria-label="חיפוש">
 
   <nav class="tiles" id="tiles" aria-label="פרויקטים"></nav>
@@ -434,6 +481,38 @@ details.donebox ul { margin-top: 6px; }
       </div>
     </form>
   </div>
+  <div class="sheet-bg" id="person-sheet" hidden>
+    <div class="sheet">
+      <h2>👤 מה פתוח מול…</h2>
+      <input id="person-q" type="search" placeholder="חיפוש שם" style="font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--fg)">
+      <ul class="person-pick" id="person-list"></ul>
+      <div class="row"><button type="button" class="edit-name" data-close>סגירה</button></div>
+    </div>
+  </div>
+  <div class="drive" id="drive" hidden>
+    <div class="drive-top"><h2>🚗 מצב נהיגה</h2><button type="button" id="drive-exit">✕ יציאה</button></div>
+    <div class="drive-msg" id="drive-msg">מה עושים?</div>
+    <div class="drive-btns">
+      <button type="button" class="d-voice" id="d-voice">🎤 משימה בקול</button>
+      <button type="button" class="d-call" id="d-call">📞 להתקשר למי שמחכה</button>
+      <button type="button" class="d-next" id="d-next">▶️ מה הבא?</button>
+    </div>
+    <div class="drive-sub" id="drive-sub" hidden></div>
+    <label class="drive-auto"><input type="checkbox" id="drive-auto"> להציע מצב נהיגה לבד כשאני בנסיעה (לפי מהירות, כשהאפליקציה פתוחה)</label>
+  </div>
+  <div class="morning" id="morning" hidden>
+    <div class="morning-top"><h2>🃏 סידור הבוקר</h2><span id="m-count"></span><button type="button" id="m-exit">סיום</button></div>
+    <div class="m-stage" id="m-stage"></div>
+    <div class="m-legend" id="m-legend">← שמאלה = מחר · ימינה = היום → · ↑ למעלה = למחוק</div>
+    <div class="m-btns" id="m-btns">
+      <button type="button" class="m-tom" data-m="tomorrow">⏭ מחר</button>
+      <button type="button" data-m="skip">דלג</button>
+      <button type="button" class="m-today" data-m="today">☀️ היום</button>
+      <button type="button" data-m="week">📅 שבוע הבא</button>
+      <button type="button" data-m="star">⭐ היום + חשובה</button>
+      <button type="button" data-m="delete">🗑 למחוק</button>
+    </div>
+  </div>
   <div class="sheet-bg" id="tpl-sheet" hidden>
     <form class="sheet" id="tpl-form" autocomplete="off">
       <h2>🧩 יצירה מתבנית</h2>
@@ -465,7 +544,7 @@ details.donebox ul { margin-top: 6px; }
       <div class="row"><button type="button" class="mic" id="mic3" hidden>🎤</button><button type="submit" class="btn" id="paste-go">יצירת משימות</button><button type="button" class="edit-name" data-close>ביטול</button></div>
     </form>
   </div>
-  <p class="hint" style="opacity:.6">גרסה 15</p>
+  <p class="hint" style="opacity:.6">גרסה 16</p>
   <p class="hint">טיפ: החלקה ימינה על משימה = בוצע ✓ · החלקה שמאלה = דחייה למחר ⏭</p>
   <p class="note">לחיצה על קובייה מציגה את המשימות של הפרויקט. ליד כל משימה אפשר להוסיף כמה הערות שרוצים.</p>
 </div>
@@ -1172,6 +1251,203 @@ details.donebox ul { margin-top: 6px; }
     } catch (_) { setStatus("לא הצלחתי לקבל מיקום. צריך לאשר גישה למיקום בהגדרות הדפדפן.", true); }
   }
 
+  // ---------- people: "what's open with…" ----------
+  let personName = "";
+  const PREFIX = "ולבמשהכ";
+  function mentions(text, name) {
+    if (!text || !name) return false;
+    const n = norm(name); if (n.length < 2) return false;
+    return String(text).split(/[\s,.:;!?()"'״׳\-–]+/).some((w) => { const k = norm(w); return k === n || (k.length === n.length + 1 && PREFIX.includes(k[0]) && k.slice(1) === n); });
+  }
+  const samePerson = (a, b) => a && b && (norm(a) === norm(b) || norm(a).startsWith(norm(b) + "") && norm(b).length >= 3 || norm(b).startsWith(norm(a)) && norm(a).length >= 3);
+  function peopleList() {
+    const m = new Map();
+    const add = (n) => { if (!n) return; n = n.trim(); const key = [...m.keys()].find((k) => samePerson(k, n)) || n; m.set(key, 0); };
+    tasks.forEach((t) => { add(t.contactName); add(t.waitingFor); add(t.assignee); });
+    const open = tasks.filter((t) => !t.done);
+    return [...m.keys()].map((n) => ({ name: n, n: open.filter((t) => personTask(t, n)).length })).filter((x) => x.n).sort((a, b) => b.n - a.n || a.name.localeCompare(b.name));
+  }
+  function personTask(t, n) { return samePerson(t.contactName, n) || samePerson(t.waitingFor, n) || samePerson(t.assignee, n) || mentions(t.title, n); }
+  function openPerson(name) { personName = name; view = "person"; query = ""; $("q").value = ""; editingNote = null; $("person-sheet").hidden = true; render(); window.scrollTo({ top: 0, behavior: "smooth" }); }
+  function renderPersonPicker() {
+    const k = $("person-q").value.trim(); const ul = $("person-list"); ul.textContent = "";
+    const list = peopleList().filter((x) => !k || x.name.includes(k));
+    list.forEach((x) => { const li = document.createElement("li"); const b = document.createElement("button"); b.type = "button"; const nm = document.createElement("span"); nm.textContent = "👤 " + x.name; const c = document.createElement("small"); c.textContent = x.n + " פתוחות"; b.append(nm, c); b.addEventListener("click", () => openPerson(x.name)); li.appendChild(b); ul.appendChild(li); });
+    if (k && !list.some((x) => x.name === k)) { const li = document.createElement("li"); const b = document.createElement("button"); b.type = "button"; b.textContent = "🔍 לחפש \"" + k + "\" בכל המשימות"; b.addEventListener("click", () => openPerson(k)); li.appendChild(b); ul.appendChild(li); }
+    if (!ul.childNodes.length) { const li = document.createElement("li"); li.className = "review-step"; li.textContent = "עוד אין אנשי קשר במשימות. מוסיפים במשימה: ⋯ ← 👤 איש קשר / ⏳ ממתין ל… / 👥 העבר ל…"; ul.appendChild(li); }
+  }
+  function renderPerson(lane, h, open) {
+    const n = personName; h.textContent = "👤 מה פתוח מול " + n;
+    const head = document.createElement("div"); head.className = "person-head";
+    const back = document.createElement("button"); back.type = "button"; back.textContent = "→ חזרה"; back.addEventListener("click", () => { view = "today"; render(); });
+    head.appendChild(back);
+    const ph = phoneFor(n) || (tasks.find((t) => samePerson(t.contactName, n) && t.contactPhone) || {}).contactPhone;
+    if (ph) {
+      const tel = document.createElement("a"); tel.href = "tel:" + ph.replace(/[^\d+]/g, ""); tel.textContent = "📞 להתקשר";
+      const owes = open.filter((t) => samePerson(t.waitingFor, n));
+      const msg = owes.length ? "היי " + n + ", רציתי לבדוק לגבי:\n" + owes.map((t) => "• " + t.title).join("\n") : "";
+      const wa = document.createElement("a"); wa.href = "https://wa.me/" + waPhone(ph) + (msg ? "?text=" + encodeURIComponent(msg) : ""); wa.target = "_blank"; wa.rel = "noopener"; wa.textContent = owes.length ? "💬 לנדנד על הכול" : "💬 וואטסאפ";
+      head.append(tel, wa);
+    }
+    lane.appendChild(head);
+    const owes = open.filter((t) => samePerson(t.waitingFor, n)).sort((a, b) => (a.waitingSince || "").localeCompare(b.waitingSince || ""));
+    const his = open.filter((t) => !owes.includes(t) && samePerson(t.assignee, n)).sort(sortOpen);
+    const mine = open.filter((t) => !owes.includes(t) && !his.includes(t) && personTask(t, n)).sort(sortOpen);
+    section(lane, "⏳ " + n + " חייב לי", "late", owes);
+    section(lane, "👥 אצל " + n, "", his);
+    section(lane, "📌 אני צריך מול " + n, "today", mine);
+    const doneRecent = tasks.filter((t) => t.done && personTask(t, n) && (t.doneAt || "") > addDays(todayIso, -14)).sort((a, b) => (b.doneAt || "").localeCompare(a.doneAt || ""));
+    section(lane, "✓ נסגר בשבועיים האחרונים", "", doneRecent.slice(0, 10), { done: true });
+    if (!owes.length && !his.length && !mine.length) { const e = document.createElement("div"); e.className = "empty-big"; e.textContent = "אין משימות פתוחות מול " + n + " 🎉"; lane.appendChild(e); }
+  }
+
+  // ---------- driving mode ----------
+  const speak = (txt) => { try { const u = new SpeechSynthesisUtterance(txt); u.lang = "he-IL"; u.rate = 1; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (_) {} };
+  let driveIdx = 0, callIdx = 0, driveRec = null;
+  function driveQueue() {
+    const open = tasks.filter((t) => !t.done && !t.waitingFor && !t.assignee);
+    const used = new Set(); const pick = (a) => a.filter((t) => !used.has(t.id) && (used.add(t.id), true));
+    return pick(open.filter(isTop3).sort(sortOpen)).concat(pick(open.filter((t) => t.due && t.due <= todayIso).sort(sortOpen)), pick(open.filter((t) => t.priority === "high").sort(sortOpen)));
+  }
+  function callQueue() {
+    return tasks.filter((t) => !t.done && (t.waitingFor || t.assignee || t.contactName)).map((t) => { const who = t.waitingFor || t.assignee || t.contactName; return { t, who, ph: phoneFor(who) || t.contactPhone }; }).filter((x) => x.ph)
+      .sort((a, b) => (!!b.t.waitingFor - !!a.t.waitingFor) || (a.t.waitingSince || a.t.due || "9").localeCompare(b.t.waitingSince || b.t.due || "9"));
+  }
+  function driveMsg(main, sub) { const m = $("drive-msg"); m.textContent = ""; const b = document.createElement("div"); b.textContent = main; m.appendChild(b); if (sub) { const s2 = document.createElement("small"); s2.textContent = sub; m.appendChild(s2); } }
+  function driveSub(buttons) { const box = $("drive-sub"); box.textContent = ""; box.hidden = !buttons.length; buttons.forEach((el) => box.appendChild(el)); }
+  function mkDriveBtn(txt, fn) { const b = document.createElement("button"); b.type = "button"; b.textContent = txt; b.addEventListener("click", fn); return b; }
+  function openDrive() { $("drive").hidden = false; driveIdx = 0; callIdx = 0; driveMsg("🚗 נסיעה טובה", "לחץ על כפתור גדול"); driveSub([]); try { navigator.wakeLock && navigator.wakeLock.request("screen").then((l) => { openDrive.lock = l; }).catch(() => {}); } catch (_) {} }
+  function closeDrive() { $("drive").hidden = true; try { speechSynthesis.cancel(); } catch (_) {} try { driveRec && driveRec.abort(); } catch (_) {} try { openDrive.lock && openDrive.lock.release(); } catch (_) {} }
+  function driveNext() {
+    const q = driveQueue();
+    if (!q.length) { driveMsg("🎉 אין משימות דחופות להיום"); speak("אין משימות דחופות להיום"); driveSub([]); return; }
+    const t = q[driveIdx % q.length];
+    const pn = projName(t.projectId);
+    driveMsg(t.title, pn + (t.due ? " · " + fmtDue(t.due) : "") + " · " + ((driveIdx % q.length) + 1) + "/" + q.length);
+    speak(t.title + ". " + pn);
+    driveSub([mkDriveBtn("✓ בוצע", () => { completeTask(t, true); speak("סומן כבוצע"); setTimeout(driveNext, 600); }), mkDriveBtn("⏭ הבא", () => { driveIdx++; driveNext(); })]);
+  }
+  function driveCall() {
+    const q = callQueue();
+    if (!q.length) { driveMsg("אין למי להתקשר", "מוסיפים טלפון במשימה: ⋯ ← 👤 איש קשר"); speak("אין למי להתקשר"); driveSub([]); return; }
+    const x = q[callIdx % q.length];
+    const why = x.t.waitingFor ? "מחכה ממנו: " + x.t.title : x.t.title;
+    driveMsg("📞 " + x.who, why);
+    speak("להתקשר ל" + x.who + ". " + why);
+    const a = document.createElement("a"); a.href = "tel:" + x.ph.replace(/[^\d+]/g, ""); a.textContent = "📞 חייג עכשיו";
+    driveSub([a, mkDriveBtn("⏭ מישהו אחר", () => { callIdx++; driveCall(); })]);
+  }
+  function driveVoice() {
+    if (!SR) { driveMsg("אין זיהוי דיבור כאן", "אפשר להשתמש במיקרופון של המקלדת"); return; }
+    if (driveRec) { try { driveRec.stop(); } catch (_) {} return; }
+    const btn = $("d-voice"); let heard = "", finished = false;
+    const done = () => {
+      if (finished) return; finished = true; btn.classList.remove("on"); btn.textContent = "🎤 משימה בקול";
+      const r = driveRec; driveRec = null; try { r && r.abort(); } catch (_) {}
+      heard = heard.trim();
+      if (!heard) { driveMsg("לא שמעתי, נסה שוב"); speak("לא שמעתי"); return; }
+      const q = parseQuick(heard);
+      const data = { projectId: q.projectId || guessProject(q.title || heard) || INBOX, title: q.title || heard, due: q.due || "", time: q.time || "", priority: q.priority === "high" ? "high" : "normal", done: false, created: new Date().toISOString() };
+      write(() => db.doc("tasks/" + newId()).set(data));
+      driveMsg("✓ נשמר: " + data.title, projName(data.projectId)); speak("נשמר");
+    };
+    try {
+      driveRec = new SR(); driveRec.lang = "he-IL"; driveRec.interimResults = true; driveRec.continuous = false;
+      driveRec.onresult = (e) => { heard = ""; let fin = false; for (let i = 0; i < e.results.length; i++) { heard += e.results[i][0].transcript; if (e.results[i].isFinal) fin = true; } driveMsg("🎤 " + heard); if (fin) setTimeout(done, 300); };
+      driveRec.onend = done; driveRec.onerror = done;
+      btn.classList.add("on"); btn.textContent = "🔴 מקשיב… (לחץ לסיום)"; driveMsg("🎤 דבר עכשיו", "למשל: מחר לדבר עם אביתר על המזח");
+      driveRec.start(); setTimeout(() => { if (!finished) { try { driveRec && driveRec.stop(); } catch (_) {} setTimeout(done, 800); } }, 15000);
+    } catch (_) { done(); }
+  }
+  // Auto-detect driving: while the app is open, watch GPS speed (needs the user's opt-in).
+  let geoWatch = null, fastCount = 0, driveOffered = false;
+  function setupDriveDetect() {
+    let on = false; try { on = localStorage.getItem("driveAuto") === "1"; } catch (_) {}
+    $("drive-auto").checked = on;
+    if (geoWatch !== null) { try { navigator.geolocation.clearWatch(geoWatch); } catch (_) {} geoWatch = null; }
+    if (!on || !navigator.geolocation) return;
+    geoWatch = navigator.geolocation.watchPosition((p) => {
+      const v = p.coords.speed; // m/s
+      if (v != null && v > 6) fastCount++; else if (v != null && v < 2) fastCount = 0;
+      if (fastCount >= 2 && $("drive").hidden && !driveOffered) {
+        driveOffered = true;
+        const bn = document.createElement("div"); bn.className = "drive-banner";
+        const tx = document.createElement("span"); tx.textContent = "🚗 נראה שאתה בנסיעה";
+        const go = document.createElement("button"); go.type = "button"; go.textContent = "למצב נהיגה";
+        const no = document.createElement("button"); no.type = "button"; no.textContent = "✕";
+        go.addEventListener("click", () => { bn.remove(); openDrive(); }); no.addEventListener("click", () => bn.remove());
+        bn.append(tx, go, no); document.body.appendChild(bn);
+        setTimeout(() => bn.remove(), 30000);
+      }
+    }, () => {}, { enableHighAccuracy: true, maximumAge: 5000 });
+  }
+
+  // ---------- morning sort (swipe cards) ----------
+  let mQueue = [], mIdx = 0, mStats = { today: 0, tomorrow: 0, week: 0, del: 0 };
+  function morningCandidates() {
+    return tasks.filter((t) => !t.done && !t.waitingFor && !t.assignee && (!t.due || t.due <= todayIso)).sort(sortOpen);
+  }
+  function openMorning() {
+    mQueue = morningCandidates(); mIdx = 0; mStats = { today: 0, tomorrow: 0, week: 0, del: 0 };
+    try { localStorage.setItem("morningDone", todayIso); } catch (_) {}
+    $("morning").hidden = false; showCard();
+  }
+  function closeMorning() { $("morning").hidden = true; render(); }
+  function showCard() {
+    const st = $("m-stage"); st.textContent = "";
+    $("m-count").textContent = mQueue.length ? Math.min(mIdx + 1, mQueue.length) + "/" + mQueue.length : "";
+    const btns = $("m-btns"), leg = $("m-legend");
+    if (mIdx >= mQueue.length) {
+      btns.hidden = leg.hidden = true;
+      const d = document.createElement("div"); d.className = "m-done";
+      const b = document.createElement("b"); b.textContent = "☀️";
+      const p = document.createElement("p"); p.textContent = mQueue.length ? "היום מסודר! " + mStats.today + " להיום · " + mStats.tomorrow + " למחר" + (mStats.week ? " · " + mStats.week + " לשבוע הבא" : "") + (mStats.del ? " · " + mStats.del + " נמחקו" : "") : "אין משימות לסדר הבוקר 🎉";
+      const go = document.createElement("button"); go.type = "button"; go.className = "btn"; go.textContent = "לרשימה של היום"; go.addEventListener("click", closeMorning);
+      d.append(b, p, go); st.appendChild(d); return;
+    }
+    btns.hidden = leg.hidden = false;
+    const t = mQueue[mIdx];
+    const pi = projects.findIndex((p) => p.id === t.projectId);
+    const c = document.createElement("div"); c.className = "m-card"; if (pi >= 0) c.style.setProperty("--pc", projColor(pi));
+    const hr = document.createElement("span"); hr.className = "m-hint r"; hr.textContent = "היום";
+    const hl = document.createElement("span"); hl.className = "m-hint l"; hl.textContent = "מחר";
+    const hu = document.createElement("span"); hu.className = "m-hint u"; hu.textContent = "למחוק";
+    const h3 = document.createElement("h3"); h3.textContent = t.title;
+    const meta = document.createElement("div"); meta.className = "m-meta";
+    const chip = (txt, cls) => { const x = document.createElement("span"); x.className = "chip " + (cls || ""); x.textContent = txt; meta.appendChild(x); };
+    chip(projName(t.projectId), "proj"); if (pi >= 0) meta.lastChild.style.setProperty("--pc", projColor(pi));
+    if (t.due && t.due < todayIso) chip("באיחור " + Math.round((new Date(todayIso) - new Date(t.due)) / 86400000) + " ימים", "late");
+    else if (t.due === todayIso) chip("היום", "today"); else chip("בלי תאריך", "est");
+    if (t.priority === "high") chip("דחוף", "high");
+    if (t.estimate) chip("⏱ " + fmtMinutes(t.estimate), "est");
+    const notes = document.createElement("div"); notes.className = "m-notes"; notes.textContent = notesOf(t).map((n) => "• " + n.text).join("\n");
+    c.append(hr, hl, hu, h3, meta, notes); st.appendChild(c);
+    let x0 = 0, y0 = 0, dx = 0, dy = 0, drag = false;
+    c.addEventListener("pointerdown", (e) => { drag = true; x0 = e.clientX; y0 = e.clientY; dx = dy = 0; c.classList.add("drag"); c.setPointerCapture(e.pointerId); });
+    c.addEventListener("pointermove", (e) => {
+      if (!drag) return; dx = e.clientX - x0; dy = e.clientY - y0;
+      c.style.transform = "translate(" + dx + "px," + Math.min(0, dy) + "px) rotate(" + dx / 20 + "deg)";
+      hr.style.opacity = Math.max(0, Math.min(1, dx / 100)); hl.style.opacity = Math.max(0, Math.min(1, -dx / 100)); hu.style.opacity = Math.max(0, Math.min(1, -dy / 120));
+    });
+    const end = () => {
+      if (!drag) return; drag = false; c.classList.remove("drag");
+      if (dx > 100) mAct("today", c, 1); else if (dx < -100) mAct("tomorrow", c, -1); else if (dy < -130) mAct("delete", c, 0);
+      else { c.style.transform = ""; hr.style.opacity = hl.style.opacity = hu.style.opacity = 0; }
+    };
+    c.addEventListener("pointerup", end); c.addEventListener("pointercancel", end);
+  }
+  function mAct(kind, card, dir) {
+    const t = mQueue[mIdx]; if (!t) return;
+    if (kind === "today") { if (t.due !== todayIso) write(() => db.doc("tasks/" + t.id).update({ due: todayIso })); mStats.today++; }
+    else if (kind === "star") { write(() => db.doc("tasks/" + t.id).update({ due: todayIso, top3Date: tasks.filter(isTop3).length < 3 ? todayIso : (t.top3Date || "") })); mStats.today++; }
+    else if (kind === "tomorrow") { write(() => db.doc("tasks/" + t.id).update({ due: tomorrowIso, notified: null })); mStats.tomorrow++; }
+    else if (kind === "week") { let d = addDays(todayIso, 7 - today.getDay()); if (d <= todayIso) d = addDays(d, 7); write(() => db.doc("tasks/" + t.id).update({ due: d })); mStats.week++; }
+    else if (kind === "delete") { deleteTask(t); mStats.del++; }
+    const c = card || document.querySelector("#m-stage .m-card");
+    if (c) { c.style.transform = dir ? "translateX(" + (dir * 130) + "%) rotate(" + (dir * 20) + "deg)" : (kind === "delete" ? "translateY(-120%)" : "scale(.9)"); c.style.opacity = 0; }
+    mIdx++; setTimeout(showCard, 180);
+  }
+
   // ---------- task actions ----------
   function completeTask(t, done, quiet) {
     const copyId = newId(); let madeCopy = false;
@@ -1312,7 +1588,7 @@ details.donebox ul { margin-top: 6px; }
       const pi = projects.findIndex((p) => p.id === t.projectId);
       if (pi >= 0) { li.style.setProperty("--pc", projColor(pi)); const c = document.createElement("span"); c.className = "chip proj"; c.textContent = projects[pi].name; meta.appendChild(c); }
     }
-    if (t.waitingFor && !t.done) { const c = document.createElement("span"); c.className = "chip wait"; const ds = daysSince(t.waitingSince); c.textContent = "⏳ ממתין ל" + t.waitingFor + (ds ? " · " + ds + " ימים" : ""); meta.appendChild(c); }
+    if (t.waitingFor && !t.done) { const c = document.createElement("span"); c.className = "chip wait"; c.style.cursor = "pointer"; c.addEventListener("click", () => openPerson(t.waitingFor)); const ds = daysSince(t.waitingSince); c.textContent = "⏳ ממתין ל" + t.waitingFor + (ds ? " · " + ds + " ימים" : ""); meta.appendChild(c); }
     if (t.recur) { const c = document.createElement("span"); c.className = "chip recur"; c.textContent = "🔁 " + RECUR[t.recur]; meta.appendChild(c); }
     if (isTop3(t)) { const c = document.createElement("span"); c.className = "chip star"; c.textContent = "⭐ חשובה היום"; meta.appendChild(c); }
     if (t.estimate && !t.done) { const c = document.createElement("span"); c.className = "chip est"; c.textContent = "⏱ " + (EST[t.estimate] || fmtMinutes(t.estimate)); meta.appendChild(c); }
@@ -1442,7 +1718,7 @@ details.donebox ul { margin-top: 6px; }
     const contactPhone = t.contactPhone || phoneFor(contactName);
     if (contactName && contactPhone && !t.done) {
       const c = document.createElement("span"); c.className = "contact";
-      const nm = document.createElement("span"); nm.textContent = "👤 " + contactName;
+      const nm = document.createElement("button"); nm.type = "button"; nm.className = "chip-link"; nm.textContent = "👤 " + contactName; nm.title = "מה פתוח מול " + contactName; nm.addEventListener("click", () => openPerson(contactName));
       const tel = document.createElement("a"); tel.href = "tel:" + contactPhone.replace(/[^\d+]/g, ""); tel.textContent = "📞";
       const wa = document.createElement("a"); wa.target = "_blank"; wa.rel = "noopener";
       const msg = t.waitingFor ? "היי " + contactName + ", רציתי לבדוק לגבי: " + t.title : "";
@@ -1660,6 +1936,8 @@ details.donebox ul { margin-top: 6px; }
       if (!res.length) { const e = document.createElement("div"); e.className = "empty-big"; e.textContent = "לא נמצא כלום עבור \"" + query + "\""; lane.appendChild(e); }
     } else if (view === "tenders") {
       renderTenders(lane, h, open);
+    } else if (view === "person") {
+      renderPerson(lane, h, open);
     } else if (view === "review") {
       renderReview(lane, h, open);
     } else if (view === "waiting") {
@@ -1698,6 +1976,10 @@ details.donebox ul { margin-top: 6px; }
       const tenders = pick(open.filter((t) => isTender(t) && t.due && t.due <= addDays(todayIso, 7)).sort(sortOpen));
       const tom = pick(open.filter((t) => t.due === tomorrowIso).sort(sortOpen));
       const dayLoad = top.concat(late, tod).reduce((m, t) => m + (+t.estimate || 0), 0);
+      const mc = morningCandidates().length;
+      let mDone = ""; try { mDone = localStorage.getItem("morningDone") || ""; } catch (_) {}
+      if (mc && mDone !== todayIso) { const b = document.createElement("button"); b.type = "button"; b.className = "morning-cta"; b.textContent = "🃏 בוקר טוב! לסדר את היום? (" + mc + " משימות, דקה אחת)"; b.addEventListener("click", openMorning); lane.appendChild(b); }
+      else if (mc) { const b = document.createElement("button"); b.type = "button"; b.className = "bulk"; b.style.marginTop = "0"; b.textContent = "🃏 סידור מהיר בכרטיסים (" + mc + ")"; b.addEventListener("click", openMorning); lane.appendChild(b); }
       if (dayLoad) { const p = document.createElement("p"); p.className = "total-est"; p.textContent = "⏱ זמן משוער למשימות של היום: " + fmtMinutes(dayLoad) + (dayLoad > 480 ? " – יותר מיום עבודה, כדאי לדחות משהו" : ""); lane.appendChild(p); }
       if (!top.length && open.length) { const p = document.createElement("p"); p.className = "review-step"; p.textContent = "⭐ טיפ: בחר עד 3 משימות שחייבות לקרות היום (⋯ ← ⭐ חשובה היום)."; lane.appendChild(p); }
       section(lane, "⭐ 3 החשובות של היום", "today", top);
@@ -2003,6 +2285,18 @@ details.donebox ul { margin-top: 6px; }
   const closeInbox = () => { $("inbox-sheet").hidden = true; };
   $("fab").addEventListener("click", openInbox);
   $("here").addEventListener("click", whatsHere);
+  $("open-person").addEventListener("click", () => { $("person-q").value = ""; renderPersonPicker(); $("person-sheet").hidden = false; });
+  $("person-q").addEventListener("input", renderPersonPicker);
+  $("person-sheet").addEventListener("click", (e) => { if (e.target.id === "person-sheet") $("person-sheet").hidden = true; });
+  $("open-drive").addEventListener("click", openDrive);
+  $("drive-exit").addEventListener("click", closeDrive);
+  $("d-next").addEventListener("click", driveNext);
+  $("d-call").addEventListener("click", driveCall);
+  $("d-voice").addEventListener("click", driveVoice);
+  $("drive-auto").addEventListener("change", () => { try { localStorage.setItem("driveAuto", $("drive-auto").checked ? "1" : "0"); } catch (_) {} driveOffered = false; setupDriveDetect(); });
+  setupDriveDetect();
+  $("m-exit").addEventListener("click", closeMorning);
+  document.querySelectorAll("#m-btns button").forEach((b) => b.addEventListener("click", () => { const k = b.dataset.m; if (k === "skip") { mIdx++; showCard(); } else mAct(k, null, k === "today" || k === "star" ? 1 : k === "tomorrow" || k === "week" ? -1 : 0); }));
 
   // ----- add-form toolbar -----
   const toolState = { high: false, top3: false, cal: false };
@@ -2185,6 +2479,7 @@ details.donebox ul { margin-top: 6px; }
       setStatus("");
       gotT = true; maybeOffer(); updateBrief();
       if (!startBoard.quickDone && new URLSearchParams(location.search).get("quick")) { startBoard.quickDone = true; setTimeout(openInbox, 100); }
+      if (!startBoard.driveDone && new URLSearchParams(location.search).get("drive")) { startBoard.driveDone = true; setTimeout(openDrive, 100); }
       if (!editingProject && !editingNote) render();
     }, () => setStatus("החיבור ללוח נקטע. רענן את הדף.", true)));
   };
@@ -2192,6 +2487,6 @@ details.donebox ul { margin-top: 6px; }
 })();
 </script>
 
-<script type="module" src="firebase-store.js?v=15"></script>
+<script type="module" src="firebase-store.js?v=16"></script>
 </body>
 </html>
