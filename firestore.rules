@@ -14,5 +14,12 @@ service cloud.firestore {
       allow update: if (request.auth != null && resource.data.ownerUid == request.auth.uid)
         || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['items', 'updatedAt']);
     }
+    // iPhone calendar feed: readable by its secret id (the calendar server reads it), written only by its owner.
+    match /feeds/{feedId} {
+      allow get: if true;
+      allow create: if request.auth != null && request.resource.data.ownerUid == request.auth.uid;
+      allow update, delete: if request.auth != null && resource.data.ownerUid == request.auth.uid
+        && (request.resource == null || request.resource.data.ownerUid == request.auth.uid);
+    }
   }
 }

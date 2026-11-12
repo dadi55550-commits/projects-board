@@ -374,7 +374,7 @@ details.donebox ul { margin-top: 6px; }
   <div class="gate-box">
     <h2>לוח הפרויקטים</h2>
     <p id="gate-msg">טוען…</p>
-    <small style="color:var(--muted);font-size:.75rem">גרסה 18</small>
+    <small style="color:var(--muted);font-size:.75rem">גרסה 19</small>
     <button type="button" class="gbtn" id="signin" hidden><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>כניסה עם Google</button>
   </div>
 </div>
@@ -382,7 +382,7 @@ details.donebox ul { margin-top: 6px; }
   <header>
     <h1>לוח הפרויקטים</h1>
     <span class="date" id="today-label"></span>
-    <span class="userbar"><span id="who"></span><button type="button" id="signout">יציאה</button></span>
+    <span class="userbar"><button type="button" id="open-cal">📅 חיבור ליומן</button><span id="who"></span><button type="button" id="signout">יציאה</button></span>
   </header>
   <div class="importbox" id="importbox" hidden>
     <span>הלוח ריק. רוצה להעביר את הפרויקטים והמשימות מהלוח הישן?</span>
@@ -481,6 +481,20 @@ details.donebox ul { margin-top: 6px; }
       </div>
     </form>
   </div>
+  <div class="sheet-bg" id="cal-sheet" hidden>
+    <div class="sheet">
+      <h2>📅 חיבור ליומן של האייפון</h2>
+      <p class="review-step" style="margin:0">פעם אחת בלבד. אחרי זה כל משימה שמסומנת 🔔 מופיעה ביומן עם השעה, החזרה וההתראה – וכשמסמנים ✓ בוצע היא נעלמת מהיומן לבד (העדכון מגיע תוך כמה דקות).</p>
+      <ol class="review-step" style="margin:0;padding-inline-start:18px">
+        <li>לחץ על הכפתור הירוק למטה.</li>
+        <li>באייפון יופיע "להירשם ללוח השנה?" ← <b>הרשמה</b>.</li>
+        <li>במסך ההגדרות: כבה את <b>"הסר התראות"</b> (כדי שיקפצו התראות) ← <b>סיום</b>.</li>
+      </ol>
+      <a class="btn" id="cal-link" style="text-align:center;padding:12px;text-decoration:none">📅 הוספה ליומן של האייפון</a>
+      <p class="review-step" style="margin:0;direction:ltr;text-align:left;word-break:break-all" id="cal-url"></p>
+      <div class="row"><button type="button" class="edit-name" data-close>סגירה</button></div>
+    </div>
+  </div>
   <div class="sheet-bg" id="person-sheet" hidden>
     <div class="sheet">
       <h2>👤 מה פתוח מול…</h2>
@@ -544,7 +558,7 @@ details.donebox ul { margin-top: 6px; }
       <div class="row"><button type="button" class="mic" id="mic3" hidden>🎤</button><button type="submit" class="btn" id="paste-go">יצירת משימות</button><button type="button" class="edit-name" data-close>ביטול</button></div>
     </form>
   </div>
-  <p class="hint" style="opacity:.6">גרסה 18</p>
+  <p class="hint" style="opacity:.6">גרסה 19</p>
   <p class="hint">טיפ: החלקה ימינה על משימה = בוצע ✓ · החלקה שמאלה = דחייה למחר ⏭</p>
   <p class="note">לחיצה על קובייה מציגה את המשימות של הפרויקט. ליד כל משימה אפשר להוסיף כמה הערות שרוצים.</p>
 </div>
@@ -1477,6 +1491,50 @@ details.donebox ul { margin-top: 6px; }
     mIdx++; setTimeout(showCard, 180);
   }
 
+  // ---------- iPhone calendar sync (subscribed calendar) ----------
+  // Tasks marked 🔔 (inCal) are published to feeds/<secret id>; the iPhone subscribes to /api/cal?id=… and refreshes on its own,
+  // so a task marked done disappears from the calendar and edited notes/times show up there too.
+  let CAL_SERVER = "https://projects-board-calendar.vercel.app";
+  try { CAL_SERVER = localStorage.getItem("calServer") || CAL_SERVER; } catch (_) {}
+  const cleanSettings = (o) => { const c = Object.assign({}, o); delete c.loaded; return c; };
+  let settings = {}, lastFeedJson = null, feedTimer = null;
+  function feedItems() {
+    return tasks.filter((t) => !t.done && t.inCal && t.due).map((t) => ({
+      id: t.id, title: t.title, project: projName(t.projectId), due: t.due, time: t.time || "", recur: t.recur || "", priority: t.priority || "normal",
+      notes: notesOf(t).map((n) => n.text), subtasks: (t.subtasks || []).map((x) => ({ text: x.text, done: !!x.done })),
+    })).sort((a, b) => (a.id < b.id ? -1 : 1));
+  }
+  function newSecret() { const a = new Uint8Array(16); crypto.getRandomValues(a); return [...a].map((b) => b.toString(16).padStart(2, "0")).join(""); }
+  async function ensureFeedId() {
+    if (settings.feedId) return settings.feedId;
+    const id = newSecret(); settings = Object.assign({}, settings, { feedId: id });
+    await db.doc("meta/settings").set(cleanSettings(settings));
+    return id;
+  }
+  function scheduleFeedSync() {
+    if (!db || !db.feed || !settings.loaded) return;
+    clearTimeout(feedTimer);
+    feedTimer = setTimeout(async () => {
+      const items = feedItems(); const json = JSON.stringify(items);
+      if (json === lastFeedJson) return;
+      if (!items.length && !settings.feedId) { lastFeedJson = json; return; }
+      try { const id = await ensureFeedId(); await db.feed.set(id, json); lastFeedJson = json; } catch (_) {}
+    }, 1500);
+  }
+  const calUrl = () => settings.feedId ? CAL_SERVER.replace(/^https?:/, "webcal:") + "/api/cal?id=" + settings.feedId : "";
+  function toggleCal(t) {
+    const on = !t.inCal;
+    if (on && !t.due) { write(() => db.doc("tasks/" + t.id).update({ inCal: true, due: todayIso })); }
+    else write(() => db.doc("tasks/" + t.id).update({ inCal: on }));
+    setStatus(on ? "🔔 נוספה ליומן" + (settings.calConnected ? " – תופיע באייפון תוך כמה דקות" : ". כדי שתופיע באייפון: 📅 חיבור ליומן (למעלה)") : "🔕 הוסרה מהיומן");
+  }
+  async function openCalSheet() {
+    const id = await ensureFeedId(); scheduleFeedSync();
+    const url = calUrl();
+    $("cal-link").href = url; $("cal-url").textContent = url.replace("webcal://", "https://");
+    $("cal-sheet").hidden = false;
+  }
+
   // ---------- task actions ----------
   function completeTask(t, done, quiet) {
     const copyId = newId(); let madeCopy = false;
@@ -1486,7 +1544,7 @@ details.donebox ul { margin-top: 6px; }
       if (done && t.recur) {
         const copy = { projectId: t.projectId, title: t.title, due: nextDue(t), time: t.time || "", priority: t.priority || "normal", done: false, created: new Date().toISOString(), recur: t.recur };
         if (t.contactName) { copy.contactName = t.contactName; copy.contactPhone = t.contactPhone || ""; }
-        ["kind", "estimate"].forEach((k) => { if (t[k]) copy[k] = t[k]; });
+        ["kind", "estimate", "inCal"].forEach((k) => { if (t[k]) copy[k] = t[k]; });
         if (Array.isArray(t.subtasks) && t.subtasks.length) copy.subtasks = t.subtasks.map((x, i) => ({ id: "s" + Date.now() + i, text: x.text, done: false }));
         await db.doc("tasks/" + copyId).set(copy); madeCopy = true;
         setStatus("🔁 המשימה החוזרת נוספה שוב ל-" + fmtDue(copy.due));
@@ -1619,6 +1677,7 @@ details.donebox ul { margin-top: 6px; }
     }
     if (t.waitingFor && !t.done) { const c = document.createElement("span"); c.className = "chip wait"; c.style.cursor = "pointer"; c.addEventListener("click", () => openPerson(t.waitingFor)); const ds = daysSince(t.waitingSince); c.textContent = "⏳ ממתין ל" + t.waitingFor + (ds ? " · " + ds + " ימים" : ""); meta.appendChild(c); }
     if (t.recur) { const c = document.createElement("span"); c.className = "chip recur"; c.textContent = "🔁 " + RECUR[t.recur]; meta.appendChild(c); }
+    if (t.inCal && !t.done) { const c = document.createElement("span"); c.className = "chip recur"; c.textContent = "🔔 ביומן"; meta.appendChild(c); }
     if (isTop3(t)) { const c = document.createElement("span"); c.className = "chip star"; c.textContent = "⭐ חשובה היום"; meta.appendChild(c); }
     if (t.estimate && !t.done) { const c = document.createElement("span"); c.className = "chip est"; c.textContent = "⏱ " + (EST[t.estimate] || fmtMinutes(t.estimate)); meta.appendChild(c); }
     if (t.assignee && !t.done) { const c = document.createElement("span"); c.className = "chip assignee"; c.textContent = "👥 אצל " + t.assignee; meta.appendChild(c); }
@@ -1709,9 +1768,9 @@ details.donebox ul { margin-top: 6px; }
     }
     if (!t.done) {
       const cal = document.createElement("button");
-      cal.type = "button"; cal.className = "note-btn"; cal.textContent = "🔔 ליומן באייפון";
+      cal.type = "button"; cal.className = "note-btn"; cal.textContent = t.inCal ? "🔕 הסר מהיומן" : "🔔 ליומן באייפון";
       cal.title = "הוספת המשימה ליומן של האייפון עם התראה";
-      cal.addEventListener("click", () => openIcs(t));
+      cal.addEventListener("click", () => toggleCal(t));
       meta.appendChild(cal);
     }
     if (canWrite && editing !== "new") {
@@ -2242,7 +2301,7 @@ details.donebox ul { margin-top: 6px; }
     if ($("f-est").value) data.estimate = +$("f-est").value;
     if (toolState.top3) data.top3Date = todayIso;
     const toCal = toolState.cal;
-    if (toCal && !data.due) data.due = todayIso;
+    if (toCal) { data.inCal = true; if (!data.due) data.due = todayIso; }
     const id = newId();
     resetTools();
     $("f-title").value = ""; $("f-high").checked = false; $("f-time").value = ""; setDue("");
@@ -2250,7 +2309,7 @@ details.donebox ul { margin-top: 6px; }
     const pn = (projects.find((p) => p.id === data.projectId) || {}).name || "";
     setStatus("✓ נוספה: " + data.title + (pn ? " · " + pn : "") + (data.due ? " · " + fmtDue(data.due) : "") + (data.recur ? " · 🔁 " + RECUR[data.recur] : ""));
     write(() => db.doc("tasks/" + id).set(data));
-    if (toCal) openIcs(Object.assign({ id }, data));
+    if (toCal && !settings.calConnected) setStatus("🔔 נשמרה ליומן. כדי שתופיע באייפון – לחץ פעם אחת 📅 חיבור ליומן למעלה");
     $("f-title").focus();
   });
 
@@ -2314,6 +2373,9 @@ details.donebox ul { margin-top: 6px; }
   const closeInbox = () => { $("inbox-sheet").hidden = true; };
   $("fab").addEventListener("click", openInbox);
   $("here").addEventListener("click", whatsHere);
+  $("open-cal").addEventListener("click", () => { if (db) openCalSheet(); });
+  $("cal-link").addEventListener("click", () => { if (!settings.calConnected) { settings.calConnected = true; write(() => db.doc("meta/settings").set(cleanSettings(settings))); } });
+  $("cal-sheet").addEventListener("click", (e) => { if (e.target.id === "cal-sheet") $("cal-sheet").hidden = true; });
   $("open-person").addEventListener("click", () => { $("person-q").value = ""; renderPersonPicker(); $("person-sheet").hidden = false; });
   $("person-q").addEventListener("input", renderPersonPicker);
   $("person-sheet").addEventListener("click", (e) => { if (e.target.id === "person-sheet") $("person-sheet").hidden = true; });
@@ -2356,7 +2418,7 @@ details.donebox ul { margin-top: 6px; }
     if (k in toolState) {
       toolState[k] = !toolState[k];
       if (k === "top3" && toolState.top3 && tasks.filter(isTop3).length >= 3) { toolState.top3 = false; setStatus("כבר יש 3 משימות חשובות להיום.", true); }
-      if (k === "cal" && toolState.cal) setStatus("🔔 אחרי ההוספה ייפתח חלון להוספה ליומן של האייפון");
+      if (k === "cal" && toolState.cal) setStatus("🔔 המשימה תופיע ביומן של האייפון, עם התראה" + (toolState && $("f-time").value ? " 15 דקות לפני" : ""));
     } else {
       openPanel = openPanel === k ? null : k;
       setTimeout(() => { const el = document.querySelector('#tool-panel > div[data-panel="' + k + '"] input, #tool-panel > div[data-panel="' + k + '"] select'); if (el && openPanel === k) el.focus(); }, 0);
@@ -2535,10 +2597,12 @@ details.donebox ul { margin-top: 6px; }
       gotP = true; maybeOffer();
       if (!editingProject && !editingNote) render();
     }, () => setStatus("החיבור ללוח נקטע. רענן את הדף.", true)));
+    settings = {};
+    unsubs.push(db.doc("meta/settings").onSnapshot((d) => { settings = Object.assign({}, d.exists ? d.data() : {}, { loaded: true }); scheduleFeedSync(); }, () => {}));
     unsubs.push(db.collection("tasks").onSnapshot((snap) => {
       tasks = snap.docs.map((d) => Object.assign({ id: d.id }, d.data())).filter((t) => !t.deleted);
       setStatus("");
-      gotT = true; maybeOffer(); updateBrief();
+      gotT = true; maybeOffer(); updateBrief(); scheduleFeedSync();
       if (!startBoard.quickDone && new URLSearchParams(location.search).get("quick")) { startBoard.quickDone = true; setTimeout(openInbox, 100); }
       if (!startBoard.driveDone && new URLSearchParams(location.search).get("drive")) { startBoard.driveDone = true; setTimeout(openDrive, 100); }
       if (!editingProject && !editingNote) render();
@@ -2548,6 +2612,6 @@ details.donebox ul { margin-top: 6px; }
 })();
 </script>
 
-<script type="module" src="firebase-store.js?v=18"></script>
+<script type="module" src="firebase-store.js?v=19"></script>
 </body>
 </html>

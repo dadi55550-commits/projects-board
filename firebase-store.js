@@ -57,6 +57,10 @@ function makeStore(uid) {
       watchMine: (next, err) => onSnapshot(query(collection(fs, "shares"), where("ownerUid", "==", uid)), (snap) => next(snap.docs.map((d) => Object.assign({ id: d.id }, d.data()))), err),
       remove: (id) => deleteDoc(doc(fs, "shares/" + id)),
     },
+    // iPhone calendar subscription feed: feeds/<secret id>, read publicly by the calendar server, written only by the owner.
+    feed: {
+      set: (id, json) => setDoc(doc(fs, "feeds/" + id), { ownerUid: uid, updatedAt: new Date().toISOString(), json }),
+    },
     async importData(data) {
       const ops = [];
       (data.projects || []).forEach((p) => ops.push([base + "projects/" + p.id, { name: p.name, order: p.order }]));
