@@ -29,7 +29,7 @@ function buildIcs(items, updatedAt) {
     const d = t.due.replace(/-/g, "");
     const [h, m] = (t.time || "09:00").split(":").map(Number);
     const startDt = new Date(Date.UTC(+d.slice(0, 4), +d.slice(4, 6) - 1, +d.slice(6, 8), h, m));
-    const endDt = new Date(startDt.getTime() + (t.time ? 30 : 15) * 60000);
+    const endDt = new Date(startDt.getTime() + 60 * 60000);
     const local = (x) => x.getUTCFullYear() + pad(x.getUTCMonth() + 1) + pad(x.getUTCDate()) + "T" + pad(x.getUTCHours()) + pad(x.getUTCMinutes()) + "00";
     const desc = [t.project ? "פרויקט: " + t.project : "", ...(t.notes || []).map((n) => "• " + n), (t.subtasks || []).length ? "\n" + t.subtasks.map((s) => (s.done ? "☑ " : "☐ ") + s.text).join("\n") : "", "https://dadi55550-commits.github.io/projects-board/"].filter(Boolean).join("\n");
     L.push("BEGIN:VEVENT", "UID:" + t.id + "@projects-board", "DTSTAMP:" + now, "LAST-MODIFIED:" + stamp(new Date(updatedAt || Date.now())),
